@@ -208,6 +208,19 @@ const THEME_DETAIL = [
     ["soonBg", "--soon-bg", "Müll heute/morgen – Hintergrund"], ["todayBg", "--today-bg", "Kalender heute – Hintergrund"]]],
 ];
 const DETAIL_VARS = THEME_DETAIL.flatMap((g) => g[2]);
+/* Schatten: Farbe „accent“ = Akzentfarbe des jeweiligen Modus */
+const THEME_SHADOWS = [
+  ["pin", "--sh-pin", "Pins (aus / Messwert)", { light: { c: "#1E1C1B", o: 14, b: 8, y: 2 }, dark: { c: "#000000", o: 50, b: 8, y: 2 } }],
+  ["pinOn", "--sh-pin-on", "Pins eingeschaltet", { light: { c: "accent", o: 35, b: 10, y: 3 }, dark: { c: "accent", o: 25, b: 10, y: 3 } }],
+  ["floorOn", "--sh-floor-on", "Etagen-Button aktiv", { light: { c: "accent", o: 35, b: 16, y: 6 }, dark: { c: "accent", o: 25, b: 16, y: 6 } }],
+  ["card", "--shadow", "Karten & Kopfzeile", { light: { c: "#1E1C1B", o: 6, b: 10, y: 2 }, dark: { c: "#000000", o: 0, b: 10, y: 2 } }],
+];
+function shadowVals(o, mode, key) {
+  const def = THEME_SHADOWS.find((s) => s[0] === key)[3][mode];
+  const v = { ...def, ...((o.sh || {})[key] || {}) };
+  if (v.c === "accent") v.c = o.accent;
+  return v;
+}
 function mergeTheme(t) {
   t = t || {};
   return { light: { ...DEFAULT_THEME.light, ...(t.light || {}) }, dark: { ...DEFAULT_THEME.dark, ...(t.dark || {}) }, size: { ...DEFAULT_THEME.size, ...(t.size || {}) } };
@@ -221,7 +234,11 @@ function themeCss(theme) {
     `--bg:${o.bg};--card:${o.card};--tile:${o.tile};--tile-2:${mixHex(o.text, o.tile, 0.05)};--text:${o.text};--muted:${o.muted};` +
     `--soft:${mixHex(o.muted, o.card, 0.5)};--dark:${o.dark};--dark-2:${mixHex("#ffffff", o.dark, 0.07)};` +
     `--wall:${o.wall};--floor:${o.floor};--outside:${o.outside};--door:${mixHex(o.wall, o.floor, 0.4)}` +
-    DETAIL_VARS.filter(([k]) => o[k]).map(([k, v]) => `;${v}:${o[k]}`).join("");
+    DETAIL_VARS.filter(([k]) => o[k]).map(([k, v]) => `;${v}:${o[k]}`).join("") +
+    THEME_SHADOWS.filter(([k]) => o.sh && o.sh[k]).map(([k, v]) => {
+      const s = shadowVals(o, dark ? "dark" : "light", k);
+      return `;${v}:${Number(s.o) === 0 ? "none" : `0 ${s.y}px ${s.b}px ${rgba(s.c, s.o / 100)}`}`;
+    }).join("");
   return `:host{${vars(t.light)};--fs:${s.font / 100};--radius:${s.radius}px;--gap:${s.gap}px;--m:${s.margin}px;--pad:${s.pad}px;` +
     `--cal-h:${s.cal}px;--pin:${s.pin}px;--pin-fs:${s.pinFont}px;--label-fs:${s.label}px}` +
     `:host([data-theme="dark"]){${vars(t.dark, true)}}`;
@@ -341,7 +358,8 @@ function processSvg(raw, recolor, scratch) {
 
 /* ---------- Styles ---------- */
 const CSS = `
-:host{--pin-on-bg:var(--accent);--pin-on-fg:#fff;--pin-off-bg:var(--card);--pin-off-fg:var(--text);--pin-val-bg:var(--card);--pin-val-fg:var(--text);
+:host{--sh-pin:var(--pin-shadow);--sh-pin-on:0 3px 10px var(--accent-glow);--sh-floor-on:0 6px 16px var(--accent-glow);
+  --pin-on-bg:var(--accent);--pin-on-fg:#fff;--pin-off-bg:var(--card);--pin-off-fg:var(--text);--pin-val-bg:var(--card);--pin-val-fg:var(--text);
   --pin-cam-bg:var(--dark);--pin-cam-fg:#fff;--floor-on-bg:var(--accent);--floor-on-fg:#fff;--floor-off-bg:var(--tile);--floor-off-fg:var(--text);
   --btn-bg:var(--tile);--btn-fg:var(--text);--btn-sel-bg:var(--accent);--btn-sel-fg:#fff;--power-bg:var(--dark);--power-fg:#fff;
   --toggle-on:var(--accent);--toggle-off:var(--tile-2);--clock-bg:var(--dark);--clock-fg:#fff;--weather-bg:var(--dark);--weather-fg:#fff;
@@ -390,7 +408,7 @@ svg.i{display:block;fill:none;stroke:currentColor;stroke-linecap:round;stroke-li
 .floor-btn .code{font-size:calc(22px * var(--fs));font-weight:800;letter-spacing:-.3px}
 .floor-btn .name{font-size:calc(12.5px * var(--fs));color:var(--muted);margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .floor-btn .count{position:absolute;right:13px;top:15px;display:flex;align-items:center;gap:4px;font-size:calc(12.5px * var(--fs));font-weight:500;color:var(--muted)}
-.floor-btn.active{background:var(--floor-on-bg);color:var(--floor-on-fg);box-shadow:0 6px 16px var(--accent-glow)}
+.floor-btn.active{background:var(--floor-on-bg);color:var(--floor-on-fg);box-shadow:var(--sh-floor-on)}
 .floor-btn.active .name,.floor-btn.active .count{color:var(--floor-on-fg);opacity:.9}
 .floor-sep{height:2px;background:var(--tile-2);margin:2px 4px;border-radius:1px;flex:none}
 .floor-add{height:44px;border-radius:14px;border:2px dashed var(--soft);color:var(--muted);font-weight:600;font-size:calc(13px * var(--fs));display:flex;align-items:center;justify-content:center;gap:6px;flex:none}
@@ -409,14 +427,14 @@ svg.fp{fill:var(--wall)}
 .fp .s-wall{stroke:var(--wall)}.fp .s-floor{stroke:var(--floor)}.fp .s-out{stroke:var(--outside)}.fp .s-door{stroke:var(--door)}
 .room-label{position:absolute;font-size:calc(var(--label-fs) * var(--k, 1));font-weight:600;color:var(--muted);white-space:nowrap;pointer-events:none}
 .pin{position:absolute;min-width:var(--pin);height:var(--pin);transform:translate(-50%,-50%) scale(var(--k, 1));border-radius:calc(var(--pin) / 2);background:var(--pin-off-bg);color:var(--pin-off-fg);
-  display:flex;align-items:center;justify-content:center;gap:4px;box-shadow:var(--pin-shadow);transition:background .2s,color .2s,transform .12s;white-space:nowrap}
+  display:flex;align-items:center;justify-content:center;gap:4px;box-shadow:var(--sh-pin);transition:background .2s,color .2s,transform .12s;white-space:nowrap}
 .pin:active{transform:translate(-50%,-50%) scale(calc(var(--k, 1) * .9))}
 .pin svg.i{width:calc(var(--pin) * .5);height:calc(var(--pin) * .5)}
 .pin.both svg.i{width:calc(var(--pin) * .42);height:calc(var(--pin) * .42)}
 .pin.plain{background:var(--pin-val-bg);color:var(--pin-val-fg)}
 .pin.val{padding:0 calc(var(--pin) * .3);font-size:var(--pin-fs);font-weight:700;letter-spacing:-.2px;font-variant-numeric:tabular-nums}
 .pin.val.both{padding:0 calc(var(--pin) * .3) 0 calc(var(--pin) * .22)}
-.pin.on{background:var(--pin-on-bg);color:var(--pin-on-fg);box-shadow:0 3px 10px var(--accent-glow)}
+.pin.on{background:var(--pin-on-bg);color:var(--pin-on-fg);box-shadow:var(--sh-pin-on)}
 .pin.cam{background:var(--pin-cam-bg);color:var(--pin-cam-fg)}
 .pin.unavail{opacity:.4}
 .empty{position:absolute;inset:0;display:grid;place-items:center;text-align:center;color:var(--muted);font-size:calc(14px * var(--fs));line-height:1.6;padding:20px}
@@ -1333,6 +1351,11 @@ class HauspanelPanel extends HTMLElement {
         this._markDirty(); this._renderPlan(); this._renderFloors(); return this._renderInspector();
       }
       case "design-mode": this._designMode = b.dataset.v; this._themeOverride = b.dataset.v; this._applyTheme(); return this._renderInspector();
+      case "shadow-unset": {
+        this.draft.theme = mergeTheme(this.draft.theme);
+        const o = this.draft.theme[this._designMode || "light"]; if (o.sh) delete o.sh[b.dataset.s];
+        this._markDirty(); this._applyThemeVars(); return this._renderInspector();
+      }
       case "theme-unset": {
         this.draft.theme = mergeTheme(this.draft.theme);
         delete this.draft.theme[this._designMode || "light"][b.dataset.k];
@@ -1409,6 +1432,22 @@ class HauspanelPanel extends HTMLElement {
       case "css-global": case "css-floor": {
         if (k === "css-global") this.draft.css = val; else { const fl = this._floor(); if (fl) fl.css = val; }
         clearTimeout(this._cssT); this._cssT = setTimeout(() => this._applyCustomCss(), 120);
+        break;
+      }
+      case "theme-shadow": {
+        this.draft.theme = mergeTheme(this.draft.theme);
+        const mode = this._designMode || "light", o = this.draft.theme[mode], s = el.dataset.s, pp = el.dataset.p;
+        o.sh = o.sh || {};
+        const cur = { ...THEME_SHADOWS.find((x) => x[0] === s)[3][mode], ...(o.sh[s] || {}) };
+        cur[pp] = pp === "c" ? val : Number(val);
+        o.sh[s] = cur;
+        if (pp !== "c") {
+          const mx = pp === "o" ? 100 : pp === "b" ? 40 : 20;
+          el.style.setProperty("--p", (Number(val) / mx) * 100 + "%");
+          this.$(`#sh-${s}-${pp}`).textContent = val + (pp === "o" ? " %" : " px");
+        }
+        this._applyThemeVars();
+        if (isChange && !this.$(`[data-a=shadow-unset][data-s=${s}]`)) this._renderInspector();
         break;
       }
       case "theme-color": case "theme-size": {
@@ -1694,7 +1733,8 @@ class HauspanelPanel extends HTMLElement {
           ${items.map(([k, v, l]) => { const set = t[m][k]; return `<div class="row crow"><input type="color" data-f="theme-color" data-k="${k}" value="${set || this._cssColor(v)}">
             <span class="cl">${l}</span><span class="cv">${set ? set : "auto"}</span>
             ${set ? `<button class="cx" data-a="theme-unset" data-k="${k}" title="Zurück auf automatisch">${ic("x", 13)}</button>` : `<span class="cx"></span>`}</div>`; }).join("")}
-        </details>`).join("")}</div>
+        </details>`).join("")}
+        ${this._shadowGroup(t, m)}</div>
       <div class="sep"></div>
       <div class="fld"><label>Größen &amp; Abstände</label>
         ${THEME_SIZES.map(([k, l, mn, mx, u]) => `<div style="margin-bottom:8px"><div class="row" style="justify-content:space-between;font-size:13.5px">
@@ -1703,6 +1743,21 @@ class HauspanelPanel extends HTMLElement {
       <div class="hint">Pins und Raum-Labels wachsen zusätzlich mit dem Grundriss mit, damit sie auf jedem Bildschirm an derselben Stelle sitzen.</div>`;
   }
   /* aktuellen Farbwert einer Variable als #hex (für „auto“-Felder) */
+  _shadowGroup(t, m) {
+    const open = this._openGroups && this._openGroups.has("Schatten");
+    return `<details class="cgroup"${open ? " open" : ""} data-group="Schatten"><summary>Schatten</summary>
+      <div class="hint">Deckkraft 0 % = kein Schatten.</div>
+      ${THEME_SHADOWS.map(([k, , l]) => {
+        const v = shadowVals(t[m], m, k), set = t[m].sh && t[m].sh[k];
+        const sl = (p, lab, mx, u) => `<div class="row" style="gap:10px;margin:2px 0 0 46px"><span style="width:72px;font-size:12px;color:var(--muted)">${lab}</span>
+          <input type="range" min="0" max="${mx}" value="${v[p]}" data-f="theme-shadow" data-s="${k}" data-p="${p}" style="--p:${(v[p] / mx) * 100}%;flex:1;margin:0">
+          <b style="width:44px;text-align:right;font-size:12px" id="sh-${k}-${p}">${v[p]} ${u}</b></div>`;
+        return `<div style="margin-bottom:12px"><div class="row crow"><input type="color" data-f="theme-shadow" data-s="${k}" data-p="c" value="${v.c}">
+            <span class="cl">${l}</span><span class="cv">${set ? "eigen" : "auto"}</span>
+            ${set ? `<button class="cx" data-a="shadow-unset" data-s="${k}" title="Zurück auf automatisch">${ic("x", 13)}</button>` : `<span class="cx"></span>`}</div>
+          ${sl("o", "Deckkraft", 100, "%")}${sl("b", "Weichheit", 40, "px")}${sl("y", "Versatz", 20, "px")}</div>`;
+      }).join("")}</details>`;
+  }
   _cssColor(v) {
     const probe = document.createElement("span");
     probe.style.color = `var(${v})`; probe.style.display = "none";
