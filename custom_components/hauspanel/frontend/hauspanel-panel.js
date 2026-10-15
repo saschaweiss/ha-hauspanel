@@ -2,7 +2,7 @@
  * Ein Web-Component-Modul ohne Build-Abhängigkeiten.
  * Icons: Lucide (ISC-Lizenz). Schrift: Inter (OFL).
  */
-const HP_VERSION = "0.3.0";
+const HP_VERSION = "0.3.1";
 const ICONS = {"activity":"<path d=\"M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2\" />","arrow-down":"<path d=\"M12 5v14\" /> <path d=\"m19 12-7 7-7-7\" />","arrow-up":"<path d=\"m5 12 7-7 7 7\" /> <path d=\"M12 19V5\" />","blinds":"<path d=\"M3 3h18\" /> <path d=\"M20 7H8\" /> <path d=\"M20 11H8\" /> <path d=\"M10 19h10\" /> <path d=\"M8 15h12\" /> <path d=\"M4 3v14\" /> <circle cx=\"4\" cy=\"19\" r=\"2\" />","calendar":"<path d=\"M8 2v3\" /> <path d=\"M16 2v3\" /> <rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\" /> <path d=\"M3 9h18\" />","calendars":"<path d=\"M12 2v2\" /> <path d=\"M15.726 21.01A2 2 0 0 1 14 22H4a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2\" /> <path d=\"M18 2v2\" /> <path d=\"M2 13h2\" /> <path d=\"M8 8h14\" /> <rect x=\"8\" y=\"3\" width=\"14\" height=\"14\" rx=\"2\" />","camera":"<path d=\"M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z\" /> <circle cx=\"12\" cy=\"13\" r=\"3\" />","cctv":"<path d=\"M16.75 12h3.632a1 1 0 0 1 .894 1.447l-2.034 4.069a1 1 0 0 1-1.708.134l-2.124-2.97\" /> <path d=\"M17.106 9.053a1 1 0 0 1 .447 1.341l-3.106 6.211a1 1 0 0 1-1.342.447L3.61 12.3a2.92 2.92 0 0 1-1.3-3.91L3.69 5.6a2.92 2.92 0 0 1 3.92-1.3z\" /> <path d=\"M2 19h3.76a2 2 0 0 0 1.8-1.1L9 15\" /> <path d=\"M2 21v-4\" /> <path d=\"M7 9h.01\" />","check":"<path d=\"M20 6 9 17l-5-5\" />","chevron-left":"<path d=\"m15 18-6-6 6-6\" />","chevron-right":"<path d=\"m9 18 6-6-6-6\" />","circle":"<circle cx=\"12\" cy=\"12\" r=\"10\" />","circle-dot":"<circle cx=\"12\" cy=\"12\" r=\"1\" /> <circle cx=\"12\" cy=\"12\" r=\"10\" />","clock":"<circle cx=\"12\" cy=\"12\" r=\"10\" /> <path d=\"M12 6v6l4 2\" />","cloud":"<path d=\"M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z\" />","cloud-fog":"<path d=\"M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242\" /> <path d=\"M16 17H7\" /> <path d=\"M17 21H9\" />","cloud-hail":"<path d=\"M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242\" /> <path d=\"M16 14v2\" /> <path d=\"M8 14v2\" /> <path d=\"M16 20h.01\" /> <path d=\"M8 20h.01\" /> <path d=\"M12 16v2\" /> <path d=\"M12 22h.01\" />","cloud-lightning":"<path d=\"M6 16.326A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 .5 8.973\" /> <path d=\"m13 12-3 5h4l-3 5\" />","cloud-rain":"<path d=\"M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242\" /> <path d=\"M16 14v6\" /> <path d=\"M8 14v6\" /> <path d=\"M12 16v6\" />","cloud-rain-wind":"<path d=\"M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242\" /> <path d=\"m9.2 22 3-7\" /> <path d=\"m9 13-3 7\" /> <path d=\"m17 13-3 7\" />","cloud-snow":"<path d=\"M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242\" /> <path d=\"M8 15h.01\" /> <path d=\"M8 19h.01\" /> <path d=\"M12 17h.01\" /> <path d=\"M12 21h.01\" /> <path d=\"M16 15h.01\" /> <path d=\"M16 19h.01\" />","cloud-sun":"<path d=\"M12 2v2\" /> <path d=\"m4.93 4.93 1.41 1.41\" /> <path d=\"M20 12h2\" /> <path d=\"m19.07 4.93-1.41 1.41\" /> <path d=\"M15.947 12.65a4 4 0 0 0-5.925-4.128\" /> <path d=\"M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6Z\" />","code":"<path d=\"m16 18 6-6-6-6\" /> <path d=\"m8 6-6 6 6 6\" />","door-open":"<path d=\"M10 21H2\" /> <path d=\"M10 3H7a2 2 0 00-2 2v16\" /> <path d=\"M14 12h.01\" /> <path d=\"M19 21V5a2 2 0 00-1.675-1.974l-6.163-1.013A1 1 0 0010 3v18a1 1 0 001.124.992z\" /> <path d=\"M22 21h-3\" />","dot":"<circle cx=\"12\" cy=\"12\" r=\"1\" />","droplets":"<path d=\"M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z\" /> <path d=\"M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97\" />","edit":"<path d=\"M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7\" /> <path d=\"M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z\" />","ellipse":"<ellipse cx=\"12\" cy=\"12\" rx=\"10\" ry=\"6\" />","eye":"<path d=\"M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0\" /> <circle cx=\"12\" cy=\"12\" r=\"3\" />","fan":"<path d=\"M10.827 16.379a6.082 6.082 0 0 1-8.618-7.002l5.412 1.45a6.082 6.082 0 0 1 7.002-8.618l-1.45 5.412a6.082 6.082 0 0 1 8.618 7.002l-5.412-1.45a6.082 6.082 0 0 1-7.002 8.618l1.45-5.412Z\" /> <path d=\"M12 12v.01\" />","file":"<path d=\"M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z\" /> <path d=\"M14 2v5a1 1 0 0 0 1 1h5\" />","flame":"<path d=\"M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4\" />","gauge":"<path d=\"m12 14 4-4\" /> <path d=\"M3.34 19a10 10 0 1 1 17.32 0\" />","ghost":"<path d=\"M15 10v1\" /> <path d=\"M7.528 20.472a1.6 1.6 0 012.277 0l1.057 1.056a1.6 1.6 0 002.276 0l1.057-1.056a1.6 1.6 0 012.277 0l1.114 1.114a1.4 1.4 0 002.414-1V10a8 8 0 00-16 0v10.586a1.4 1.4 0 002.414 1z\" /> <path d=\"M9 10v1\" />","grid":"<rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\" /> <path d=\"M3 9h18\" /> <path d=\"M3 15h18\" /> <path d=\"M9 3v18\" /> <path d=\"M15 3v18\" />","grip":"<circle cx=\"12\" cy=\"5\" r=\"1\" /> <circle cx=\"19\" cy=\"5\" r=\"1\" /> <circle cx=\"5\" cy=\"5\" r=\"1\" /> <circle cx=\"12\" cy=\"12\" r=\"1\" /> <circle cx=\"19\" cy=\"12\" r=\"1\" /> <circle cx=\"5\" cy=\"12\" r=\"1\" /> <circle cx=\"12\" cy=\"19\" r=\"1\" /> <circle cx=\"19\" cy=\"19\" r=\"1\" /> <circle cx=\"5\" cy=\"19\" r=\"1\" />","grip-vertical":"<circle cx=\"9\" cy=\"12\" r=\"1\" /> <circle cx=\"9\" cy=\"5\" r=\"1\" /> <circle cx=\"9\" cy=\"19\" r=\"1\" /> <circle cx=\"15\" cy=\"12\" r=\"1\" /> <circle cx=\"15\" cy=\"5\" r=\"1\" /> <circle cx=\"15\" cy=\"19\" r=\"1\" />","home":"<path d=\"M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8\" /> <path d=\"M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\" />","house":"<path d=\"M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8\" /> <path d=\"M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\" />","lamp-ceiling":"<path d=\"M12 2v5\" /> <path d=\"M14.829 15.998a3 3 0 1 1-5.658 0\" /> <path d=\"M20.92 14.606A1 1 0 0 1 20 16H4a1 1 0 0 1-.92-1.394l3-7A1 1 0 0 1 7 7h10a1 1 0 0 1 .92.606z\" />","lamp-desk":"<path d=\"M10.293 2.293a1 1 0 0 1 1.414 0l2.5 2.5 5.994 1.227a1 1 0 0 1 .506 1.687l-7 7a1 1 0 0 1-1.687-.506l-1.227-5.994-2.5-2.5a1 1 0 0 1 0-1.414z\" /> <path d=\"m14.207 4.793-3.414 3.414\" /> <path d=\"M3 20a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z\" /> <path d=\"m9.086 6.5-4.793 4.793a1 1 0 0 0-.18 1.17L7 18\" />","lamp-floor":"<path d=\"M12 10v12\" /> <path d=\"M17.929 7.629A1 1 0 0 1 17 9H7a1 1 0 0 1-.928-1.371l2-5A1 1 0 0 1 9 2h6a1 1 0 0 1 .928.629z\" /> <path d=\"M9 22h6\" />","lightbulb":"<path d=\"M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5\" /> <path d=\"M9 18h6\" /> <path d=\"M10 22h4\" />","list":"<path d=\"M3 5h.01\" /> <path d=\"M3 12h.01\" /> <path d=\"M3 19h.01\" /> <path d=\"M8 5h13\" /> <path d=\"M8 12h13\" /> <path d=\"M8 19h13\" />","lock":"<rect width=\"18\" height=\"11\" x=\"3\" y=\"11\" rx=\"2\" ry=\"2\" /> <path d=\"M7 11V7a5 5 0 0 1 10 0v4\" />","map-pin":"<path d=\"M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0\" /> <circle cx=\"12\" cy=\"10\" r=\"3\" />","menu":"<path d=\"M4 5h16\" /> <path d=\"M4 12h16\" /> <path d=\"M4 19h16\" />","minus":"<path d=\"M5 12h14\" />","moon":"<path d=\"M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401\" />","pencil":"<path d=\"M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z\" /> <path d=\"m15 5 4 4\" />","pill":"<path d=\"m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z\" /> <path d=\"m8.5 8.5 7 7\" />","pin":"<path d=\"M12 17v5\" /> <path d=\"M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z\" />","play":"<path d=\"M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z\" />","plug":"<path d=\"M12 22v-5\" /> <path d=\"M15 8V2\" /> <path d=\"M17 8a1 1 0 0 1 1 1v4a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1z\" /> <path d=\"M9 8V2\" />","plus":"<path d=\"M5 12h14\" /> <path d=\"M12 5v14\" />","power":"<path d=\"M12 2v10\" /> <path d=\"M18.4 6.6a9 9 0 1 1-12.77.04\" />","radius":"<path d=\"M20.34 17.52a10 10 0 1 0-2.82 2.82\" /> <circle cx=\"19\" cy=\"19\" r=\"2\" /> <path d=\"m13.41 13.41 4.18 4.18\" /> <circle cx=\"12\" cy=\"12\" r=\"2\" />","refrigerator":"<path d=\"M5 6a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6Z\" /> <path d=\"M5 10h14\" /> <path d=\"M15 7v6\" />","search":"<path d=\"m21 21-4.34-4.34\" /> <circle cx=\"11\" cy=\"11\" r=\"8\" />","speaker":"<rect width=\"16\" height=\"20\" x=\"4\" y=\"2\" rx=\"2\" /> <path d=\"M12 6h.01\" /> <circle cx=\"12\" cy=\"14\" r=\"4\" /> <path d=\"M12 14h.01\" />","sun":"<circle cx=\"12\" cy=\"12\" r=\"4\" /> <path d=\"M12 2v2\" /> <path d=\"M12 20v2\" /> <path d=\"m4.93 4.93 1.41 1.41\" /> <path d=\"m17.66 17.66 1.41 1.41\" /> <path d=\"M2 12h2\" /> <path d=\"M20 12h2\" /> <path d=\"m6.34 17.66-1.41 1.41\" /> <path d=\"m19.07 4.93-1.41 1.41\" />","tag":"<path d=\"M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z\" /> <circle cx=\"7.5\" cy=\"7.5\" r=\".5\" fill=\"currentColor\" />","text":"<path d=\"M21 5H3\" /> <path d=\"M15 12H3\" /> <path d=\"M17 19H3\" />","thermometer":"<path d=\"M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z\" />","toggle-left":"<circle cx=\"9\" cy=\"12\" r=\"3\" /> <rect width=\"20\" height=\"14\" x=\"2\" y=\"5\" rx=\"7\" />","trash-2":"<path d=\"M10 11v6\" /> <path d=\"M14 11v6\" /> <path d=\"M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6\" /> <path d=\"M3 6h18\" /> <path d=\"M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2\" />","triangle-alert":"<path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3\" /> <path d=\"M12 9v4\" /> <path d=\"M12 17h.01\" />","tv":"<path d=\"m17 2-5 5-5-5\" /> <rect width=\"20\" height=\"15\" x=\"2\" y=\"7\" rx=\"2\" />","unlock":"<rect width=\"18\" height=\"11\" x=\"3\" y=\"11\" rx=\"2\" ry=\"2\" /> <path d=\"M7 11V7a5 5 0 0 1 9.9-1\" />","upload":"<path d=\"M12 3v12\" /> <path d=\"m17 8-5-5-5 5\" /> <path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\" />","video":"<path d=\"m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5\" /> <rect x=\"2\" y=\"6\" width=\"14\" height=\"12\" rx=\"2\" />","view":"<path d=\"M21 17v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2\" /> <path d=\"M21 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2\" /> <circle cx=\"12\" cy=\"12\" r=\"1\" /> <path d=\"M18.944 12.33a1 1 0 0 0 0-.66 7.5 7.5 0 0 0-13.888 0 1 1 0 0 0 0 .66 7.5 7.5 0 0 0 13.888 0\" />","washing-machine":"<path d=\"M3 6h3\" /> <path d=\"M17 6h.01\" /> <rect width=\"18\" height=\"20\" x=\"3\" y=\"2\" rx=\"2\" /> <circle cx=\"12\" cy=\"13\" r=\"5\" /> <path d=\"M12 18a2.5 2.5 0 0 0 0-5 2.5 2.5 0 0 1 0-5\" />","wind":"<path d=\"M12.8 19.6A2 2 0 1 0 14 16H2\" /> <path d=\"M17.5 8a2.5 2.5 0 1 1 2 4H2\" /> <path d=\"M9.8 4.4A2 2 0 1 1 11 8H2\" />","x":"<path d=\"M18 6 6 18\" /> <path d=\"m6 6 12 12\" />","zap":"<path d=\"M15.914 4a1.5 1.5 0 00-2.474-1.561l-9 9A1.5 1.5 0 005.5 14h4.002a.5.5 0 01.471.666L8.086 20a1.5 1.5 0 002.475 1.56l9-9A1.5 1.5 0 0018.5 10h-3.997a.5.5 0 01-.472-.667z\" />"};
 
 // Referenzbreite/-höhe: darauf wird skaliert, der Rest des Bildschirms geht an den Grundriss
@@ -65,7 +65,11 @@ function isActive(stateObj) {
   if (!stateObj) return false;
   const d = domainOf(stateObj.entity_id), st = stateObj.state;
   if (["sensor","camera","scene","script","weather","calendar"].includes(d)) return false;
-  if (d === "climate") return st !== "off" && st !== "unavailable" && st !== "unknown";
+  if (d === "climate") {
+    if (st === "off" || st === "unavailable" || st === "unknown") return false;
+    const act = stateObj.attributes.hvac_action;
+    return act == null ? true : ["heating", "cooling", "drying", "preheating", "defrosting"].includes(act);
+  }
   return ACTIVE_STATES.has(st);
 }
 function defaultIcon(stateObj, id) {
@@ -174,6 +178,27 @@ const THEME_COLORS = [["accent","Akzent (aktiv, Buttons)"],["bg","Hintergrund"],
 const THEME_SIZES = [["font","Schriftgröße",70,140,"%"],["radius","Ecken-Rundung",0,40,"px"],["gap","Abstand zwischen Karten",0,32,"px"],
   ["margin","Rand außen",0,48,"px"],["pad","Innenabstand der Karten",6,32,"px"],["cal","Höhe Kalenderleiste",140,320,"px"],
   ["pin","Größe der Geräte-Pins",22,64,"px"],["pinFont","Schrift in Pins (Werte)",9,26,"px"],["label","Schrift Raum-Labels",7,24,"px"]];
+const THEME_DETAIL = [
+  ["Geräte-Pins", "Eingeschaltet = Licht an, Steckdose an, Heizung heizt gerade. Messwert = Sensoren und Heizungen, die gerade nicht heizen.", [
+    ["pinOnBg", "--pin-on-bg", "Eingeschaltet – Hintergrund"], ["pinOnFg", "--pin-on-fg", "Eingeschaltet – Icon/Schrift"],
+    ["pinOffBg", "--pin-off-bg", "Ausgeschaltet – Hintergrund"], ["pinOffFg", "--pin-off-fg", "Ausgeschaltet – Icon/Schrift"],
+    ["pinValBg", "--pin-val-bg", "Messwert – Hintergrund"], ["pinValFg", "--pin-val-fg", "Messwert – Schrift"],
+    ["pinCamBg", "--pin-cam-bg", "Kamera – Hintergrund"], ["pinCamFg", "--pin-cam-fg", "Kamera – Icon"]]],
+  ["Etagen-Buttons", "", [
+    ["floorOnBg", "--floor-on-bg", "Aktiv – Hintergrund"], ["floorOnFg", "--floor-on-fg", "Aktiv – Schrift"],
+    ["floorOffBg", "--floor-off-bg", "Inaktiv – Hintergrund"], ["floorOffFg", "--floor-off-fg", "Inaktiv – Schrift"]]],
+  ["Buttons", "Allgemein = Kalender-Pfeile, Schließen, Plus/Minus. Ausgewählt = z. B. der aktive Heizmodus im Popup.", [
+    ["btnBg", "--btn-bg", "Allgemein – Hintergrund"], ["btnFg", "--btn-fg", "Allgemein – Icon/Schrift"],
+    ["btnSelBg", "--btn-sel-bg", "Ausgewählt – Hintergrund"], ["btnSelFg", "--btn-sel-fg", "Ausgewählt – Schrift"],
+    ["powerBg", "--power-bg", "Power-Button – Hintergrund"], ["powerFg", "--power-fg", "Power-Button – Icon"],
+    ["toggleOn", "--toggle-on", "Schalter im Popup – an"], ["toggleOff", "--toggle-off", "Schalter im Popup – aus"]]],
+  ["Uhr & Wetter", "", [
+    ["clockBg", "--clock-bg", "Uhr – Hintergrund"], ["clockFg", "--clock-fg", "Uhr – Schrift"],
+    ["weatherBg", "--weather-bg", "Wetter – Hintergrund"], ["weatherFg", "--weather-fg", "Wetter – Schrift"]]],
+  ["Hervorhebungen", "", [
+    ["soonBg", "--soon-bg", "Müll heute/morgen – Hintergrund"], ["todayBg", "--today-bg", "Kalender heute – Hintergrund"]]],
+];
+const DETAIL_VARS = THEME_DETAIL.flatMap((g) => g[2]);
 function mergeTheme(t) {
   t = t || {};
   return { light: { ...DEFAULT_THEME.light, ...(t.light || {}) }, dark: { ...DEFAULT_THEME.dark, ...(t.dark || {}) }, size: { ...DEFAULT_THEME.size, ...(t.size || {}) } };
@@ -186,7 +211,8 @@ function themeCss(theme) {
   const vars = (o, dark) => `--accent:${o.accent};--accent-soft:${mixHex(o.accent, o.card, dark ? 0.22 : 0.14)};--accent-glow:${rgba(o.accent, dark ? 0.25 : 0.35)};` +
     `--bg:${o.bg};--card:${o.card};--tile:${o.tile};--tile-2:${mixHex(o.text, o.tile, 0.05)};--text:${o.text};--muted:${o.muted};` +
     `--soft:${mixHex(o.muted, o.card, 0.5)};--dark:${o.dark};--dark-2:${mixHex("#ffffff", o.dark, 0.07)};` +
-    `--wall:${o.wall};--floor:${o.floor};--outside:${o.outside};--door:${mixHex(o.wall, o.floor, 0.4)}`;
+    `--wall:${o.wall};--floor:${o.floor};--outside:${o.outside};--door:${mixHex(o.wall, o.floor, 0.4)}` +
+    DETAIL_VARS.filter(([k]) => o[k]).map(([k, v]) => `;${v}:${o[k]}`).join("");
   return `:host{${vars(t.light)};--fs:${s.font / 100};--radius:${s.radius}px;--gap:${s.gap}px;--m:${s.margin}px;--pad:${s.pad}px;` +
     `--cal-h:${s.cal}px;--pin:${s.pin}px;--pin-fs:${s.pinFont}px;--label-fs:${s.label}px}` +
     `:host([data-theme="dark"]){${vars(t.dark, true)}}`;
@@ -306,7 +332,12 @@ function processSvg(raw, recolor, scratch) {
 
 /* ---------- Styles ---------- */
 const CSS = `
-:host{--fs:1;--radius:22px;--gap:12px;--m:18px;--pad:16px;--pin:36px;--pin-fs:14px;--label-fs:11px;--cal-h:198px;
+:host{--pin-on-bg:var(--accent);--pin-on-fg:#fff;--pin-off-bg:var(--card);--pin-off-fg:var(--text);--pin-val-bg:var(--card);--pin-val-fg:var(--text);
+  --pin-cam-bg:var(--dark);--pin-cam-fg:#fff;--floor-on-bg:var(--accent);--floor-on-fg:#fff;--floor-off-bg:var(--tile);--floor-off-fg:var(--text);
+  --btn-bg:var(--tile);--btn-fg:var(--text);--btn-sel-bg:var(--accent);--btn-sel-fg:#fff;--power-bg:var(--dark);--power-fg:#fff;
+  --toggle-on:var(--accent);--toggle-off:var(--tile-2);--clock-bg:var(--dark);--clock-fg:#fff;--weather-bg:var(--dark);--weather-fg:#fff;
+  --soon-bg:var(--accent-soft);--today-bg:var(--accent-soft);
+  --fs:1;--radius:22px;--gap:12px;--m:18px;--pad:16px;--pin:36px;--pin-fs:14px;--label-fs:11px;--cal-h:198px;
   --bg:#EEECEA;--card:#FFFFFF;--tile:#F4F2F0;--tile-2:#ECE9E6;--text:#1E1C1B;--muted:#8A8580;--soft:#C9C4BF;
   --accent:#E5391D;--accent-soft:#FCE6E1;--accent-glow:rgba(229,57,29,.35);--dark:#1F1D1C;--dark-2:#2C2A28;
   --on-dark:#FFFFFF;--on-dark-muted:#A39E99;--wall:#2E2C2B;--floor:#FFFFFF;--outside:#EDEBE9;--door:#B3AEA9;
@@ -331,7 +362,7 @@ svg.i{display:block;fill:none;stroke:currentColor;stroke-linecap:round;stroke-li
 .home-ico{width:26px;height:26px;border-radius:8px;background:var(--accent);color:#fff;display:grid;place-items:center}
 #date{margin-left:10px;font-size:calc(23px * var(--fs));font-weight:500;letter-spacing:-.2px;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #date small{font-size:calc(14px * var(--fs));color:var(--muted);font-weight:500;margin-left:8px}
-#clock{background:var(--dark);color:var(--on-dark);font-size:calc(25px * var(--fs));font-weight:700;letter-spacing:-.3px;font-variant-numeric:tabular-nums}
+#clock{background:var(--clock-bg);color:var(--clock-fg);font-size:calc(25px * var(--fs));font-weight:700;letter-spacing:-.3px;font-variant-numeric:tabular-nums}
 #clock svg{color:var(--accent)}
 .icon-btn{width:42px;height:42px;border-radius:50%;background:var(--card);display:grid;place-items:center;box-shadow:var(--shadow);flex:none}
 .btn{height:42px;border-radius:21px;padding:0 20px;font-weight:700;font-size:calc(15px * var(--fs));background:var(--card);box-shadow:var(--shadow);display:flex;align-items:center;gap:8px;flex:none}
@@ -346,19 +377,19 @@ svg.i{display:block;fill:none;stroke:currentColor;stroke-linecap:round;stroke-li
 #floors.compact .floor-btn{height:58px;padding:9px 14px}#floors.compact .floor-btn .code{font-size:calc(19px * var(--fs))}
 #floors.compact .floor-btn .name{margin-top:2px}#floors.compact .floor-btn .count{top:11px}
 .roof{height:52px;display:flex;justify-content:center;align-items:flex-end;flex:none}
-.floor-btn{position:relative;height:82px;border-radius:16px;background:var(--tile);text-align:left;padding:12px 14px;flex:none;transition:background .2s,color .2s}
+.floor-btn{position:relative;height:82px;border-radius:16px;background:var(--floor-off-bg);color:var(--floor-off-fg);text-align:left;padding:12px 14px;flex:none;transition:background .2s,color .2s}
 .floor-btn .code{font-size:calc(22px * var(--fs));font-weight:800;letter-spacing:-.3px}
 .floor-btn .name{font-size:calc(12.5px * var(--fs));color:var(--muted);margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .floor-btn .count{position:absolute;right:13px;top:15px;display:flex;align-items:center;gap:4px;font-size:calc(12.5px * var(--fs));font-weight:500;color:var(--muted)}
-.floor-btn.active{background:var(--accent);color:#fff;box-shadow:0 6px 16px var(--accent-glow)}
-.floor-btn.active .name,.floor-btn.active .count{color:rgba(255,255,255,.92)}
+.floor-btn.active{background:var(--floor-on-bg);color:var(--floor-on-fg);box-shadow:0 6px 16px var(--accent-glow)}
+.floor-btn.active .name,.floor-btn.active .count{color:var(--floor-on-fg);opacity:.9}
 .floor-sep{height:2px;background:var(--tile-2);margin:2px 4px;border-radius:1px;flex:none}
 .floor-add{height:44px;border-radius:14px;border:2px dashed var(--soft);color:var(--muted);font-weight:600;font-size:calc(13px * var(--fs));display:flex;align-items:center;justify-content:center;gap:6px;flex:none}
 
 #plan-card{position:relative;padding:calc(var(--pad) * 1.1) calc(var(--pad) * 1.25);display:flex;flex-direction:column;overflow:hidden;min-width:0}
 #plan-head{display:flex;align-items:center;gap:10px;height:40px;flex:none}
 #plan-title{font-size:calc(21px * var(--fs));font-weight:700;letter-spacing:-.3px;flex:1}
-#all-off{width:40px;height:40px;border-radius:50%;background:var(--dark);color:#fff;display:grid;place-items:center}
+#all-off{width:40px;height:40px;border-radius:50%;background:var(--power-bg);color:var(--power-fg);display:grid;place-items:center}
 #all-off:active{transform:scale(.94)}
 #plan-wrap{flex:1;position:relative;margin-top:6px}
 #plan{position:absolute}
@@ -367,30 +398,30 @@ svg.fp{fill:var(--wall)}
 .fp .f-wall{fill:var(--wall)}.fp .f-floor{fill:var(--floor)}.fp .f-out{fill:var(--outside)}.fp .f-door{fill:var(--door)}
 .fp .s-wall{stroke:var(--wall)}.fp .s-floor{stroke:var(--floor)}.fp .s-out{stroke:var(--outside)}.fp .s-door{stroke:var(--door)}
 .room-label{position:absolute;font-size:calc(var(--label-fs) * var(--k, 1));font-weight:600;color:var(--muted);white-space:nowrap;pointer-events:none}
-.pin{position:absolute;min-width:var(--pin);height:var(--pin);transform:translate(-50%,-50%) scale(var(--k, 1));border-radius:calc(var(--pin) / 2);background:var(--card);color:var(--text);
+.pin{position:absolute;min-width:var(--pin);height:var(--pin);transform:translate(-50%,-50%) scale(var(--k, 1));border-radius:calc(var(--pin) / 2);background:var(--pin-off-bg);color:var(--pin-off-fg);
   display:flex;align-items:center;justify-content:center;gap:4px;box-shadow:var(--pin-shadow);transition:background .2s,color .2s,transform .12s;white-space:nowrap}
 .pin:active{transform:translate(-50%,-50%) scale(calc(var(--k, 1) * .9))}
 .pin svg.i{width:calc(var(--pin) * .5);height:calc(var(--pin) * .5)}
 .pin.both svg.i{width:calc(var(--pin) * .42);height:calc(var(--pin) * .42)}
-.pin.val{padding:0 calc(var(--pin) * .3);font-size:var(--pin-fs);font-weight:700;letter-spacing:-.2px;font-variant-numeric:tabular-nums}
+.pin.val{background:var(--pin-val-bg);color:var(--pin-val-fg);padding:0 calc(var(--pin) * .3);font-size:var(--pin-fs);font-weight:700;letter-spacing:-.2px;font-variant-numeric:tabular-nums}
 .pin.val.both{padding:0 calc(var(--pin) * .3) 0 calc(var(--pin) * .22)}
-.pin.on{background:var(--accent);color:#fff;box-shadow:0 3px 10px var(--accent-glow)}
-.pin.cam{background:var(--dark);color:#fff}
+.pin.on{background:var(--pin-on-bg);color:var(--pin-on-fg);box-shadow:0 3px 10px var(--accent-glow)}
+.pin.cam{background:var(--pin-cam-bg);color:var(--pin-cam-fg)}
 .pin.unavail{opacity:.4}
 .empty{position:absolute;inset:0;display:grid;place-items:center;text-align:center;color:var(--muted);font-size:calc(14px * var(--fs));line-height:1.6;padding:20px}
 .empty b{display:block;color:var(--text);font-size:calc(17px * var(--fs));margin-bottom:4px}
 
 #right{display:flex;flex-direction:column;gap:var(--gap);min-height:0}
-#weather{background:var(--dark);color:var(--on-dark);border-radius:var(--radius);padding:var(--pad) calc(var(--pad) * .875) calc(var(--pad) * .875);flex:none}
+#weather{background:var(--weather-bg);color:var(--weather-fg);border-radius:var(--radius);padding:var(--pad) calc(var(--pad) * .875) calc(var(--pad) * .875);flex:none}
 .w-now{display:flex;align-items:flex-start;padding:0 4px}
 .w-temp{font-size:calc(50px * var(--fs));font-weight:800;letter-spacing:-2px;line-height:1}
 .w-cond{margin-left:12px;margin-top:6px;font-size:calc(13px * var(--fs));color:var(--on-dark-muted);line-height:1.45;min-width:0}
-.w-cond b{display:block;color:#fff;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.w-cond b{display:block;color:var(--weather-fg);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .w-ico{margin-left:auto;color:var(--accent)}
 .w-days{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:16px}
 .w-day{background:var(--dark-2);border-radius:13px;padding:8px 0 9px;text-align:center;font-size:calc(12.5px * var(--fs))}
 .w-day .d{font-weight:600;color:var(--on-dark-muted)}
-.w-day svg{margin:6px auto 5px;color:#fff}
+.w-day svg{margin:6px auto 5px;color:var(--weather-fg)}
 .w-day .t{white-space:nowrap}
 .w-day .t b{font-weight:700}.w-day .t span{color:var(--on-dark-muted)}
 .w-empty{color:var(--on-dark-muted);font-size:calc(13px * var(--fs));padding:8px 4px;line-height:1.5}
@@ -399,7 +430,7 @@ svg.fp{fill:var(--wall)}
 .sec-head{display:flex;align-items:center;gap:8px;font-size:calc(15.5px * var(--fs));font-weight:700;margin:0 4px 12px}
 .sec-head svg{color:var(--accent)}
 .bin{display:flex;align-items:center;gap:11px;padding:8px 10px;border-radius:15px;background:var(--tile);margin-bottom:7px}
-.bin.soon{background:var(--accent-soft)}
+.bin.soon{background:var(--soon-bg)}
 .bin-ico{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;color:#fff;flex:none}
 .bin .n{font-size:calc(14px * var(--fs));font-weight:700}.bin .d{font-size:calc(11.5px * var(--fs));color:var(--muted);margin-top:2px}
 .bin .b{margin-left:auto;font-size:calc(11.5px * var(--fs));font-weight:600;padding:5px 9px;border-radius:12px;background:var(--card);color:var(--muted);white-space:nowrap}
@@ -411,13 +442,13 @@ svg.fp{fill:var(--wall)}
 .cal-range{font-size:calc(14px * var(--fs));font-weight:700;margin-top:2px}
 .cal-kw{font-size:calc(12px * var(--fs));color:var(--muted);margin-top:2px}
 .cal-nav{display:flex;gap:8px;margin-top:12px}
-.cal-nav button{width:34px;height:34px;border-radius:50%;background:var(--tile);display:grid;place-items:center}
+.cal-nav button{width:34px;height:34px;border-radius:50%;background:var(--btn-bg);color:var(--btn-fg);display:grid;place-items:center}
 .legend{margin-top:auto;display:flex;flex-wrap:wrap;gap:4px 12px;font-size:calc(12px * var(--fs))}
 .legend span{display:flex;align-items:center;gap:5px}
 .dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex:none}
 :host([data-theme="dark"]) .dot,:host([data-theme="dark"]) .ev::before,:host([data-theme="dark"]) .ev-pop .bar{box-shadow:0 0 0 1px rgba(255,255,255,.35)}
 .day{background:var(--tile);border-radius:15px;padding:8px 6px 6px;min-width:0;display:flex;flex-direction:column;gap:5px;overflow:hidden}
-.day.today{background:var(--accent-soft)}
+.day.today{background:var(--today-bg)}
 .day-h{padding:0 5px 2px;font-size:calc(12px * var(--fs));color:var(--muted);font-weight:600}
 .day-h b{color:var(--text);font-size:calc(15.5px * var(--fs));font-weight:800;margin-left:4px}
 .ev{background:var(--card);border-radius:10px;padding:5px 7px 5px 12px;position:relative;text-align:left;width:100%;min-width:0;flex:none}
@@ -436,13 +467,13 @@ svg.fp{fill:var(--wall)}
 .pop-ico.on{background:var(--accent);color:#fff}.pop-ico.cam{background:var(--dark);color:#fff}
 .pop-sub{font-size:calc(12.5px * var(--fs));font-weight:600;color:var(--muted)}
 .pop-title{font-size:calc(22px * var(--fs));font-weight:800;letter-spacing:-.4px;margin-top:2px}
-.pop-x{margin-left:auto;width:42px;height:42px;border-radius:50%;background:var(--tile);display:grid;place-items:center;flex:none;align-self:flex-start}
+.pop-x{margin-left:auto;width:42px;height:42px;border-radius:50%;background:var(--btn-bg);color:var(--btn-fg);display:grid;place-items:center;flex:none;align-self:flex-start}
 .pop-state{display:flex;align-items:center;margin-top:22px;gap:12px}
 .pop-state .big{font-size:calc(42px * var(--fs));font-weight:800;letter-spacing:-1.5px;line-height:1}
 .pop-state .s{font-size:calc(13.5px * var(--fs));color:var(--muted);margin-top:6px}
-.toggle{margin-left:auto;width:66px;height:38px;border-radius:19px;background:var(--tile-2);position:relative;transition:background .2s;flex:none}
+.toggle{margin-left:auto;width:66px;height:38px;border-radius:19px;background:var(--toggle-off);position:relative;transition:background .2s;flex:none}
 .toggle::after{content:"";position:absolute;left:4px;top:4px;width:30px;height:30px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.2);transition:transform .2s}
-.toggle.on{background:var(--accent)}.toggle.on::after{transform:translateX(28px)}
+.toggle.on{background:var(--toggle-on)}.toggle.on::after{transform:translateX(28px)}
 .panel{background:var(--tile);border-radius:16px;padding:14px 16px;margin-top:16px}
 .panel-h{display:flex;justify-content:space-between;font-size:calc(13.5px * var(--fs));font-weight:700}
 input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:28px;background:transparent;margin-top:6px}
@@ -455,10 +486,10 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;bac
 .tiles .l{font-size:calc(12.5px * var(--fs));color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tiles .v{font-size:calc(22px * var(--fs));font-weight:800;margin-top:6px;letter-spacing:-.4px}
 .stepper{display:flex;align-items:center;gap:14px;margin-left:auto}
-.stepper button{width:44px;height:44px;border-radius:50%;background:var(--tile);display:grid;place-items:center}
+.stepper button{width:44px;height:44px;border-radius:50%;background:var(--btn-bg);color:var(--btn-fg);display:grid;place-items:center}
 .modes{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .modes button{flex:1 1 calc(50% - 4px);height:40px;border-radius:12px;background:var(--card);font-size:calc(13.5px * var(--fs));font-weight:600}
-.modes button.sel{background:var(--accent);color:#fff}
+.modes button.sel{background:var(--btn-sel-bg);color:var(--btn-sel-fg)}
 .cam-box{margin-top:16px;aspect-ratio:16/9;border-radius:16px;background:#111;overflow:hidden;display:grid;place-items:center;color:#8a8580;font-size:calc(13px * var(--fs))}
 .cam-box img{width:100%;height:100%;object-fit:contain;display:block}
 .ev-pop .bar{width:5px;align-self:stretch;border-radius:3px;background:var(--c);flex:none}
@@ -525,6 +556,13 @@ select.inp{padding-right:6px}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
 .chips button{height:28px;padding:0 10px;border-radius:14px;background:var(--tile);font-size:12px;font-weight:600;color:var(--muted)}
 .chips button.sel{background:var(--accent);color:#fff}
+.cgroup{border-top:1px solid var(--tile-2);padding:6px 0}
+.cgroup summary{cursor:pointer;font-size:13.5px;font-weight:700;padding:6px 0;list-style:none;display:flex;align-items:center;gap:6px}
+.cgroup summary::before{content:"›";display:inline-block;width:12px;transition:transform .15s;color:var(--muted)}
+.cgroup[open] summary::before{transform:rotate(90deg)}
+.crow{margin-bottom:6px}.crow .cl{flex:1;font-size:13px}.crow .cv{font:11.5px ui-monospace,Menlo,monospace;color:var(--muted);width:62px;text-align:right}
+.crow .cx{width:22px;height:22px;border-radius:6px;display:grid;place-items:center;color:var(--muted);flex:none}
+.crow button.cx{background:var(--tile)}
 .icon-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
 .icon-grid button{height:38px;border-radius:10px;background:var(--tile);display:grid;place-items:center}
 .icon-grid button.sel{background:var(--accent);color:#fff}
@@ -1140,6 +1178,9 @@ class HauspanelPanel extends HTMLElement {
   _onClick(ev) {
     const t = ev.target;
     if (this._suppressClick) { this._suppressClick = false; return; }
+    const sum = t.closest(".cgroup summary");
+    if (sum) { const d = sum.parentElement; this._openGroups = this._openGroups || new Set();
+      if (d.dataset.group) { if (d.open) this._openGroups.delete(d.dataset.group); else this._openGroups.add(d.dataset.group); } return; }
     const fl = t.closest("[data-floor]");
     if (fl) { this.activeFloor = fl.dataset.floor; this.sel = null; if (this.editing && this.tab === "select") this.tab = "floor";
       this._renderFloors(); this._renderPlan(); if (this.editing) this._renderInspector(); if (this.cssOpen) this._renderCssWin(); return; }
@@ -1273,6 +1314,11 @@ class HauspanelPanel extends HTMLElement {
         this._markDirty(); this._renderPlan(); this._renderFloors(); return this._renderInspector();
       }
       case "design-mode": this._designMode = b.dataset.v; this._themeOverride = b.dataset.v; this._applyTheme(); return this._renderInspector();
+      case "theme-unset": {
+        this.draft.theme = mergeTheme(this.draft.theme);
+        delete this.draft.theme[this._designMode || "light"][b.dataset.k];
+        this._markDirty(); this._applyThemeVars(); return this._renderInspector();
+      }
       case "theme-reset": this.draft.theme = null; this._markDirty(); this._applyThemeVars(); this._layoutPlan(); return this._renderInspector();
       case "preview": this.preview = true; this.sel = null; this.events = []; this._renderAll(); this._fetchEvents(); this._renderCssWin(); return;
       case "pin-display": {
@@ -1344,7 +1390,12 @@ class HauspanelPanel extends HTMLElement {
       }
       case "theme-color": case "theme-size": {
         this.draft.theme = mergeTheme(this.draft.theme);
-        if (k === "theme-color") { this.draft.theme[this._designMode || "light"][el.dataset.k] = val; el.nextElementSibling.nextElementSibling.textContent = val; }
+        if (k === "theme-color") {
+          this.draft.theme[this._designMode || "light"][el.dataset.k] = val;
+          el.nextElementSibling.nextElementSibling.textContent = val;
+          if (!isChange) { this._applyThemeVars(); break; }
+          if (DETAIL_VARS.some(([dk]) => dk === el.dataset.k)) { this._applyThemeVars(); this._renderInspector(); break; }
+        }
         else {
           this.draft.theme.size[el.dataset.k] = Number(val);
           const spec = THEME_SIZES.find((x) => x[0] === el.dataset.k);
@@ -1573,14 +1624,30 @@ class HauspanelPanel extends HTMLElement {
       <div class="fld"><label>Farben</label><div class="chips" style="margin:0 0 10px">
         <button class="${m === "light" ? "sel" : ""}" data-a="design-mode" data-v="light">Hell</button>
         <button class="${m === "dark" ? "sel" : ""}" data-a="design-mode" data-v="dark">Nachtmodus</button></div>
-        ${THEME_COLORS.map(([k, l]) => `<div class="row" style="margin-bottom:6px"><input type="color" data-f="theme-color" data-k="${k}" value="${t[m][k]}">
-          <span style="flex:1;font-size:13.5px">${l}</span><span class="hint" style="margin:0;font-family:monospace">${t[m][k]}</span></div>`).join("")}</div>
+        <details class="cgroup" open><summary>Grundfarben</summary>
+        ${THEME_COLORS.map(([k, l]) => `<div class="row crow"><input type="color" data-f="theme-color" data-k="${k}" value="${t[m][k]}">
+          <span class="cl">${l}</span><span class="cv">${t[m][k]}</span></div>`).join("")}</details>
+        ${THEME_DETAIL.map(([g, hint, items]) => `<details class="cgroup"${this._openGroups && this._openGroups.has(g) ? " open" : ""} data-group="${esc(g)}"><summary>${esc(g)}</summary>
+          ${hint ? `<div class="hint">${esc(hint)}</div>` : ""}
+          ${items.map(([k, v, l]) => { const set = t[m][k]; return `<div class="row crow"><input type="color" data-f="theme-color" data-k="${k}" value="${set || this._cssColor(v)}">
+            <span class="cl">${l}</span><span class="cv">${set ? set : "auto"}</span>
+            ${set ? `<button class="cx" data-a="theme-unset" data-k="${k}" title="Zurück auf automatisch">${ic("x", 13)}</button>` : `<span class="cx"></span>`}</div>`; }).join("")}
+        </details>`).join("")}</div>
       <div class="sep"></div>
       <div class="fld"><label>Größen &amp; Abstände</label>
         ${THEME_SIZES.map(([k, l, mn, mx, u]) => `<div style="margin-bottom:8px"><div class="row" style="justify-content:space-between;font-size:13.5px">
           <span>${l}</span><b id="tv-${k}">${t.size[k]} ${u}</b></div>
           <input type="range" min="${mn}" max="${mx}" step="1" value="${t.size[k]}" data-f="theme-size" data-k="${k}" style="--p:${((t.size[k] - mn) / (mx - mn)) * 100}%"></div>`).join("")}</div>
       <div class="hint">Pins und Raum-Labels wachsen zusätzlich mit dem Grundriss mit, damit sie auf jedem Bildschirm an derselben Stelle sitzen.</div>`;
+  }
+  /* aktuellen Farbwert einer Variable als #hex (für „auto“-Felder) */
+  _cssColor(v) {
+    const probe = document.createElement("span");
+    probe.style.color = `var(${v})`; probe.style.display = "none";
+    this.shadowRoot.appendChild(probe);
+    const c = getComputedStyle(probe).color; probe.remove();
+    const m = c.match(/(\d+),\s*(\d+),\s*(\d+)/);
+    return m ? "#" + [m[1], m[2], m[3]].map((x) => Number(x).toString(16).padStart(2, "0")).join("") : "#888888";
   }
   _renderCssWin() {
     const w = this.$("#css-win"); if (!w) return;
