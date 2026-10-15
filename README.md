@@ -27,7 +27,10 @@ Als Admin im Panel oben auf den Stift tippen:
 2. **Raum-Label** setzen und an die obere linke Ecke des jeweiligen Raums ziehen.
 3. **Geräte**: Entity suchen, am Griff auf den Plan ziehen. Tippen wählt das Gerät aus, dann lassen sich Name, Raum, Anzeige (Icon, Wert oder beides), Icon, Power-Button und Zusatzwerte einstellen.
 4. **Allgemein**: Startetage, Wetter-Entity, Kalender mit Farbe, Müll-Sensoren mit Farbe und Nachtmodus festlegen.
-5. **Speichern**.
+5. **Design**: Farben für Hell und Nachtmodus getrennt, außerdem Schriftgröße, Ecken, Abstände, Innenabstände, Kalenderhöhe, Pin-Größe und Label-Schrift. Mit „Vorschau“ siehst du das Ergebnis mit Kalender und Wetter, bevor du speicherst.
+6. **Speichern**.
+
+Pins und Raum-Labels wachsen mit dem Grundriss mit. Was du im Editor platzierst, sitzt deshalb auf jedem Bildschirm proportional an derselben Stelle.
 
 ### Müll-Sensoren
 
