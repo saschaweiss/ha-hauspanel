@@ -25,7 +25,7 @@ Als Admin im Panel oben auf den Stift tippen:
 
 1. **Etage** anlegen, Kürzel und Name vergeben, SVG hochladen.
 2. **Raum-Label** setzen und an die obere linke Ecke des jeweiligen Raums ziehen.
-3. **Geräte**: Entity suchen, am Griff auf den Plan ziehen. Tippen wählt das Gerät aus, dann lassen sich Name, Raum, Icon, Power-Button und Zusatzwerte einstellen.
+3. **Geräte**: Entity suchen, am Griff auf den Plan ziehen. Tippen wählt das Gerät aus, dann lassen sich Name, Raum, Anzeige (Icon, Wert oder beides), Icon, Power-Button und Zusatzwerte einstellen.
 4. **Allgemein**: Startetage, Wetter-Entity, Kalender mit Farbe, Müll-Sensoren mit Farbe und Nachtmodus festlegen.
 5. **Speichern**.
 
