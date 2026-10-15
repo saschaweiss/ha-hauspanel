@@ -291,9 +291,11 @@ svg.fp{fill:var(--wall)}
 .fp .f-wall{fill:var(--wall)}.fp .f-floor{fill:var(--floor)}.fp .f-out{fill:var(--outside)}.fp .f-door{fill:var(--door)}
 .fp .s-wall{stroke:var(--wall)}.fp .s-floor{stroke:var(--floor)}.fp .s-out{stroke:var(--outside)}.fp .s-door{stroke:var(--door)}
 .room-label{position:absolute;font-size:11px;font-weight:600;color:var(--muted);white-space:nowrap;pointer-events:none}
-.pin{position:absolute;width:36px;height:36px;margin:-18px 0 0 -18px;border-radius:50%;background:var(--card);color:var(--text);
-  display:grid;place-items:center;box-shadow:var(--pin-shadow);transition:background .2s,color .2s,transform .12s}
-.pin:active{transform:scale(.9)}
+.pin{position:absolute;min-width:36px;height:36px;transform:translate(-50%,-50%);border-radius:18px;background:var(--card);color:var(--text);
+  display:flex;align-items:center;justify-content:center;gap:4px;box-shadow:var(--pin-shadow);transition:background .2s,color .2s,transform .12s;white-space:nowrap}
+.pin:active{transform:translate(-50%,-50%) scale(.9)}
+.pin.val{padding:0 11px;font-size:14px;font-weight:700;letter-spacing:-.2px;font-variant-numeric:tabular-nums}
+.pin.val.both{padding:0 11px 0 8px}
 .pin.on{background:var(--accent);color:#fff;box-shadow:0 3px 10px var(--accent-glow)}
 .pin.cam{background:var(--dark);color:#fff}
 .pin.unavail{opacity:.4}
@@ -704,7 +706,7 @@ class HauspanelPanel extends HTMLElement {
     });
     (f.pins || []).forEach((p) => {
       const s = this._hass.states[p.entity_id];
-      h += `<button class="pin${edit && this.sel && this.sel.type === "pin" && this.sel.id === p.id ? " sel" : ""}" data-pin="${p.id}" style="left:${p.x}%;top:${p.y}%" title="${esc(p.name || friendly(this._hass, p.entity_id))}">${ic(p.icon || defaultIcon(s, p.entity_id), 18)}</button>`;
+      h += `<button class="pin${edit && this.sel && this.sel.type === "pin" && this.sel.id === p.id ? " sel" : ""}" data-pin="${p.id}" style="left:${p.x}%;top:${p.y}%" title="${esc(p.name || friendly(this._hass, p.entity_id))}">${this._pinInner(p, s)}</button>`;
     });
     plan.innerHTML = h;
     this._layoutPlan(); this._updatePins();
@@ -720,11 +722,36 @@ class HauspanelPanel extends HTMLElement {
     plan.style.cssText = `width:${w}px;height:${h}px;left:${(W - w) / 2}px;top:${(H - h) / 2}px`;
   }
 
+  /* Inhalt eines Pins: Icon, Wert oder beides (Einstellung pro Gerät) */
+  _pinValue(p, s) {
+    if (!s || s.state === "unavailable" || s.state === "unknown") return "–";
+    const a = s.attributes, d = domainOf(p.entity_id);
+    if (d === "climate") return a.current_temperature != null ? fmtNum(a.current_temperature) + "°" : "–";
+    if (!isNaN(Number(s.state)) && s.state !== "") {
+      const u = a.unit_of_measurement || "";
+      if (u === "°C" || u === "°F") return fmtNum(s.state) + "°";
+      if (u === "%") return fmtNum(s.state, 0) + " %";
+      const dec = Math.abs(Number(s.state)) >= 100 ? 0 : 1;
+      return fmtNum(s.state, dec) + (u ? " " + u : "");
+    }
+    return fmtState(s);
+  }
+  _pinInner(p, s) {
+    const mode = p.display || "icon";
+    const icon = ic(p.icon || defaultIcon(s, p.entity_id), mode === "both" ? 15 : 18);
+    if (mode === "icon") return icon;
+    const v = `<span class="pv">${esc(this._pinValue(p, s))}</span>`;
+    return mode === "both" ? icon + v : v;
+  }
   _updatePins() {
     const f = this.C && this._floor(); if (!f) return;
     this.shadowRoot.querySelectorAll(".pin").forEach((el) => {
       const p = (f.pins || []).find((x) => x.id === el.dataset.pin); if (!p) return;
       const s = this._hass.states[p.entity_id], d = domainOf(p.entity_id);
+      const mode = p.display || "icon";
+      el.classList.toggle("val", mode !== "icon");
+      el.classList.toggle("both", mode === "both");
+      if (mode !== "icon") { const pv = el.querySelector(".pv"), txt = this._pinValue(p, s); if (pv && pv.textContent !== txt) pv.textContent = txt; }
       el.classList.toggle("on", isActive(s));
       el.classList.toggle("cam", d === "camera");
       el.classList.toggle("unavail", !s || s.state === "unavailable");
@@ -1110,6 +1137,10 @@ class HauspanelPanel extends HTMLElement {
         f[key] = f[key].filter((x) => x.id !== this.sel.id); this.sel = null; this.tab = a === "pin-del" ? "devices" : "floor";
         this._markDirty(); this._renderPlan(); this._renderFloors(); return this._renderInspector();
       }
+      case "pin-display": {
+        const p = this._selPin(); p.display = b.dataset.v;
+        this._markDirty(); this._renderPlan(); return this._renderInspector();
+      }
       case "pin-icon": {
         const p = this._selPin(); p.icon = b.dataset.icon === "auto" ? null : b.dataset.icon;
         this._markDirty(); this._renderPlan(); return this._renderInspector();
@@ -1136,7 +1167,8 @@ class HauspanelPanel extends HTMLElement {
     const f = this._floor();
     if (!f) return this._toast("Lege zuerst eine Etage an");
     const p = { id: uid("p"), entity_id: entityId, x: Math.round(x * 10) / 10, y: Math.round(y * 10) / 10,
-      name: null, room: null, icon: null, power_off: POWER_OFF_DEFAULT.has(domainOf(entityId)), extras: [] };
+      name: null, room: null, icon: null, power_off: POWER_OFF_DEFAULT.has(domainOf(entityId)), extras: [],
+      display: domainOf(entityId) === "sensor" && this._hass.states[entityId] && !isNaN(Number(this._hass.states[entityId].state)) ? "value" : "icon" };
     f.pins = f.pins || []; f.pins.push(p);
     this.sel = { type: "pin", id: p.id }; this.tab = "select";
     this._prevStates = {};
@@ -1324,6 +1356,10 @@ class HauspanelPanel extends HTMLElement {
       <div class="fld"><label>Anzeigename</label><input class="inp" data-f="pin-name" value="${esc(p.name || "")}" placeholder="${esc(friendly(this._hass, p.entity_id))}"></div>
       <div class="fld"><label>Raum</label><select class="inp" data-f="pin-room"><option value="">Automatisch (${esc(this._roomOf(f, { ...p, room: null }) || "kein Label")})</option>
         ${(f.rooms || []).map((rr) => `<option${p.room === rr.name ? " selected" : ""}>${esc(rr.name)}</option>`).join("")}</select></div>
+      <div class="fld"><label>Anzeige auf dem Plan</label><div class="chips" style="margin:0">
+        ${[["icon","Icon"],["value", d === "climate" ? "Ist-Temperatur" : "Wert"],["both","Icon + Wert"]].map(([k, l]) =>
+          `<button class="${(p.display || "icon") === k ? "sel" : ""}" data-a="pin-display" data-v="${k}">${l}</button>`).join("")}</div>
+        <div class="hint" style="margin-top:6px">Jetzt: ${esc(this._pinValue(p, s))}</div></div>
       <div class="fld"><label>Icon</label><div class="icon-grid"><button class="${p.icon ? "" : "sel"}" data-a="pin-icon" data-icon="auto" title="Automatisch" style="font-size:11px;font-weight:700">Auto</button>
         ${PIN_ICONS.map((n) => `<button class="${p.icon === n ? "sel" : ""}" data-a="pin-icon" data-icon="${n}" title="${n}">${ic(n, 17)}</button>`).join("")}</div></div>
       <label class="check"><input type="checkbox" data-f="pin-power" ${p.power_off ? "checked" : ""}>Mit Power-Button ausschalten</label>
