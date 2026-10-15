@@ -2,7 +2,7 @@
  * Ein Web-Component-Modul ohne Build-Abhängigkeiten.
  * Icons: Lucide (ISC-Lizenz). Schrift: Inter (OFL).
  */
-const HP_VERSION = "0.2.0";
+const HP_VERSION = "0.3.0";
 const ICONS = {"activity":"<path d=\"M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2\" />","arrow-down":"<path d=\"M12 5v14\" /> <path d=\"m19 12-7 7-7-7\" />","arrow-up":"<path d=\"m5 12 7-7 7 7\" /> <path d=\"M12 19V5\" />","blinds":"<path d=\"M3 3h18\" /> <path d=\"M20 7H8\" /> <path d=\"M20 11H8\" /> <path d=\"M10 19h10\" /> <path d=\"M8 15h12\" /> <path d=\"M4 3v14\" /> <circle cx=\"4\" cy=\"19\" r=\"2\" />","calendar":"<path d=\"M8 2v3\" /> <path d=\"M16 2v3\" /> <rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\" /> <path d=\"M3 9h18\" />","calendars":"<path d=\"M12 2v2\" /> <path d=\"M15.726 21.01A2 2 0 0 1 14 22H4a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2\" /> <path d=\"M18 2v2\" /> <path d=\"M2 13h2\" /> <path d=\"M8 8h14\" /> <rect x=\"8\" y=\"3\" width=\"14\" height=\"14\" rx=\"2\" />","camera":"<path d=\"M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z\" /> <circle cx=\"12\" cy=\"13\" r=\"3\" />","cctv":"<path d=\"M16.75 12h3.632a1 1 0 0 1 .894 1.447l-2.034 4.069a1 1 0 0 1-1.708.134l-2.124-2.97\" /> <path d=\"M17.106 9.053a1 1 0 0 1 .447 1.341l-3.106 6.211a1 1 0 0 1-1.342.447L3.61 12.3a2.92 2.92 0 0 1-1.3-3.91L3.69 5.6a2.92 2.92 0 0 1 3.92-1.3z\" /> <path d=\"M2 19h3.76a2 2 0 0 0 1.8-1.1L9 15\" /> <path d=\"M2 21v-4\" /> <path d=\"M7 9h.01\" />","check":"<path d=\"M20 6 9 17l-5-5\" />","chevron-left":"<path d=\"m15 18-6-6 6-6\" />","chevron-right":"<path d=\"m9 18 6-6-6-6\" />","circle":"<circle cx=\"12\" cy=\"12\" r=\"10\" />","circle-dot":"<circle cx=\"12\" cy=\"12\" r=\"1\" /> <circle cx=\"12\" cy=\"12\" r=\"10\" />","clock":"<circle cx=\"12\" cy=\"12\" r=\"10\" /> <path d=\"M12 6v6l4 2\" />","cloud":"<path d=\"M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z\" />","cloud-fog":"<path d=\"M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242\" /> <path d=\"M16 17H7\" /> <path d=\"M17 21H9\" />","cloud-hail":"<path d=\"M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242\" /> <path d=\"M16 14v2\" /> <path d=\"M8 14v2\" /> <path d=\"M16 20h.01\" /> <path d=\"M8 20h.01\" /> <path d=\"M12 16v2\" /> <path d=\"M12 22h.01\" />","cloud-lightning":"<path d=\"M6 16.326A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 .5 8.973\" /> <path d=\"m13 12-3 5h4l-3 5\" />","cloud-rain":"<path d=\"M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242\" /> <path d=\"M16 14v6\" /> <path d=\"M8 14v6\" /> <path d=\"M12 16v6\" />","cloud-rain-wind":"<path d=\"M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242\" /> <path d=\"m9.2 22 3-7\" /> <path d=\"m9 13-3 7\" /> <path d=\"m17 13-3 7\" />","cloud-snow":"<path d=\"M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242\" /> <path d=\"M8 15h.01\" /> <path d=\"M8 19h.01\" /> <path d=\"M12 17h.01\" /> <path d=\"M12 21h.01\" /> <path d=\"M16 15h.01\" /> <path d=\"M16 19h.01\" />","cloud-sun":"<path d=\"M12 2v2\" /> <path d=\"m4.93 4.93 1.41 1.41\" /> <path d=\"M20 12h2\" /> <path d=\"m19.07 4.93-1.41 1.41\" /> <path d=\"M15.947 12.65a4 4 0 0 0-5.925-4.128\" /> <path d=\"M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6Z\" />","code":"<path d=\"m16 18 6-6-6-6\" /> <path d=\"m8 6-6 6 6 6\" />","door-open":"<path d=\"M10 21H2\" /> <path d=\"M10 3H7a2 2 0 00-2 2v16\" /> <path d=\"M14 12h.01\" /> <path d=\"M19 21V5a2 2 0 00-1.675-1.974l-6.163-1.013A1 1 0 0010 3v18a1 1 0 001.124.992z\" /> <path d=\"M22 21h-3\" />","dot":"<circle cx=\"12\" cy=\"12\" r=\"1\" />","droplets":"<path d=\"M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z\" /> <path d=\"M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97\" />","edit":"<path d=\"M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7\" /> <path d=\"M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z\" />","ellipse":"<ellipse cx=\"12\" cy=\"12\" rx=\"10\" ry=\"6\" />","eye":"<path d=\"M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0\" /> <circle cx=\"12\" cy=\"12\" r=\"3\" />","fan":"<path d=\"M10.827 16.379a6.082 6.082 0 0 1-8.618-7.002l5.412 1.45a6.082 6.082 0 0 1 7.002-8.618l-1.45 5.412a6.082 6.082 0 0 1 8.618 7.002l-5.412-1.45a6.082 6.082 0 0 1-7.002 8.618l1.45-5.412Z\" /> <path d=\"M12 12v.01\" />","file":"<path d=\"M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z\" /> <path d=\"M14 2v5a1 1 0 0 0 1 1h5\" />","flame":"<path d=\"M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4\" />","gauge":"<path d=\"m12 14 4-4\" /> <path d=\"M3.34 19a10 10 0 1 1 17.32 0\" />","ghost":"<path d=\"M15 10v1\" /> <path d=\"M7.528 20.472a1.6 1.6 0 012.277 0l1.057 1.056a1.6 1.6 0 002.276 0l1.057-1.056a1.6 1.6 0 012.277 0l1.114 1.114a1.4 1.4 0 002.414-1V10a8 8 0 00-16 0v10.586a1.4 1.4 0 002.414 1z\" /> <path d=\"M9 10v1\" />","grid":"<rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\" /> <path d=\"M3 9h18\" /> <path d=\"M3 15h18\" /> <path d=\"M9 3v18\" /> <path d=\"M15 3v18\" />","grip":"<circle cx=\"12\" cy=\"5\" r=\"1\" /> <circle cx=\"19\" cy=\"5\" r=\"1\" /> <circle cx=\"5\" cy=\"5\" r=\"1\" /> <circle cx=\"12\" cy=\"12\" r=\"1\" /> <circle cx=\"19\" cy=\"12\" r=\"1\" /> <circle cx=\"5\" cy=\"12\" r=\"1\" /> <circle cx=\"12\" cy=\"19\" r=\"1\" /> <circle cx=\"19\" cy=\"19\" r=\"1\" /> <circle cx=\"5\" cy=\"19\" r=\"1\" />","grip-vertical":"<circle cx=\"9\" cy=\"12\" r=\"1\" /> <circle cx=\"9\" cy=\"5\" r=\"1\" /> <circle cx=\"9\" cy=\"19\" r=\"1\" /> <circle cx=\"15\" cy=\"12\" r=\"1\" /> <circle cx=\"15\" cy=\"5\" r=\"1\" /> <circle cx=\"15\" cy=\"19\" r=\"1\" />","home":"<path d=\"M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8\" /> <path d=\"M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\" />","house":"<path d=\"M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8\" /> <path d=\"M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\" />","lamp-ceiling":"<path d=\"M12 2v5\" /> <path d=\"M14.829 15.998a3 3 0 1 1-5.658 0\" /> <path d=\"M20.92 14.606A1 1 0 0 1 20 16H4a1 1 0 0 1-.92-1.394l3-7A1 1 0 0 1 7 7h10a1 1 0 0 1 .92.606z\" />","lamp-desk":"<path d=\"M10.293 2.293a1 1 0 0 1 1.414 0l2.5 2.5 5.994 1.227a1 1 0 0 1 .506 1.687l-7 7a1 1 0 0 1-1.687-.506l-1.227-5.994-2.5-2.5a1 1 0 0 1 0-1.414z\" /> <path d=\"m14.207 4.793-3.414 3.414\" /> <path d=\"M3 20a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z\" /> <path d=\"m9.086 6.5-4.793 4.793a1 1 0 0 0-.18 1.17L7 18\" />","lamp-floor":"<path d=\"M12 10v12\" /> <path d=\"M17.929 7.629A1 1 0 0 1 17 9H7a1 1 0 0 1-.928-1.371l2-5A1 1 0 0 1 9 2h6a1 1 0 0 1 .928.629z\" /> <path d=\"M9 22h6\" />","lightbulb":"<path d=\"M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5\" /> <path d=\"M9 18h6\" /> <path d=\"M10 22h4\" />","list":"<path d=\"M3 5h.01\" /> <path d=\"M3 12h.01\" /> <path d=\"M3 19h.01\" /> <path d=\"M8 5h13\" /> <path d=\"M8 12h13\" /> <path d=\"M8 19h13\" />","lock":"<rect width=\"18\" height=\"11\" x=\"3\" y=\"11\" rx=\"2\" ry=\"2\" /> <path d=\"M7 11V7a5 5 0 0 1 10 0v4\" />","map-pin":"<path d=\"M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0\" /> <circle cx=\"12\" cy=\"10\" r=\"3\" />","menu":"<path d=\"M4 5h16\" /> <path d=\"M4 12h16\" /> <path d=\"M4 19h16\" />","minus":"<path d=\"M5 12h14\" />","moon":"<path d=\"M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401\" />","pencil":"<path d=\"M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z\" /> <path d=\"m15 5 4 4\" />","pill":"<path d=\"m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z\" /> <path d=\"m8.5 8.5 7 7\" />","pin":"<path d=\"M12 17v5\" /> <path d=\"M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z\" />","play":"<path d=\"M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z\" />","plug":"<path d=\"M12 22v-5\" /> <path d=\"M15 8V2\" /> <path d=\"M17 8a1 1 0 0 1 1 1v4a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1z\" /> <path d=\"M9 8V2\" />","plus":"<path d=\"M5 12h14\" /> <path d=\"M12 5v14\" />","power":"<path d=\"M12 2v10\" /> <path d=\"M18.4 6.6a9 9 0 1 1-12.77.04\" />","radius":"<path d=\"M20.34 17.52a10 10 0 1 0-2.82 2.82\" /> <circle cx=\"19\" cy=\"19\" r=\"2\" /> <path d=\"m13.41 13.41 4.18 4.18\" /> <circle cx=\"12\" cy=\"12\" r=\"2\" />","refrigerator":"<path d=\"M5 6a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6Z\" /> <path d=\"M5 10h14\" /> <path d=\"M15 7v6\" />","search":"<path d=\"m21 21-4.34-4.34\" /> <circle cx=\"11\" cy=\"11\" r=\"8\" />","speaker":"<rect width=\"16\" height=\"20\" x=\"4\" y=\"2\" rx=\"2\" /> <path d=\"M12 6h.01\" /> <circle cx=\"12\" cy=\"14\" r=\"4\" /> <path d=\"M12 14h.01\" />","sun":"<circle cx=\"12\" cy=\"12\" r=\"4\" /> <path d=\"M12 2v2\" /> <path d=\"M12 20v2\" /> <path d=\"m4.93 4.93 1.41 1.41\" /> <path d=\"m17.66 17.66 1.41 1.41\" /> <path d=\"M2 12h2\" /> <path d=\"M20 12h2\" /> <path d=\"m6.34 17.66-1.41 1.41\" /> <path d=\"m19.07 4.93-1.41 1.41\" />","tag":"<path d=\"M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z\" /> <circle cx=\"7.5\" cy=\"7.5\" r=\".5\" fill=\"currentColor\" />","text":"<path d=\"M21 5H3\" /> <path d=\"M15 12H3\" /> <path d=\"M17 19H3\" />","thermometer":"<path d=\"M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z\" />","toggle-left":"<circle cx=\"9\" cy=\"12\" r=\"3\" /> <rect width=\"20\" height=\"14\" x=\"2\" y=\"5\" rx=\"7\" />","trash-2":"<path d=\"M10 11v6\" /> <path d=\"M14 11v6\" /> <path d=\"M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6\" /> <path d=\"M3 6h18\" /> <path d=\"M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2\" />","triangle-alert":"<path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3\" /> <path d=\"M12 9v4\" /> <path d=\"M12 17h.01\" />","tv":"<path d=\"m17 2-5 5-5-5\" /> <rect width=\"20\" height=\"15\" x=\"2\" y=\"7\" rx=\"2\" />","unlock":"<rect width=\"18\" height=\"11\" x=\"3\" y=\"11\" rx=\"2\" ry=\"2\" /> <path d=\"M7 11V7a5 5 0 0 1 9.9-1\" />","upload":"<path d=\"M12 3v12\" /> <path d=\"m17 8-5-5-5 5\" /> <path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\" />","video":"<path d=\"m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5\" /> <rect x=\"2\" y=\"6\" width=\"14\" height=\"12\" rx=\"2\" />","view":"<path d=\"M21 17v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2\" /> <path d=\"M21 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2\" /> <circle cx=\"12\" cy=\"12\" r=\"1\" /> <path d=\"M18.944 12.33a1 1 0 0 0 0-.66 7.5 7.5 0 0 0-13.888 0 1 1 0 0 0 0 .66 7.5 7.5 0 0 0 13.888 0\" />","washing-machine":"<path d=\"M3 6h3\" /> <path d=\"M17 6h.01\" /> <rect width=\"18\" height=\"20\" x=\"3\" y=\"2\" rx=\"2\" /> <circle cx=\"12\" cy=\"13\" r=\"5\" /> <path d=\"M12 18a2.5 2.5 0 0 0 0-5 2.5 2.5 0 0 1 0-5\" />","wind":"<path d=\"M12.8 19.6A2 2 0 1 0 14 16H2\" /> <path d=\"M17.5 8a2.5 2.5 0 1 1 2 4H2\" /> <path d=\"M9.8 4.4A2 2 0 1 1 11 8H2\" />","x":"<path d=\"M18 6 6 18\" /> <path d=\"m6 6 12 12\" />","zap":"<path d=\"M15.914 4a1.5 1.5 0 00-2.474-1.561l-9 9A1.5 1.5 0 005.5 14h4.002a.5.5 0 01.471.666L8.086 20a1.5 1.5 0 002.475 1.56l9-9A1.5 1.5 0 0018.5 10h-3.997a.5.5 0 01-.472-.667z\" />"};
 
 // Referenzbreite/-höhe: darauf wird skaliert, der Rest des Bildschirms geht an den Grundriss
@@ -191,6 +191,50 @@ function themeCss(theme) {
     `--cal-h:${s.cal}px;--pin:${s.pin}px;--pin-fs:${s.pinFont}px;--label-fs:${s.label}px}` +
     `:host([data-theme="dark"]){${vars(t.dark, true)}}`;
 }
+
+/* ---------- Eigenes CSS: Spickzettel im CSS-Fenster ---------- */
+const CSS_HELP = `/* Eigenes CSS überschreibt das eingebaute – es bleibt bei Updates erhalten.
+   Reicht die Spezifität nicht, hilft !important.
+   Notfall: Panel mit ?nocss aufrufen -> eigenes CSS wird ignoriert. */
+
+/* Variablen (am besten hier ansetzen) */
+:host {
+  --accent: #E5391D;  --bg: #EEECEA;  --card: #fff;  --tile: #F4F2F0;
+  --text: #1E1C1B;  --muted: #8A8580;  --dark: #1F1D1C;
+  --wall: #2E2C2B;  --floor: #fff;  --outside: #EDEBE9;  --door: #B3AEA9;
+  --radius: 22px;  --gap: 12px;  --m: 18px;  --pad: 16px;  --cal-h: 198px;
+  --pin: 36px;  --pin-fs: 14px;  --label-fs: 11px;  --fs: 1;
+  /* --k = Skalierung von Pins/Labels mit dem Grundriss (wird berechnet) */
+}
+:host([data-theme="dark"]) { }      /* nur Nachtmodus */
+:host([data-floor="OG"]) { }         /* nur wenn Etage OG offen ist */
+:host(.edit) { }                     /* nur im Editor */
+
+/* Bereiche */
+#top  #home  #date  #clock           /* Kopfzeile */
+#floors  .floor-btn  .floor-btn.active
+#plan-card  #plan-title  #all-off  #plan
+#weather  .w-temp  .w-cond  .w-day
+#waste  .bin  .bin.soon  .bin-ico
+#cal  .day  .day.today  .ev  .chip  .legend
+
+/* Grundriss */
+.fp .f-wall  .fp .f-floor  .fp .f-out  .fp .f-door   /* Flächen */
+.room-label  .room-label[data-room-name="Bad"]
+
+/* Geräte-Pins */
+.pin  .pin.on  .pin.val  .pin.unavail
+.pin[data-domain="light"]  .pin[data-entity="light.kueche"]
+
+/* Popups */
+.pop  .pop[data-domain="climate"]  .pop-title  .toggle  .panel
+
+/* Beispiele */
+.pin.on { animation: glow 2s infinite alternate; }
+@keyframes glow { to { box-shadow: 0 0 18px var(--accent); } }
+#date { font-weight: 800; }
+.pin[data-domain="climate"].on { background: #F59E0B; }
+`;
 
 /* ---------- SVG: säubern, Farben ans Theme binden ---------- */
 const SVG_BAD = new Set(["script","foreignobject","iframe","object","embed","audio","video","animate","set","animatemotion","animatetransform"]);
@@ -425,6 +469,23 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;bac
 #toast{position:absolute;left:50%;bottom:232px;transform:translateX(-50%);background:var(--dark);color:#fff;padding:11px 18px;border-radius:14px;font-size:calc(14px * var(--fs));font-weight:600;opacity:0;transition:opacity .25s;pointer-events:none;z-index:20;white-space:nowrap}
 #toast.show{opacity:1}
 
+/* ---------- CSS-Fenster ---------- */
+#css-win{position:absolute;right:var(--m);bottom:var(--m);width:600px;height:460px;z-index:30;display:flex;flex-direction:column;
+  box-shadow:0 18px 50px rgba(0,0,0,.28);overflow:hidden;font-size:13px;border-radius:18px}
+#css-win[hidden]{display:none}
+#css-win.min{height:auto}
+#css-win.min .cw-body,#css-win.min .cw-foot{display:none}
+.cw-head{display:flex;align-items:center;gap:8px;padding:10px 10px 10px 14px;background:var(--tile);cursor:move;touch-action:none;flex:none}
+.cw-head b{font-size:14px;margin-right:auto}
+.cw-tabs{display:flex;gap:4px;padding:8px 10px 0;flex:none}
+.cw-tabs button{height:30px;padding:0 12px;border-radius:9px;font-size:12.5px;font-weight:600;color:var(--muted);background:var(--tile)}
+.cw-tabs button.sel{background:var(--accent);color:#fff}
+.cw-body{flex:1;padding:8px 10px;min-height:0;display:flex}
+.cw-body textarea,.cw-body pre{flex:1;width:100%;resize:none;border:1.5px solid var(--tile-2);border-radius:10px;background:var(--bg);color:var(--text);
+  font:12.5px/1.55 ui-monospace,"SF Mono",Menlo,Consolas,monospace;padding:10px 12px;outline:none;tab-size:2;white-space:pre;overflow:auto;user-select:text;-webkit-user-select:text}
+.cw-body textarea:focus{border-color:var(--accent)}
+.cw-foot{padding:0 12px 10px;color:var(--muted);font-size:12px;flex:none}
+
 /* ---------- Editor ---------- */
 .edit #main{bottom:var(--m);grid-template-columns:176px 1fr 360px}
 .edit #cal{display:none}
@@ -514,7 +575,7 @@ class HauspanelPanel extends HTMLElement {
     this._initing = true;
     this._injectFont();
     if (this.kiosk) this.classList.add("kiosk");
-    this.shadowRoot.innerHTML = `<style>${CSS}</style><style id="theme-vars"></style>
+    this.shadowRoot.innerHTML = `<style>${CSS}</style><style id="theme-vars"></style><style id="custom-css"></style>
       <div id="stage">
         <header id="top"></header>
         <div id="main">
@@ -528,6 +589,7 @@ class HauspanelPanel extends HTMLElement {
         <section class="card" id="cal"></section>
         <div id="overlay"><div id="pop"></div></div>
         <div id="toast"></div>
+        <div class="card" id="css-win" hidden></div>
       </div>
       <div id="ghost"></div><div id="scratch"></div>`;
     this.$ = (s) => this.shadowRoot.querySelector(s);
@@ -602,7 +664,14 @@ class HauspanelPanel extends HTMLElement {
   /* Vorschau = Ansicht mit dem Entwurf, ohne den Editor zu verlassen */
   get editing() { return this.mode === "edit" && !this.preview; }
   get viewing() { return this.mode === "view" || !!this.preview; }
-  _applyThemeVars() { const el = this.$("#theme-vars"); if (el && this.C) el.textContent = themeCss(this.C.theme); }
+  _applyThemeVars() { const el = this.$("#theme-vars"); if (el && this.C) el.textContent = themeCss(this.C.theme); this._applyCustomCss(); }
+  /* Eigenes CSS: global + das der gerade offenen Etage. ?nocss in der URL schaltet es ab (Notfall). */
+  _applyCustomCss() {
+    const el = this.$ && this.$("#custom-css"); if (!el || !this.C) return;
+    if (/[?&]nocss\b/.test(location.search)) { el.textContent = ""; return; }
+    const f = this._floor();
+    el.textContent = (this.C.css || "") + "\n" + ((f && f.css) || "");
+  }
   get P() { return this.mode === "edit" ? this.draftPlans : this.plans; }
   _floor() { return (this.C.floors || []).find((f) => f.id === this.activeFloor); }
 
@@ -735,6 +804,7 @@ class HauspanelPanel extends HTMLElement {
         edit ? "Danach Grundriss hochladen und Geräte auf den Plan ziehen." : admin ? "Tippe oben auf den Stift, um Etagen, Grundrisse und Geräte einzurichten." : "Ein Admin kann das Panel über „Bearbeiten“ einrichten."}</div></div>`;
       return;
     }
+    this.setAttribute("data-floor", f.code || ""); this._applyCustomCss();
     head.innerHTML = `<h2 id="plan-title">${esc(f.name || f.code)}</h2>` + (edit
       ? `<button class="sbtn" data-a="room-add">${ic("tag", 16)}Raum-Label</button>`
       : (f.pins || []).some((p) => p.power_off) ? `<button id="all-off" data-a="all-off" aria-label="Alles aus">${ic("power", 19)}</button>` : "");
@@ -747,11 +817,11 @@ class HauspanelPanel extends HTMLElement {
     } else this._aspect = pl.aspect;
     let h = pl ? pl.html : "";
     (f.rooms || []).forEach((r) => {
-      h += `<div class="room-label${edit && this.sel && this.sel.type === "room" && this.sel.id === r.id ? " sel" : ""}" data-room="${r.id}" style="left:${r.x}%;top:${r.y}%">${esc(r.name)}</div>`;
+      h += `<div class="room-label${edit && this.sel && this.sel.type === "room" && this.sel.id === r.id ? " sel" : ""}" data-room="${r.id}" data-room-name="${esc(r.name)}" style="left:${r.x}%;top:${r.y}%">${esc(r.name)}</div>`;
     });
     (f.pins || []).forEach((p) => {
       const s = this._hass.states[p.entity_id];
-      h += `<button class="pin${edit && this.sel && this.sel.type === "pin" && this.sel.id === p.id ? " sel" : ""}" data-pin="${p.id}" style="left:${p.x}%;top:${p.y}%" title="${esc(p.name || friendly(this._hass, p.entity_id))}">${this._pinInner(p, s)}</button>`;
+      h += `<button class="pin${edit && this.sel && this.sel.type === "pin" && this.sel.id === p.id ? " sel" : ""}" data-pin="${p.id}" data-entity="${esc(p.entity_id)}" data-domain="${domainOf(p.entity_id)}" style="left:${p.x}%;top:${p.y}%" title="${esc(p.name || friendly(this._hass, p.entity_id))}">${this._pinInner(p, s)}</button>`;
     });
     plan.innerHTML = h;
     this._layoutPlan(); this._updatePins();
@@ -919,7 +989,8 @@ class HauspanelPanel extends HTMLElement {
 
   /* ---------- Popups ---------- */
   _showPop(html, wide) {
-    this.$("#pop").innerHTML = `<div class="pop${wide ? " wide" : ""}">${html}</div>`;
+    const dom = this.popup && this.popup.type === "entity" ? domainOf(((this._floor() || {}).pins || []).find((x) => x.id === this.popup.pin)?.entity_id || "") : (this.popup && this.popup.type) || "";
+    this.$("#pop").innerHTML = `<div class="pop${wide ? " wide" : ""}" data-domain="${esc(dom)}">${html}</div>`;
     this.$("#overlay").classList.add("show");
   }
   _closePop() { this._stopCamera(); this.$("#overlay").classList.remove("show"); this.popup = null; }
@@ -1071,7 +1142,7 @@ class HauspanelPanel extends HTMLElement {
     if (this._suppressClick) { this._suppressClick = false; return; }
     const fl = t.closest("[data-floor]");
     if (fl) { this.activeFloor = fl.dataset.floor; this.sel = null; if (this.editing && this.tab === "select") this.tab = "floor";
-      this._renderFloors(); this._renderPlan(); if (this.editing) this._renderInspector(); return; }
+      this._renderFloors(); this._renderPlan(); if (this.editing) this._renderInspector(); if (this.cssOpen) this._renderCssWin(); return; }
     const wk = t.closest("[data-wk]");
     if (wk) { const v = Number(wk.dataset.wk); this.weekOffset = v === 0 ? 0 : this.weekOffset + v; this.events = []; this._renderCal(); this._fetchEvents(); return; }
     const evb = t.closest("[data-ev]");
@@ -1092,7 +1163,11 @@ class HauspanelPanel extends HTMLElement {
         return this._applyTheme();
       case "all-off": return this._allOff();
       case "edit": return this._enterEdit();
-      case "preview-exit": this._closePop(); this.preview = false; this._themeOverride = null; return this._renderAll();
+      case "preview-exit": this._closePop(); this.preview = false; this._themeOverride = null; this._renderAll(); return this._renderCssWin();
+      case "css-open": this.cssOpen = true; this._cssMin = false; return this._renderCssWin();
+      case "css-close": this.cssOpen = false; if (this.editing) this._renderInspector(); return this._renderCssWin();
+      case "css-min": this._cssMin = !this._cssMin; return this._renderCssWin();
+      case "css-tab": this._cssTab = b.dataset.v; return this._renderCssWin();
     }
     if (this.mode === "edit") this._editClick(a, b, ev);
   }
@@ -1118,7 +1193,8 @@ class HauspanelPanel extends HTMLElement {
     this._renderAll();
   }
   _exitEdit() {
-    this.mode = "view"; this.draft = null; this.draftPlans = {}; this.sel = null; this.dirty = false; this.preview = false;
+    this.mode = "view"; this.draft = null; this.draftPlans = {}; this.sel = null; this.dirty = false; this.preview = false; this.cssOpen = false;
+    this._renderCssWin();
     this._themeOverride = null; this.planCache = {};
     const floors = this.cfg.floors || [];
     if (!floors.some((f) => f.id === this.activeFloor)) this.activeFloor = this._homeFloor();
@@ -1198,7 +1274,7 @@ class HauspanelPanel extends HTMLElement {
       }
       case "design-mode": this._designMode = b.dataset.v; this._themeOverride = b.dataset.v; this._applyTheme(); return this._renderInspector();
       case "theme-reset": this.draft.theme = null; this._markDirty(); this._applyThemeVars(); this._layoutPlan(); return this._renderInspector();
-      case "preview": this.preview = true; this.sel = null; this.events = []; this._renderAll(); this._fetchEvents(); return;
+      case "preview": this.preview = true; this.sel = null; this.events = []; this._renderAll(); this._fetchEvents(); this._renderCssWin(); return;
       case "pin-display": {
         const p = this._selPin(); p.display = b.dataset.v;
         this._markDirty(); this._renderPlan(); return this._renderInspector();
@@ -1261,6 +1337,11 @@ class HauspanelPanel extends HTMLElement {
       case "floor-recolor": f.recolor = val; this._renderPlan(); break;
       case "plan-file": if (isChange) this._uploadPlan(el.files && el.files[0]); return;
       case "weather": this.draft.weather_entity = val || null; break;
+      case "css-global": case "css-floor": {
+        if (k === "css-global") this.draft.css = val; else { const fl = this._floor(); if (fl) fl.css = val; }
+        clearTimeout(this._cssT); this._cssT = setTimeout(() => this._applyCustomCss(), 120);
+        break;
+      }
       case "theme-color": case "theme-size": {
         this.draft.theme = mergeTheme(this.draft.theme);
         if (k === "theme-color") { this.draft.theme[this._designMode || "light"][el.dataset.k] = val; el.nextElementSibling.nextElementSibling.textContent = val; }
@@ -1306,6 +1387,7 @@ class HauspanelPanel extends HTMLElement {
   /* ---------- Drag & Drop (Pointer-Events, funktioniert mit Maus und Touch) ---------- */
   _onPointerDown(ev) {
     this._lastTouch = Date.now();
+    if (ev.target.closest(".cw-head") && !ev.target.closest("button")) return this._dragCssWin(ev);
     if (!this.editing || ev.button > 0) return;
     const pinEl = ev.target.closest(".pin"), roomEl = ev.target.closest(".room-label"), grip = ev.target.closest(".grip");
     if (pinEl || roomEl) return this._dragOnPlan(ev, pinEl, roomEl);
@@ -1481,8 +1563,13 @@ class HauspanelPanel extends HTMLElement {
   }
   _tabDesign() {
     const t = mergeTheme(this.draft.theme), m = this._designMode || "light";
+    const f = this._floor(), lines = (s) => (s || "").split("\n").filter((x) => x.trim()).length;
     return `<div class="row" style="margin-bottom:14px"><button class="sbtn primary" data-a="preview">${ic("eye", 16)}Vorschau</button>
         <button class="sbtn" data-a="theme-reset">Auf Standard zurücksetzen</button></div>
+      <div class="fld"><label>Eigenes CSS</label>
+        <button class="sbtn full" data-a="css-open">${ic("code", 16)}CSS bearbeiten</button>
+        <div class="hint" style="margin-top:6px">Ganze Seite: ${lines(this.draft.css)} Zeilen${f ? ` · ${esc(f.code)}: ${lines(f.css)} Zeilen` : ""}. Wirkt live, auch in der Vorschau.</div></div>
+      <div class="sep"></div>
       <div class="fld"><label>Farben</label><div class="chips" style="margin:0 0 10px">
         <button class="${m === "light" ? "sel" : ""}" data-a="design-mode" data-v="light">Hell</button>
         <button class="${m === "dark" ? "sel" : ""}" data-a="design-mode" data-v="dark">Nachtmodus</button></div>
@@ -1494,6 +1581,40 @@ class HauspanelPanel extends HTMLElement {
           <span>${l}</span><b id="tv-${k}">${t.size[k]} ${u}</b></div>
           <input type="range" min="${mn}" max="${mx}" step="1" value="${t.size[k]}" data-f="theme-size" data-k="${k}" style="--p:${((t.size[k] - mn) / (mx - mn)) * 100}%"></div>`).join("")}</div>
       <div class="hint">Pins und Raum-Labels wachsen zusätzlich mit dem Grundriss mit, damit sie auf jedem Bildschirm an derselben Stelle sitzen.</div>`;
+  }
+  _renderCssWin() {
+    const w = this.$("#css-win"); if (!w) return;
+    if (!this.cssOpen || this.mode !== "edit") { w.hidden = true; return; }
+    w.hidden = false; w.classList.toggle("min", !!this._cssMin);
+    const f = this._floor(), tab = this._cssTab || "global";
+    const tabs = [["global", "Ganze Seite"], ...(f ? [["floor", `Nur ${f.code || "Etage"}`]] : []), ["help", "Spickzettel"], ["base", "Eingebautes CSS"]];
+    const cur = tab === "floor" && !f ? "global" : tab;
+    let body;
+    if (cur === "global") body = `<textarea data-f="css-global" spellcheck="false" placeholder="/* z. B. */\n#date { font-weight: 800; }">${esc(this.draft.css || "")}</textarea>`;
+    else if (cur === "floor") body = `<textarea data-f="css-floor" spellcheck="false" placeholder="/* gilt nur, solange ${esc(f.code)} offen ist */\n.pin.on { background: #2F6DD0; }">${esc(f.css || "")}</textarea>`;
+    else body = `<pre>${esc(cur === "help" ? CSS_HELP : CSS.trim())}</pre>`;
+    w.innerHTML = `<div class="cw-head" data-drag="css">${ic("code", 16)}<b>Eigenes CSS</b>
+        <button class="sbtn" data-a="css-min">${this._cssMin ? "Aufklappen" : "Einklappen"}</button>
+        <button class="sbtn" data-a="css-close" aria-label="Schließen">${ic("x", 16)}</button></div>
+      <div class="cw-tabs">${tabs.map(([k, l]) => `<button class="${cur === k ? "sel" : ""}" data-a="css-tab" data-v="${k}">${esc(l)}</button>`).join("")}</div>
+      <div class="cw-body">${body}</div>
+      <div class="cw-foot">${cur === "base" ? "Nur zum Nachschlagen/Kopieren – Änderungen gehören in „Ganze Seite“ oder die Etage." : cur === "help" ? "Selektoren und Variablen, die du überschreiben kannst." : "Wirkt sofort · gespeichert wird mit „Speichern“ · Fenster am Kopf verschieben"}</div>`;
+    const ta = w.querySelector("textarea");
+    if (ta) ta.addEventListener("keydown", (e) => {
+      if (e.key !== "Tab") return;
+      e.preventDefault();
+      const s = ta.selectionStart; ta.setRangeText("  ", s, ta.selectionEnd, "end");
+      ta.dispatchEvent(new Event("input", { bubbles: true, composed: true }));
+    });
+  }
+  _dragCssWin(ev) {
+    ev.preventDefault();
+    const w = this.$("#css-win"), sc = this._scale || 1, sx = ev.clientX, sy = ev.clientY;
+    const ox = this._cssPos ? this._cssPos.x : 0, oy = this._cssPos ? this._cssPos.y : 0;
+    const head = ev.target.closest(".cw-head"); head.setPointerCapture(ev.pointerId);
+    const move = (e) => { this._cssPos = { x: ox + (e.clientX - sx) / sc, y: oy + (e.clientY - sy) / sc }; w.style.transform = `translate(${this._cssPos.x}px,${this._cssPos.y}px)`; };
+    const up = () => { head.removeEventListener("pointermove", move); head.removeEventListener("pointerup", up); };
+    head.addEventListener("pointermove", move); head.addEventListener("pointerup", up);
   }
   _tabGeneral() {
     const c = this.draft;

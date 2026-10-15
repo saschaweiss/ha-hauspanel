@@ -28,7 +28,10 @@ Als Admin im Panel oben auf den Stift tippen:
 3. **Geräte**: Entity suchen, am Griff auf den Plan ziehen. Tippen wählt das Gerät aus, dann lassen sich Name, Raum, Anzeige (Icon, Wert oder beides), Icon, Power-Button und Zusatzwerte einstellen.
 4. **Allgemein**: Startetage, Wetter-Entity, Kalender mit Farbe, Müll-Sensoren mit Farbe und Nachtmodus festlegen.
 5. **Design**: Farben für Hell und Nachtmodus getrennt, außerdem Schriftgröße, Ecken, Abstände, Innenabstände, Kalenderhöhe, Pin-Größe und Label-Schrift. Mit „Vorschau“ siehst du das Ergebnis mit Kalender und Wetter, bevor du speicherst.
-6. **Speichern**.
+6. **Eigenes CSS** (im Design-Tab → „CSS bearbeiten“): Ein verschiebbares Fenster mit vier Tabs. *Ganze Seite* gilt überall, *Nur <Etage>* nur solange diese Etage offen ist. Dazu ein *Spickzettel* mit allen Selektoren und Variablen und das *eingebaute CSS* zum Nachschlagen. Änderungen wirken sofort, auch in der Vorschau.
+7. **Speichern**.
+
+> Eigenes CSS ist eine Ebene über dem eingebauten und bleibt bei Updates erhalten. Hat man sich das Layout zerschossen: Panel mit `?nocss` aufrufen (z. B. `/hauspanel?nocss`), dann wird eigenes CSS ignoriert und der Editor ist wieder erreichbar.
 
 Pins und Raum-Labels wachsen mit dem Grundriss mit. Was du im Editor platzierst, sitzt deshalb auf jedem Bildschirm proportional an derselben Stelle.
 

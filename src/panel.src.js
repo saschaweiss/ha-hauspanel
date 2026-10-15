@@ -192,6 +192,50 @@ function themeCss(theme) {
     `:host([data-theme="dark"]){${vars(t.dark, true)}}`;
 }
 
+/* ---------- Eigenes CSS: Spickzettel im CSS-Fenster ---------- */
+const CSS_HELP = `/* Eigenes CSS überschreibt das eingebaute – es bleibt bei Updates erhalten.
+   Reicht die Spezifität nicht, hilft !important.
+   Notfall: Panel mit ?nocss aufrufen -> eigenes CSS wird ignoriert. */
+
+/* Variablen (am besten hier ansetzen) */
+:host {
+  --accent: #E5391D;  --bg: #EEECEA;  --card: #fff;  --tile: #F4F2F0;
+  --text: #1E1C1B;  --muted: #8A8580;  --dark: #1F1D1C;
+  --wall: #2E2C2B;  --floor: #fff;  --outside: #EDEBE9;  --door: #B3AEA9;
+  --radius: 22px;  --gap: 12px;  --m: 18px;  --pad: 16px;  --cal-h: 198px;
+  --pin: 36px;  --pin-fs: 14px;  --label-fs: 11px;  --fs: 1;
+  /* --k = Skalierung von Pins/Labels mit dem Grundriss (wird berechnet) */
+}
+:host([data-theme="dark"]) { }      /* nur Nachtmodus */
+:host([data-floor="OG"]) { }         /* nur wenn Etage OG offen ist */
+:host(.edit) { }                     /* nur im Editor */
+
+/* Bereiche */
+#top  #home  #date  #clock           /* Kopfzeile */
+#floors  .floor-btn  .floor-btn.active
+#plan-card  #plan-title  #all-off  #plan
+#weather  .w-temp  .w-cond  .w-day
+#waste  .bin  .bin.soon  .bin-ico
+#cal  .day  .day.today  .ev  .chip  .legend
+
+/* Grundriss */
+.fp .f-wall  .fp .f-floor  .fp .f-out  .fp .f-door   /* Flächen */
+.room-label  .room-label[data-room-name="Bad"]
+
+/* Geräte-Pins */
+.pin  .pin.on  .pin.val  .pin.unavail
+.pin[data-domain="light"]  .pin[data-entity="light.kueche"]
+
+/* Popups */
+.pop  .pop[data-domain="climate"]  .pop-title  .toggle  .panel
+
+/* Beispiele */
+.pin.on { animation: glow 2s infinite alternate; }
+@keyframes glow { to { box-shadow: 0 0 18px var(--accent); } }
+#date { font-weight: 800; }
+.pin[data-domain="climate"].on { background: #F59E0B; }
+`;
+
 /* ---------- SVG: säubern, Farben ans Theme binden ---------- */
 const SVG_BAD = new Set(["script","foreignobject","iframe","object","embed","audio","video","animate","set","animatemotion","animatetransform"]);
 function lum(c) {
@@ -425,6 +469,23 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;bac
 #toast{position:absolute;left:50%;bottom:232px;transform:translateX(-50%);background:var(--dark);color:#fff;padding:11px 18px;border-radius:14px;font-size:calc(14px * var(--fs));font-weight:600;opacity:0;transition:opacity .25s;pointer-events:none;z-index:20;white-space:nowrap}
 #toast.show{opacity:1}
 
+/* ---------- CSS-Fenster ---------- */
+#css-win{position:absolute;right:var(--m);bottom:var(--m);width:600px;height:460px;z-index:30;display:flex;flex-direction:column;
+  box-shadow:0 18px 50px rgba(0,0,0,.28);overflow:hidden;font-size:13px;border-radius:18px}
+#css-win[hidden]{display:none}
+#css-win.min{height:auto}
+#css-win.min .cw-body,#css-win.min .cw-foot{display:none}
+.cw-head{display:flex;align-items:center;gap:8px;padding:10px 10px 10px 14px;background:var(--tile);cursor:move;touch-action:none;flex:none}
+.cw-head b{font-size:14px;margin-right:auto}
+.cw-tabs{display:flex;gap:4px;padding:8px 10px 0;flex:none}
+.cw-tabs button{height:30px;padding:0 12px;border-radius:9px;font-size:12.5px;font-weight:600;color:var(--muted);background:var(--tile)}
+.cw-tabs button.sel{background:var(--accent);color:#fff}
+.cw-body{flex:1;padding:8px 10px;min-height:0;display:flex}
+.cw-body textarea,.cw-body pre{flex:1;width:100%;resize:none;border:1.5px solid var(--tile-2);border-radius:10px;background:var(--bg);color:var(--text);
+  font:12.5px/1.55 ui-monospace,"SF Mono",Menlo,Consolas,monospace;padding:10px 12px;outline:none;tab-size:2;white-space:pre;overflow:auto;user-select:text;-webkit-user-select:text}
+.cw-body textarea:focus{border-color:var(--accent)}
+.cw-foot{padding:0 12px 10px;color:var(--muted);font-size:12px;flex:none}
+
 /* ---------- Editor ---------- */
 .edit #main{bottom:var(--m);grid-template-columns:176px 1fr 360px}
 .edit #cal{display:none}
@@ -514,7 +575,7 @@ class HauspanelPanel extends HTMLElement {
     this._initing = true;
     this._injectFont();
     if (this.kiosk) this.classList.add("kiosk");
-    this.shadowRoot.innerHTML = `<style>${CSS}</style><style id="theme-vars"></style>
+    this.shadowRoot.innerHTML = `<style>${CSS}</style><style id="theme-vars"></style><style id="custom-css"></style>
       <div id="stage">
         <header id="top"></header>
         <div id="main">
@@ -528,6 +589,7 @@ class HauspanelPanel extends HTMLElement {
         <section class="card" id="cal"></section>
         <div id="overlay"><div id="pop"></div></div>
         <div id="toast"></div>
+        <div class="card" id="css-win" hidden></div>
       </div>
       <div id="ghost"></div><div id="scratch"></div>`;
     this.$ = (s) => this.shadowRoot.querySelector(s);
@@ -602,7 +664,14 @@ class HauspanelPanel extends HTMLElement {
   /* Vorschau = Ansicht mit dem Entwurf, ohne den Editor zu verlassen */
   get editing() { return this.mode === "edit" && !this.preview; }
   get viewing() { return this.mode === "view" || !!this.preview; }
-  _applyThemeVars() { const el = this.$("#theme-vars"); if (el && this.C) el.textContent = themeCss(this.C.theme); }
+  _applyThemeVars() { const el = this.$("#theme-vars"); if (el && this.C) el.textContent = themeCss(this.C.theme); this._applyCustomCss(); }
+  /* Eigenes CSS: global + das der gerade offenen Etage. ?nocss in der URL schaltet es ab (Notfall). */
+  _applyCustomCss() {
+    const el = this.$ && this.$("#custom-css"); if (!el || !this.C) return;
+    if (/[?&]nocss\b/.test(location.search)) { el.textContent = ""; return; }
+    const f = this._floor();
+    el.textContent = (this.C.css || "") + "\n" + ((f && f.css) || "");
+  }
   get P() { return this.mode === "edit" ? this.draftPlans : this.plans; }
   _floor() { return (this.C.floors || []).find((f) => f.id === this.activeFloor); }
 
@@ -735,6 +804,7 @@ class HauspanelPanel extends HTMLElement {
         edit ? "Danach Grundriss hochladen und Geräte auf den Plan ziehen." : admin ? "Tippe oben auf den Stift, um Etagen, Grundrisse und Geräte einzurichten." : "Ein Admin kann das Panel über „Bearbeiten“ einrichten."}</div></div>`;
       return;
     }
+    this.setAttribute("data-floor", f.code || ""); this._applyCustomCss();
     head.innerHTML = `<h2 id="plan-title">${esc(f.name || f.code)}</h2>` + (edit
       ? `<button class="sbtn" data-a="room-add">${ic("tag", 16)}Raum-Label</button>`
       : (f.pins || []).some((p) => p.power_off) ? `<button id="all-off" data-a="all-off" aria-label="Alles aus">${ic("power", 19)}</button>` : "");
@@ -747,11 +817,11 @@ class HauspanelPanel extends HTMLElement {
     } else this._aspect = pl.aspect;
     let h = pl ? pl.html : "";
     (f.rooms || []).forEach((r) => {
-      h += `<div class="room-label${edit && this.sel && this.sel.type === "room" && this.sel.id === r.id ? " sel" : ""}" data-room="${r.id}" style="left:${r.x}%;top:${r.y}%">${esc(r.name)}</div>`;
+      h += `<div class="room-label${edit && this.sel && this.sel.type === "room" && this.sel.id === r.id ? " sel" : ""}" data-room="${r.id}" data-room-name="${esc(r.name)}" style="left:${r.x}%;top:${r.y}%">${esc(r.name)}</div>`;
     });
     (f.pins || []).forEach((p) => {
       const s = this._hass.states[p.entity_id];
-      h += `<button class="pin${edit && this.sel && this.sel.type === "pin" && this.sel.id === p.id ? " sel" : ""}" data-pin="${p.id}" style="left:${p.x}%;top:${p.y}%" title="${esc(p.name || friendly(this._hass, p.entity_id))}">${this._pinInner(p, s)}</button>`;
+      h += `<button class="pin${edit && this.sel && this.sel.type === "pin" && this.sel.id === p.id ? " sel" : ""}" data-pin="${p.id}" data-entity="${esc(p.entity_id)}" data-domain="${domainOf(p.entity_id)}" style="left:${p.x}%;top:${p.y}%" title="${esc(p.name || friendly(this._hass, p.entity_id))}">${this._pinInner(p, s)}</button>`;
     });
     plan.innerHTML = h;
     this._layoutPlan(); this._updatePins();
@@ -919,7 +989,8 @@ class HauspanelPanel extends HTMLElement {
 
   /* ---------- Popups ---------- */
   _showPop(html, wide) {
-    this.$("#pop").innerHTML = `<div class="pop${wide ? " wide" : ""}">${html}</div>`;
+    const dom = this.popup && this.popup.type === "entity" ? domainOf(((this._floor() || {}).pins || []).find((x) => x.id === this.popup.pin)?.entity_id || "") : (this.popup && this.popup.type) || "";
+    this.$("#pop").innerHTML = `<div class="pop${wide ? " wide" : ""}" data-domain="${esc(dom)}">${html}</div>`;
     this.$("#overlay").classList.add("show");
   }
   _closePop() { this._stopCamera(); this.$("#overlay").classList.remove("show"); this.popup = null; }
@@ -1071,7 +1142,7 @@ class HauspanelPanel extends HTMLElement {
     if (this._suppressClick) { this._suppressClick = false; return; }
     const fl = t.closest("[data-floor]");
     if (fl) { this.activeFloor = fl.dataset.floor; this.sel = null; if (this.editing && this.tab === "select") this.tab = "floor";
-      this._renderFloors(); this._renderPlan(); if (this.editing) this._renderInspector(); return; }
+      this._renderFloors(); this._renderPlan(); if (this.editing) this._renderInspector(); if (this.cssOpen) this._renderCssWin(); return; }
     const wk = t.closest("[data-wk]");
     if (wk) { const v = Number(wk.dataset.wk); this.weekOffset = v === 0 ? 0 : this.weekOffset + v; this.events = []; this._renderCal(); this._fetchEvents(); return; }
     const evb = t.closest("[data-ev]");
@@ -1092,7 +1163,11 @@ class HauspanelPanel extends HTMLElement {
         return this._applyTheme();
       case "all-off": return this._allOff();
       case "edit": return this._enterEdit();
-      case "preview-exit": this._closePop(); this.preview = false; this._themeOverride = null; return this._renderAll();
+      case "preview-exit": this._closePop(); this.preview = false; this._themeOverride = null; this._renderAll(); return this._renderCssWin();
+      case "css-open": this.cssOpen = true; this._cssMin = false; return this._renderCssWin();
+      case "css-close": this.cssOpen = false; if (this.editing) this._renderInspector(); return this._renderCssWin();
+      case "css-min": this._cssMin = !this._cssMin; return this._renderCssWin();
+      case "css-tab": this._cssTab = b.dataset.v; return this._renderCssWin();
     }
     if (this.mode === "edit") this._editClick(a, b, ev);
   }
@@ -1118,7 +1193,8 @@ class HauspanelPanel extends HTMLElement {
     this._renderAll();
   }
   _exitEdit() {
-    this.mode = "view"; this.draft = null; this.draftPlans = {}; this.sel = null; this.dirty = false; this.preview = false;
+    this.mode = "view"; this.draft = null; this.draftPlans = {}; this.sel = null; this.dirty = false; this.preview = false; this.cssOpen = false;
+    this._renderCssWin();
     this._themeOverride = null; this.planCache = {};
     const floors = this.cfg.floors || [];
     if (!floors.some((f) => f.id === this.activeFloor)) this.activeFloor = this._homeFloor();
@@ -1198,7 +1274,7 @@ class HauspanelPanel extends HTMLElement {
       }
       case "design-mode": this._designMode = b.dataset.v; this._themeOverride = b.dataset.v; this._applyTheme(); return this._renderInspector();
       case "theme-reset": this.draft.theme = null; this._markDirty(); this._applyThemeVars(); this._layoutPlan(); return this._renderInspector();
-      case "preview": this.preview = true; this.sel = null; this.events = []; this._renderAll(); this._fetchEvents(); return;
+      case "preview": this.preview = true; this.sel = null; this.events = []; this._renderAll(); this._fetchEvents(); this._renderCssWin(); return;
       case "pin-display": {
         const p = this._selPin(); p.display = b.dataset.v;
         this._markDirty(); this._renderPlan(); return this._renderInspector();
@@ -1261,6 +1337,11 @@ class HauspanelPanel extends HTMLElement {
       case "floor-recolor": f.recolor = val; this._renderPlan(); break;
       case "plan-file": if (isChange) this._uploadPlan(el.files && el.files[0]); return;
       case "weather": this.draft.weather_entity = val || null; break;
+      case "css-global": case "css-floor": {
+        if (k === "css-global") this.draft.css = val; else { const fl = this._floor(); if (fl) fl.css = val; }
+        clearTimeout(this._cssT); this._cssT = setTimeout(() => this._applyCustomCss(), 120);
+        break;
+      }
       case "theme-color": case "theme-size": {
         this.draft.theme = mergeTheme(this.draft.theme);
         if (k === "theme-color") { this.draft.theme[this._designMode || "light"][el.dataset.k] = val; el.nextElementSibling.nextElementSibling.textContent = val; }
@@ -1306,6 +1387,7 @@ class HauspanelPanel extends HTMLElement {
   /* ---------- Drag & Drop (Pointer-Events, funktioniert mit Maus und Touch) ---------- */
   _onPointerDown(ev) {
     this._lastTouch = Date.now();
+    if (ev.target.closest(".cw-head") && !ev.target.closest("button")) return this._dragCssWin(ev);
     if (!this.editing || ev.button > 0) return;
     const pinEl = ev.target.closest(".pin"), roomEl = ev.target.closest(".room-label"), grip = ev.target.closest(".grip");
     if (pinEl || roomEl) return this._dragOnPlan(ev, pinEl, roomEl);
@@ -1481,8 +1563,13 @@ class HauspanelPanel extends HTMLElement {
   }
   _tabDesign() {
     const t = mergeTheme(this.draft.theme), m = this._designMode || "light";
+    const f = this._floor(), lines = (s) => (s || "").split("\n").filter((x) => x.trim()).length;
     return `<div class="row" style="margin-bottom:14px"><button class="sbtn primary" data-a="preview">${ic("eye", 16)}Vorschau</button>
         <button class="sbtn" data-a="theme-reset">Auf Standard zurücksetzen</button></div>
+      <div class="fld"><label>Eigenes CSS</label>
+        <button class="sbtn full" data-a="css-open">${ic("code", 16)}CSS bearbeiten</button>
+        <div class="hint" style="margin-top:6px">Ganze Seite: ${lines(this.draft.css)} Zeilen${f ? ` · ${esc(f.code)}: ${lines(f.css)} Zeilen` : ""}. Wirkt live, auch in der Vorschau.</div></div>
+      <div class="sep"></div>
       <div class="fld"><label>Farben</label><div class="chips" style="margin:0 0 10px">
         <button class="${m === "light" ? "sel" : ""}" data-a="design-mode" data-v="light">Hell</button>
         <button class="${m === "dark" ? "sel" : ""}" data-a="design-mode" data-v="dark">Nachtmodus</button></div>
@@ -1494,6 +1581,40 @@ class HauspanelPanel extends HTMLElement {
           <span>${l}</span><b id="tv-${k}">${t.size[k]} ${u}</b></div>
           <input type="range" min="${mn}" max="${mx}" step="1" value="${t.size[k]}" data-f="theme-size" data-k="${k}" style="--p:${((t.size[k] - mn) / (mx - mn)) * 100}%"></div>`).join("")}</div>
       <div class="hint">Pins und Raum-Labels wachsen zusätzlich mit dem Grundriss mit, damit sie auf jedem Bildschirm an derselben Stelle sitzen.</div>`;
+  }
+  _renderCssWin() {
+    const w = this.$("#css-win"); if (!w) return;
+    if (!this.cssOpen || this.mode !== "edit") { w.hidden = true; return; }
+    w.hidden = false; w.classList.toggle("min", !!this._cssMin);
+    const f = this._floor(), tab = this._cssTab || "global";
+    const tabs = [["global", "Ganze Seite"], ...(f ? [["floor", `Nur ${f.code || "Etage"}`]] : []), ["help", "Spickzettel"], ["base", "Eingebautes CSS"]];
+    const cur = tab === "floor" && !f ? "global" : tab;
+    let body;
+    if (cur === "global") body = `<textarea data-f="css-global" spellcheck="false" placeholder="/* z. B. */\n#date { font-weight: 800; }">${esc(this.draft.css || "")}</textarea>`;
+    else if (cur === "floor") body = `<textarea data-f="css-floor" spellcheck="false" placeholder="/* gilt nur, solange ${esc(f.code)} offen ist */\n.pin.on { background: #2F6DD0; }">${esc(f.css || "")}</textarea>`;
+    else body = `<pre>${esc(cur === "help" ? CSS_HELP : CSS.trim())}</pre>`;
+    w.innerHTML = `<div class="cw-head" data-drag="css">${ic("code", 16)}<b>Eigenes CSS</b>
+        <button class="sbtn" data-a="css-min">${this._cssMin ? "Aufklappen" : "Einklappen"}</button>
+        <button class="sbtn" data-a="css-close" aria-label="Schließen">${ic("x", 16)}</button></div>
+      <div class="cw-tabs">${tabs.map(([k, l]) => `<button class="${cur === k ? "sel" : ""}" data-a="css-tab" data-v="${k}">${esc(l)}</button>`).join("")}</div>
+      <div class="cw-body">${body}</div>
+      <div class="cw-foot">${cur === "base" ? "Nur zum Nachschlagen/Kopieren – Änderungen gehören in „Ganze Seite“ oder die Etage." : cur === "help" ? "Selektoren und Variablen, die du überschreiben kannst." : "Wirkt sofort · gespeichert wird mit „Speichern“ · Fenster am Kopf verschieben"}</div>`;
+    const ta = w.querySelector("textarea");
+    if (ta) ta.addEventListener("keydown", (e) => {
+      if (e.key !== "Tab") return;
+      e.preventDefault();
+      const s = ta.selectionStart; ta.setRangeText("  ", s, ta.selectionEnd, "end");
+      ta.dispatchEvent(new Event("input", { bubbles: true, composed: true }));
+    });
+  }
+  _dragCssWin(ev) {
+    ev.preventDefault();
+    const w = this.$("#css-win"), sc = this._scale || 1, sx = ev.clientX, sy = ev.clientY;
+    const ox = this._cssPos ? this._cssPos.x : 0, oy = this._cssPos ? this._cssPos.y : 0;
+    const head = ev.target.closest(".cw-head"); head.setPointerCapture(ev.pointerId);
+    const move = (e) => { this._cssPos = { x: ox + (e.clientX - sx) / sc, y: oy + (e.clientY - sy) / sc }; w.style.transform = `translate(${this._cssPos.x}px,${this._cssPos.y}px)`; };
+    const up = () => { head.removeEventListener("pointermove", move); head.removeEventListener("pointerup", up); };
+    head.addEventListener("pointermove", move); head.addEventListener("pointerup", up);
   }
   _tabGeneral() {
     const c = this.draft;
