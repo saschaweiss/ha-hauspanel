@@ -1585,6 +1585,13 @@ class HauspanelPanel extends HTMLElement {
   /* ---------- Inspector ---------- */
   _renderInspector() {
     const el = this.$("#insp"); if (!el) return;
+    // Scrollposition pro Tab merken, damit Neuzeichnen nicht nach oben springt
+    this._inspScroll = this._inspScroll || {};
+    const old = this.$("#insp-body");
+    if (old && this._inspTab) this._inspScroll[this._inspTab] = old.scrollTop;
+    const selKey = this.sel ? this.sel.type + ":" + this.sel.id + ":" + this.activeFloor : "";
+    if (selKey !== this._inspSel) { this._inspScroll.select = 0; this._inspSel = selKey; }
+    if (this._inspFloor !== this.activeFloor) { this._inspScroll.floor = 0; this._inspFloor = this.activeFloor; }
     const tabs = [["devices", "Geräte"], ["select", "Auswahl"], ["floor", "Etage"], ["general", "Allgemein"], ["design", "Design"]];
     el.innerHTML = `<div class="tabs">${tabs.map(([k, l]) => `<button class="${this.tab === k ? "sel" : ""}" data-a="tab" data-tab="${k}">${l}</button>`).join("")}</div>
       <div class="insp-body" id="insp-body"></div>`;
@@ -1595,6 +1602,8 @@ class HauspanelPanel extends HTMLElement {
     else if (this.tab === "design") body.innerHTML = this._tabDesign();
     else body.innerHTML = this._tabGeneral();
     if (this.tab === "devices") this._renderEntityList();
+    this._inspTab = this.tab;
+    body.scrollTop = this._inspScroll[this.tab] || 0;
   }
   _entityOptions(domains, current, emptyLabel) {
     const ids = Object.keys(this._hass.states).filter((id) => domains.includes(domainOf(id))).sort((a, b) => friendly(this._hass, a).localeCompare(friendly(this._hass, b), "de"));
