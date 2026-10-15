@@ -32,7 +32,7 @@ _SVG_STRIP = [
     re.compile(r"<foreignObject[\s\S]*?</foreignObject\s*>", re.I),
     re.compile(r"<(iframe|embed|object)[\s\S]*?(/>|</\1\s*>)", re.I),
     re.compile(r"\son[a-z]+\s*=\s*(\"[^\"]*\"|'[^']*'|[^\s>]+)", re.I),
-    re.compile(r"(href|xlink:href)\s*=\s*([\"'])\s*(javascript|data):[^\"']*\2", re.I),
+    re.compile(r"(href|xlink:href)\s*=\s*([\"'])\s*(javascript:|data:(?!image/(png|jpe?g|gif|webp);))[^\"']*\2", re.I),
 ]
 
 
@@ -139,7 +139,7 @@ async def ws_save_plan(
     svg = msg.get("svg")
     if svg is not None:
         if len(svg.encode()) > MAX_PLAN_BYTES:
-            connection.send_error(msg["id"], "too_large", "SVG ist größer als 2 MB")
+            connection.send_error(msg["id"], "too_large", "Grundriss ist zu groß (max. 3,5 MB)")
             return
         try:
             svg = sanitize_svg(svg)

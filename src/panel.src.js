@@ -72,6 +72,15 @@ function isActive(stateObj) {
   }
   return ACTIVE_STATES.has(st);
 }
+/* Hat das Gerät überhaupt einen An/Aus-Status? */
+const STATUS_DOMAINS = new Set(["light","switch","fan","input_boolean","media_player","cover","lock","climate","binary_sensor"]);
+/* Farbe/Status eines Pins: p.status = "auto" | "action" | "mode" | "none" (wie Messwert) */
+function pinStatusful(p) { return STATUS_DOMAINS.has(domainOf(p.entity_id)) && p.status !== "none"; }
+function pinActive(p, s) {
+  if (!s || !pinStatusful(p)) return false;
+  if (domainOf(p.entity_id) === "climate" && p.status === "mode") return !["off", "unavailable", "unknown"].includes(s.state);
+  return isActive(s);
+}
 function defaultIcon(stateObj, id) {
   const d = domainOf(id), dc = stateObj && stateObj.attributes.device_class;
   switch (d) {
@@ -394,6 +403,7 @@ svg.i{display:block;fill:none;stroke:currentColor;stroke-linecap:round;stroke-li
 #plan-wrap{flex:1;position:relative;margin-top:6px}
 #plan{position:absolute}
 #plan > svg.fp{position:absolute;inset:0;width:100%;height:100%}
+:host([data-theme="dark"]) #plan.inv > svg.fp image{filter:invert(.92) hue-rotate(180deg)}
 svg.fp{fill:var(--wall)}
 .fp .f-wall{fill:var(--wall)}.fp .f-floor{fill:var(--floor)}.fp .f-out{fill:var(--outside)}.fp .f-door{fill:var(--door)}
 .fp .s-wall{stroke:var(--wall)}.fp .s-floor{stroke:var(--floor)}.fp .s-out{stroke:var(--outside)}.fp .s-door{stroke:var(--door)}
@@ -403,7 +413,8 @@ svg.fp{fill:var(--wall)}
 .pin:active{transform:translate(-50%,-50%) scale(calc(var(--k, 1) * .9))}
 .pin svg.i{width:calc(var(--pin) * .5);height:calc(var(--pin) * .5)}
 .pin.both svg.i{width:calc(var(--pin) * .42);height:calc(var(--pin) * .42)}
-.pin.val{background:var(--pin-val-bg);color:var(--pin-val-fg);padding:0 calc(var(--pin) * .3);font-size:var(--pin-fs);font-weight:700;letter-spacing:-.2px;font-variant-numeric:tabular-nums}
+.pin.plain{background:var(--pin-val-bg);color:var(--pin-val-fg)}
+.pin.val{padding:0 calc(var(--pin) * .3);font-size:var(--pin-fs);font-weight:700;letter-spacing:-.2px;font-variant-numeric:tabular-nums}
 .pin.val.both{padding:0 calc(var(--pin) * .3) 0 calc(var(--pin) * .22)}
 .pin.on{background:var(--pin-on-bg);color:var(--pin-on-fg);box-shadow:0 3px 10px var(--accent-glow)}
 .pin.cam{background:var(--pin-cam-bg);color:var(--pin-cam-fg)}
@@ -601,7 +612,7 @@ class HauspanelPanel extends HTMLElement {
   connectedCallback() { if (this._hass && !this._ready) this._init(); }
   disconnectedCallback() {
     this._unsubs.forEach((u) => { try { u(); } catch (e) {} });
-    this._timers.forEach((t) => clearInterval(t));
+    this._timers.forEach((t) => clearInterval(t)); clearTimeout(this._clockT);
     this._unsubs = []; this._timers = []; this._ready = false;
     if (this._ro) this._ro.disconnect();
     this._stopCamera();
@@ -644,11 +655,17 @@ class HauspanelPanel extends HTMLElement {
       this.$("#plan").innerHTML = `<div class="empty"><div><b>Keine Verbindung zum Backend</b>${esc(err.message || err.code || err)}</div></div>`;
     }
     this._timers.push(setInterval(() => { this._tick(); this._idleReset(); }, 15000));
+    this._scheduleClock();
     this._timers.push(setInterval(() => this._fetchEvents(), 10 * 60000));
     this._ready = true;
     this._initing = false;
   }
 
+  /* Uhr genau zum Minutenwechsel aktualisieren (nicht nur alle 15 s) */
+  _scheduleClock() {
+    clearTimeout(this._clockT);
+    this._clockT = setTimeout(() => { if (!this.isConnected) return; this._tick(); this._scheduleClock(); }, 60000 - (Date.now() % 60000) + 30);
+  }
   _injectFont() {
     if (document.getElementById("hauspanel-font")) return;
     const base = (this._panelCfg && this._panelCfg.static_url) || "/hauspanel_static";
@@ -862,6 +879,7 @@ class HauspanelPanel extends HTMLElement {
       h += `<button class="pin${edit && this.sel && this.sel.type === "pin" && this.sel.id === p.id ? " sel" : ""}" data-pin="${p.id}" data-entity="${esc(p.entity_id)}" data-domain="${domainOf(p.entity_id)}" style="left:${p.x}%;top:${p.y}%" title="${esc(p.name || friendly(this._hass, p.entity_id))}">${this._pinInner(p, s)}</button>`;
     });
     plan.innerHTML = h;
+    plan.classList.toggle("inv", !!f.raster && f.recolor !== false);
     this._layoutPlan(); this._updatePins();
   }
 
@@ -907,7 +925,8 @@ class HauspanelPanel extends HTMLElement {
       el.classList.toggle("val", mode !== "icon");
       el.classList.toggle("both", mode === "both");
       if (mode !== "icon") { const pv = el.querySelector(".pv"), txt = this._pinValue(p, s); if (pv && pv.textContent !== txt) pv.textContent = txt; }
-      el.classList.toggle("on", isActive(s));
+      el.classList.toggle("on", pinActive(p, s));
+      el.classList.toggle("plain", !pinStatusful(p) && d !== "camera");
       el.classList.toggle("cam", d === "camera");
       el.classList.toggle("unavail", !s || s.state === "unavailable");
     });
@@ -1061,7 +1080,7 @@ class HauspanelPanel extends HTMLElement {
     if (!p) return this._closePop();
     const id = p.entity_id, s = this._hass.states[id], d = domainOf(id);
     const name = p.name || friendly(this._hass, id), sub = [this._roomOf(f, p), f.code].filter(Boolean).join(" · ");
-    const icon = p.icon || defaultIcon(s, id), on = isActive(s);
+    const icon = p.icon || defaultIcon(s, id), on = pinActive(p, s);
     if (!s) return this._showPop(this._popHead(icon, "", sub, name) + `<div class="panel">Entity <b>${esc(id)}</b> gibt es in Home Assistant nicht (mehr).</div>`);
     const a = s.attributes, unavail = s.state === "unavailable";
     let h = this._popHead(icon, d === "camera" ? "cam" : on ? "on" : "", sub, name);
@@ -1321,6 +1340,10 @@ class HauspanelPanel extends HTMLElement {
       }
       case "theme-reset": this.draft.theme = null; this._markDirty(); this._applyThemeVars(); this._layoutPlan(); return this._renderInspector();
       case "preview": this.preview = true; this.sel = null; this.events = []; this._renderAll(); this._fetchEvents(); this._renderCssWin(); return;
+      case "pin-status": {
+        const p = this._selPin(); p.status = b.dataset.v === "auto" ? null : b.dataset.v;
+        this._markDirty(); this._renderPlan(); return this._renderInspector();
+      }
       case "pin-display": {
         const p = this._selPin(); p.display = b.dataset.v;
         this._markDirty(); this._renderPlan(); return this._renderInspector();
@@ -1423,11 +1446,35 @@ class HauspanelPanel extends HTMLElement {
     this._markDirty();
   }
 
+  /* JPG/PNG/WebP: auf max. 2400 px verkleinern und als <image> in ein SVG packen */
+  async _rasterToSvg(file) {
+    const url = URL.createObjectURL(file);
+    try {
+      const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
+      const MAX = 2400, sc = Math.min(1, MAX / Math.max(img.naturalWidth, img.naturalHeight));
+      const w = Math.round(img.naturalWidth * sc), h = Math.round(img.naturalHeight * sc);
+      const cv = document.createElement("canvas"); cv.width = w; cv.height = h;
+      const cx = cv.getContext("2d"); cx.fillStyle = "#fff"; cx.fillRect(0, 0, w, h); cx.drawImage(img, 0, 0, w, h);
+      let data = file.type === "image/png" ? cv.toDataURL("image/png") : "";
+      for (const q of [0.9, 0.8, 0.7, 0.55]) { if (data && data.length < 3e6) break; data = cv.toDataURL("image/jpeg", q); }
+      if (data.length > 3.3e6) return null;
+      return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}"><image href="${data}" x="0" y="0" width="${w}" height="${h}"/></svg>`;
+    } catch (e) { return null; } finally { URL.revokeObjectURL(url); }
+  }
   async _uploadPlan(file) {
     if (!file) return;
+    const f = this._floor();
+    if (/^image\/(png|jpe?g|webp)$/.test(file.type)) {
+      if (file.size > 25e6) return this._toast("Bild ist größer als 25 MB");
+      const svg = await this._rasterToSvg(file);
+      if (!svg) return this._toast("Bild konnte nicht gelesen werden");
+      this.draftPlans[f.id] = svg; f.raster = true; delete this.planCache[f.id];
+      this._markDirty(); this._renderPlan(); this._renderInspector();
+      return this._toast("Bild geladen – jetzt Geräte draufziehen");
+    }
     if (file.size > 2e6) return this._toast("SVG ist größer als 2 MB");
     const text = await file.text();
-    const f = this._floor();
+    f.raster = false;
     const test = processSvg(text, true, this.$("#scratch"));
     if (!test) return this._toast("Datei konnte nicht als SVG gelesen werden");
     this.draftPlans[f.id] = text; delete this.planCache[f.id];
@@ -1570,6 +1617,7 @@ class HauspanelPanel extends HTMLElement {
         <div class="hint" style="margin-top:6px">Jetzt: ${esc(this._pinValue(p, s))}</div></div>
       <div class="fld"><label>Icon</label><div class="icon-grid"><button class="${p.icon ? "" : "sel"}" data-a="pin-icon" data-icon="auto" title="Automatisch" style="font-size:11px;font-weight:700">Auto</button>
         ${PIN_ICONS.map((n) => `<button class="${p.icon === n ? "sel" : ""}" data-a="pin-icon" data-icon="${n}" title="${n}">${ic(n, 17)}</button>`).join("")}</div></div>
+      ${this._statusField(p, d)}
       <label class="check"><input type="checkbox" data-f="pin-power" ${p.power_off ? "checked" : ""}>Mit Power-Button ausschalten</label>
       <div class="sep"></div>
       <div class="fld"><label>Zusatzwerte im Popup</label>
@@ -1581,6 +1629,18 @@ class HauspanelPanel extends HTMLElement {
       <button class="sbtn danger full" data-a="pin-del">${ic("trash-2", 16)}Vom Plan entfernen</button>`;
   }
 
+  _statusField(p, d) {
+    if (!STATUS_DOMAINS.has(d)) return `<div class="fld"><label>Farbe</label><div class="hint" style="margin:0">Messwert-Farben – dieses Gerät hat keinen An/Aus-Status.</div></div>`;
+    const cur = p.status || "auto";
+    const opts = d === "climate"
+      ? [["auto", "An, wenn sie heizt"], ["mode", "An, wenn Heizmodus aktiv"], ["none", "Wie Messwert"]]
+      : [["auto", "Status (an/aus)"], ["none", "Wie Messwert"]];
+    const hint = d === "climate"
+      ? "„Heizt“ nutzt hvac_action – rot nur, solange wirklich geheizt wird. „Heizmodus“ ist rot, solange das Thermostat nicht auf Aus steht."
+      : "„Wie Messwert“: immer in den Messwert-Farben, egal ob an oder aus.";
+    return `<div class="fld"><label>Farbe</label><div class="chips" style="margin:0">${opts.map(([k, l]) =>
+      `<button class="${cur === k ? "sel" : ""}" data-a="pin-status" data-v="${k}">${l}</button>`).join("")}</div><div class="hint" style="margin-top:6px">${hint}</div></div>`;
+  }
   _tabFloor() {
     const f = this._floor();
     if (!f) return `<div class="hint">Noch keine Etage. Links auf „+ Etage“ tippen.</div>`;
@@ -1588,12 +1648,14 @@ class HauspanelPanel extends HTMLElement {
     this._confirmDel = false;
     return `<div class="row"><div class="fld" style="width:90px"><label>Kürzel</label><input class="inp" data-f="floor-code" maxlength="4" value="${esc(f.code)}"></div>
         <div class="fld" style="flex:1"><label>Name</label><input class="inp" data-f="floor-name" value="${esc(f.name)}"></div></div>
-      <div class="fld"><label>Grundriss (SVG)</label>
-        <label class="drop-zone"><input type="file" accept=".svg,image/svg+xml" data-f="plan-file" hidden>
-          ${ic("upload", 22).replace('class="i"', 'class="i" style="margin:0 auto 6px"')}<b>${has ? "Anderes SVG wählen" : "SVG hochladen"}</b>max. 2 MB · Skripte werden entfernt</label>
+      <div class="fld"><label>Grundriss</label>
+        <label class="drop-zone"><input type="file" accept=".svg,image/svg+xml,image/png,image/jpeg,image/webp" data-f="plan-file" hidden>
+          ${ic("upload", 22).replace('class="i"', 'class="i" style="margin:0 auto 6px"')}<b>${has ? "Anderen Grundriss wählen" : "Grundriss hochladen"}</b>SVG (max. 2 MB) oder JPG/PNG/WebP – Bilder werden auf 2400 px verkleinert</label>
         ${has ? `<button class="sbtn danger" style="margin-top:8px" data-a="plan-del">${ic("trash-2", 16)}Grundriss entfernen</button>` : ""}</div>
-      <label class="check"><input type="checkbox" data-f="floor-recolor" ${f.recolor !== false ? "checked" : ""}>Farben an Design &amp; Nachtmodus anpassen</label>
-      <div class="hint">Dunkle Flächen werden zu Wänden, helle zu Boden, Grautöne zu Außenbereich/Türen. Aus = Original-Farben.</div>
+      ${f.raster ? `<label class="check"><input type="checkbox" data-f="floor-recolor" ${f.recolor !== false ? "checked" : ""}>Im Nachtmodus invertieren</label>
+      <div class="hint">Pixelbilder lassen sich nicht auf Wand-/Bodenfarben umfärben. Invertieren macht aus einem hellen Plan nachts einen dunklen.</div>`
+      : `<label class="check"><input type="checkbox" data-f="floor-recolor" ${f.recolor !== false ? "checked" : ""}>Farben an Design &amp; Nachtmodus anpassen</label>
+      <div class="hint">Dunkle Flächen werden zu Wänden, helle zu Boden, Grautöne zu Außenbereich/Türen. Aus = Original-Farben.</div>`}
       <label class="check"><input type="checkbox" data-f="floor-sep" ${f.separated ? "checked" : ""}>Trennlinie über dieser Etage (z. B. Keller)</label>
       <div class="sep"></div>
       <div class="row"><button class="sbtn" data-a="floor-up" ${idx === 0 ? "disabled" : ""}>${ic("arrow-up", 16)}Nach oben</button>
