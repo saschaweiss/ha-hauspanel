@@ -2,8 +2,8 @@
  * Ein Web-Component-Modul ohne Build-Abhängigkeiten.
  * Icons: Lucide (ISC-Lizenz). Schrift: Inter (OFL).
  */
-const HP_VERSION = "0.1.2";
-const ICONS = {"activity":"<path d=\"M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2\" />","arrow-down":"<path d=\"M12 5v14\" /> <path d=\"m19 12-7 7-7-7\" />","arrow-up":"<path d=\"m5 12 7-7 7 7\" /> <path d=\"M12 19V5\" />","blinds":"<path d=\"M3 3h18\" /> <path d=\"M20 7H8\" /> <path d=\"M20 11H8\" /> <path d=\"M10 19h10\" /> <path d=\"M8 15h12\" /> <path d=\"M4 3v14\" /> <circle cx=\"4\" cy=\"19\" r=\"2\" />","calendar":"<path d=\"M8 2v3\" /> <path d=\"M16 2v3\" /> <rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\" /> <path d=\"M3 9h18\" />","calendars":"<path d=\"M12 2v2\" /> <path d=\"M15.726 21.01A2 2 0 0 1 14 22H4a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2\" /> <path d=\"M18 2v2\" /> <path d=\"M2 13h2\" /> <path d=\"M8 8h14\" /> <rect x=\"8\" y=\"3\" width=\"14\" height=\"14\" rx=\"2\" />","camera":"<path d=\"M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z\" /> <circle cx=\"12\" cy=\"13\" r=\"3\" />","cctv":"<path d=\"M16.75 12h3.632a1 1 0 0 1 .894 1.447l-2.034 4.069a1 1 0 0 1-1.708.134l-2.124-2.97\" /> <path d=\"M17.106 9.053a1 1 0 0 1 .447 1.341l-3.106 6.211a1 1 0 0 1-1.342.447L3.61 12.3a2.92 2.92 0 0 1-1.3-3.91L3.69 5.6a2.92 2.92 0 0 1 3.92-1.3z\" /> <path d=\"M2 19h3.76a2 2 0 0 0 1.8-1.1L9 15\" /> <path d=\"M2 21v-4\" /> <path d=\"M7 9h.01\" />","check":"<path d=\"M20 6 9 17l-5-5\" />","chevron-left":"<path d=\"m15 18-6-6 6-6\" />","chevron-right":"<path d=\"m9 18 6-6-6-6\" />","circle":"<circle cx=\"12\" cy=\"12\" r=\"10\" />","circle-dot":"<circle cx=\"12\" cy=\"12\" r=\"1\" /> <circle cx=\"12\" cy=\"12\" r=\"10\" />","clock":"<circle cx=\"12\" cy=\"12\" r=\"10\" /> <path d=\"M12 6v6l4 2\" />","cloud":"<path d=\"M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z\" />","cloud-fog":"<path d=\"M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242\" /> <path d=\"M16 17H7\" /> <path d=\"M17 21H9\" />","cloud-hail":"<path d=\"M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242\" /> <path d=\"M16 14v2\" /> <path d=\"M8 14v2\" /> <path d=\"M16 20h.01\" /> <path d=\"M8 20h.01\" /> <path d=\"M12 16v2\" /> <path d=\"M12 22h.01\" />","cloud-lightning":"<path d=\"M6 16.326A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 .5 8.973\" /> <path d=\"m13 12-3 5h4l-3 5\" />","cloud-rain":"<path d=\"M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242\" /> <path d=\"M16 14v6\" /> <path d=\"M8 14v6\" /> <path d=\"M12 16v6\" />","cloud-rain-wind":"<path d=\"M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242\" /> <path d=\"m9.2 22 3-7\" /> <path d=\"m9 13-3 7\" /> <path d=\"m17 13-3 7\" />","cloud-snow":"<path d=\"M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242\" /> <path d=\"M8 15h.01\" /> <path d=\"M8 19h.01\" /> <path d=\"M12 17h.01\" /> <path d=\"M12 21h.01\" /> <path d=\"M16 15h.01\" /> <path d=\"M16 19h.01\" />","cloud-sun":"<path d=\"M12 2v2\" /> <path d=\"m4.93 4.93 1.41 1.41\" /> <path d=\"M20 12h2\" /> <path d=\"m19.07 4.93-1.41 1.41\" /> <path d=\"M15.947 12.65a4 4 0 0 0-5.925-4.128\" /> <path d=\"M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6Z\" />","code":"<path d=\"m16 18 6-6-6-6\" /> <path d=\"m8 6-6 6 6 6\" />","door-open":"<path d=\"M10 21H2\" /> <path d=\"M10 3H7a2 2 0 00-2 2v16\" /> <path d=\"M14 12h.01\" /> <path d=\"M19 21V5a2 2 0 00-1.675-1.974l-6.163-1.013A1 1 0 0010 3v18a1 1 0 001.124.992z\" /> <path d=\"M22 21h-3\" />","dot":"<circle cx=\"12\" cy=\"12\" r=\"1\" />","droplets":"<path d=\"M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z\" /> <path d=\"M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97\" />","edit":"<path d=\"M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7\" /> <path d=\"M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z\" />","ellipse":"<ellipse cx=\"12\" cy=\"12\" rx=\"10\" ry=\"6\" />","fan":"<path d=\"M10.827 16.379a6.082 6.082 0 0 1-8.618-7.002l5.412 1.45a6.082 6.082 0 0 1 7.002-8.618l-1.45 5.412a6.082 6.082 0 0 1 8.618 7.002l-5.412-1.45a6.082 6.082 0 0 1-7.002 8.618l1.45-5.412Z\" /> <path d=\"M12 12v.01\" />","file":"<path d=\"M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z\" /> <path d=\"M14 2v5a1 1 0 0 0 1 1h5\" />","flame":"<path d=\"M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4\" />","gauge":"<path d=\"m12 14 4-4\" /> <path d=\"M3.34 19a10 10 0 1 1 17.32 0\" />","ghost":"<path d=\"M15 10v1\" /> <path d=\"M7.528 20.472a1.6 1.6 0 012.277 0l1.057 1.056a1.6 1.6 0 002.276 0l1.057-1.056a1.6 1.6 0 012.277 0l1.114 1.114a1.4 1.4 0 002.414-1V10a8 8 0 00-16 0v10.586a1.4 1.4 0 002.414 1z\" /> <path d=\"M9 10v1\" />","grid":"<rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\" /> <path d=\"M3 9h18\" /> <path d=\"M3 15h18\" /> <path d=\"M9 3v18\" /> <path d=\"M15 3v18\" />","grip":"<circle cx=\"12\" cy=\"5\" r=\"1\" /> <circle cx=\"19\" cy=\"5\" r=\"1\" /> <circle cx=\"5\" cy=\"5\" r=\"1\" /> <circle cx=\"12\" cy=\"12\" r=\"1\" /> <circle cx=\"19\" cy=\"12\" r=\"1\" /> <circle cx=\"5\" cy=\"12\" r=\"1\" /> <circle cx=\"12\" cy=\"19\" r=\"1\" /> <circle cx=\"19\" cy=\"19\" r=\"1\" /> <circle cx=\"5\" cy=\"19\" r=\"1\" />","grip-vertical":"<circle cx=\"9\" cy=\"12\" r=\"1\" /> <circle cx=\"9\" cy=\"5\" r=\"1\" /> <circle cx=\"9\" cy=\"19\" r=\"1\" /> <circle cx=\"15\" cy=\"12\" r=\"1\" /> <circle cx=\"15\" cy=\"5\" r=\"1\" /> <circle cx=\"15\" cy=\"19\" r=\"1\" />","home":"<path d=\"M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8\" /> <path d=\"M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\" />","house":"<path d=\"M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8\" /> <path d=\"M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\" />","lamp-ceiling":"<path d=\"M12 2v5\" /> <path d=\"M14.829 15.998a3 3 0 1 1-5.658 0\" /> <path d=\"M20.92 14.606A1 1 0 0 1 20 16H4a1 1 0 0 1-.92-1.394l3-7A1 1 0 0 1 7 7h10a1 1 0 0 1 .92.606z\" />","lamp-desk":"<path d=\"M10.293 2.293a1 1 0 0 1 1.414 0l2.5 2.5 5.994 1.227a1 1 0 0 1 .506 1.687l-7 7a1 1 0 0 1-1.687-.506l-1.227-5.994-2.5-2.5a1 1 0 0 1 0-1.414z\" /> <path d=\"m14.207 4.793-3.414 3.414\" /> <path d=\"M3 20a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z\" /> <path d=\"m9.086 6.5-4.793 4.793a1 1 0 0 0-.18 1.17L7 18\" />","lamp-floor":"<path d=\"M12 10v12\" /> <path d=\"M17.929 7.629A1 1 0 0 1 17 9H7a1 1 0 0 1-.928-1.371l2-5A1 1 0 0 1 9 2h6a1 1 0 0 1 .928.629z\" /> <path d=\"M9 22h6\" />","lightbulb":"<path d=\"M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5\" /> <path d=\"M9 18h6\" /> <path d=\"M10 22h4\" />","list":"<path d=\"M3 5h.01\" /> <path d=\"M3 12h.01\" /> <path d=\"M3 19h.01\" /> <path d=\"M8 5h13\" /> <path d=\"M8 12h13\" /> <path d=\"M8 19h13\" />","lock":"<rect width=\"18\" height=\"11\" x=\"3\" y=\"11\" rx=\"2\" ry=\"2\" /> <path d=\"M7 11V7a5 5 0 0 1 10 0v4\" />","map-pin":"<path d=\"M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0\" /> <circle cx=\"12\" cy=\"10\" r=\"3\" />","menu":"<path d=\"M4 5h16\" /> <path d=\"M4 12h16\" /> <path d=\"M4 19h16\" />","minus":"<path d=\"M5 12h14\" />","moon":"<path d=\"M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401\" />","pencil":"<path d=\"M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z\" /> <path d=\"m15 5 4 4\" />","pill":"<path d=\"m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z\" /> <path d=\"m8.5 8.5 7 7\" />","pin":"<path d=\"M12 17v5\" /> <path d=\"M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z\" />","play":"<path d=\"M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z\" />","plug":"<path d=\"M12 22v-5\" /> <path d=\"M15 8V2\" /> <path d=\"M17 8a1 1 0 0 1 1 1v4a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1z\" /> <path d=\"M9 8V2\" />","plus":"<path d=\"M5 12h14\" /> <path d=\"M12 5v14\" />","power":"<path d=\"M12 2v10\" /> <path d=\"M18.4 6.6a9 9 0 1 1-12.77.04\" />","refrigerator":"<path d=\"M5 6a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6Z\" /> <path d=\"M5 10h14\" /> <path d=\"M15 7v6\" />","search":"<path d=\"m21 21-4.34-4.34\" /> <circle cx=\"11\" cy=\"11\" r=\"8\" />","speaker":"<rect width=\"16\" height=\"20\" x=\"4\" y=\"2\" rx=\"2\" /> <path d=\"M12 6h.01\" /> <circle cx=\"12\" cy=\"14\" r=\"4\" /> <path d=\"M12 14h.01\" />","sun":"<circle cx=\"12\" cy=\"12\" r=\"4\" /> <path d=\"M12 2v2\" /> <path d=\"M12 20v2\" /> <path d=\"m4.93 4.93 1.41 1.41\" /> <path d=\"m17.66 17.66 1.41 1.41\" /> <path d=\"M2 12h2\" /> <path d=\"M20 12h2\" /> <path d=\"m6.34 17.66-1.41 1.41\" /> <path d=\"m19.07 4.93-1.41 1.41\" />","tag":"<path d=\"M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z\" /> <circle cx=\"7.5\" cy=\"7.5\" r=\".5\" fill=\"currentColor\" />","text":"<path d=\"M21 5H3\" /> <path d=\"M15 12H3\" /> <path d=\"M17 19H3\" />","thermometer":"<path d=\"M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z\" />","toggle-left":"<circle cx=\"9\" cy=\"12\" r=\"3\" /> <rect width=\"20\" height=\"14\" x=\"2\" y=\"5\" rx=\"7\" />","trash-2":"<path d=\"M10 11v6\" /> <path d=\"M14 11v6\" /> <path d=\"M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6\" /> <path d=\"M3 6h18\" /> <path d=\"M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2\" />","triangle-alert":"<path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3\" /> <path d=\"M12 9v4\" /> <path d=\"M12 17h.01\" />","tv":"<path d=\"m17 2-5 5-5-5\" /> <rect width=\"20\" height=\"15\" x=\"2\" y=\"7\" rx=\"2\" />","unlock":"<rect width=\"18\" height=\"11\" x=\"3\" y=\"11\" rx=\"2\" ry=\"2\" /> <path d=\"M7 11V7a5 5 0 0 1 9.9-1\" />","upload":"<path d=\"M12 3v12\" /> <path d=\"m17 8-5-5-5 5\" /> <path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\" />","video":"<path d=\"m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5\" /> <rect x=\"2\" y=\"6\" width=\"14\" height=\"12\" rx=\"2\" />","view":"<path d=\"M21 17v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2\" /> <path d=\"M21 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2\" /> <circle cx=\"12\" cy=\"12\" r=\"1\" /> <path d=\"M18.944 12.33a1 1 0 0 0 0-.66 7.5 7.5 0 0 0-13.888 0 1 1 0 0 0 0 .66 7.5 7.5 0 0 0 13.888 0\" />","washing-machine":"<path d=\"M3 6h3\" /> <path d=\"M17 6h.01\" /> <rect width=\"18\" height=\"20\" x=\"3\" y=\"2\" rx=\"2\" /> <circle cx=\"12\" cy=\"13\" r=\"5\" /> <path d=\"M12 18a2.5 2.5 0 0 0 0-5 2.5 2.5 0 0 1 0-5\" />","wind":"<path d=\"M12.8 19.6A2 2 0 1 0 14 16H2\" /> <path d=\"M17.5 8a2.5 2.5 0 1 1 2 4H2\" /> <path d=\"M9.8 4.4A2 2 0 1 1 11 8H2\" />","x":"<path d=\"M18 6 6 18\" /> <path d=\"m6 6 12 12\" />","zap":"<path d=\"M15.914 4a1.5 1.5 0 00-2.474-1.561l-9 9A1.5 1.5 0 005.5 14h4.002a.5.5 0 01.471.666L8.086 20a1.5 1.5 0 002.475 1.56l9-9A1.5 1.5 0 0018.5 10h-3.997a.5.5 0 01-.472-.667z\" />"};
+const HP_VERSION = "0.2.0";
+const ICONS = {"activity":"<path d=\"M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2\" />","arrow-down":"<path d=\"M12 5v14\" /> <path d=\"m19 12-7 7-7-7\" />","arrow-up":"<path d=\"m5 12 7-7 7 7\" /> <path d=\"M12 19V5\" />","blinds":"<path d=\"M3 3h18\" /> <path d=\"M20 7H8\" /> <path d=\"M20 11H8\" /> <path d=\"M10 19h10\" /> <path d=\"M8 15h12\" /> <path d=\"M4 3v14\" /> <circle cx=\"4\" cy=\"19\" r=\"2\" />","calendar":"<path d=\"M8 2v3\" /> <path d=\"M16 2v3\" /> <rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\" /> <path d=\"M3 9h18\" />","calendars":"<path d=\"M12 2v2\" /> <path d=\"M15.726 21.01A2 2 0 0 1 14 22H4a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2\" /> <path d=\"M18 2v2\" /> <path d=\"M2 13h2\" /> <path d=\"M8 8h14\" /> <rect x=\"8\" y=\"3\" width=\"14\" height=\"14\" rx=\"2\" />","camera":"<path d=\"M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z\" /> <circle cx=\"12\" cy=\"13\" r=\"3\" />","cctv":"<path d=\"M16.75 12h3.632a1 1 0 0 1 .894 1.447l-2.034 4.069a1 1 0 0 1-1.708.134l-2.124-2.97\" /> <path d=\"M17.106 9.053a1 1 0 0 1 .447 1.341l-3.106 6.211a1 1 0 0 1-1.342.447L3.61 12.3a2.92 2.92 0 0 1-1.3-3.91L3.69 5.6a2.92 2.92 0 0 1 3.92-1.3z\" /> <path d=\"M2 19h3.76a2 2 0 0 0 1.8-1.1L9 15\" /> <path d=\"M2 21v-4\" /> <path d=\"M7 9h.01\" />","check":"<path d=\"M20 6 9 17l-5-5\" />","chevron-left":"<path d=\"m15 18-6-6 6-6\" />","chevron-right":"<path d=\"m9 18 6-6-6-6\" />","circle":"<circle cx=\"12\" cy=\"12\" r=\"10\" />","circle-dot":"<circle cx=\"12\" cy=\"12\" r=\"1\" /> <circle cx=\"12\" cy=\"12\" r=\"10\" />","clock":"<circle cx=\"12\" cy=\"12\" r=\"10\" /> <path d=\"M12 6v6l4 2\" />","cloud":"<path d=\"M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z\" />","cloud-fog":"<path d=\"M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242\" /> <path d=\"M16 17H7\" /> <path d=\"M17 21H9\" />","cloud-hail":"<path d=\"M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242\" /> <path d=\"M16 14v2\" /> <path d=\"M8 14v2\" /> <path d=\"M16 20h.01\" /> <path d=\"M8 20h.01\" /> <path d=\"M12 16v2\" /> <path d=\"M12 22h.01\" />","cloud-lightning":"<path d=\"M6 16.326A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 .5 8.973\" /> <path d=\"m13 12-3 5h4l-3 5\" />","cloud-rain":"<path d=\"M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242\" /> <path d=\"M16 14v6\" /> <path d=\"M8 14v6\" /> <path d=\"M12 16v6\" />","cloud-rain-wind":"<path d=\"M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242\" /> <path d=\"m9.2 22 3-7\" /> <path d=\"m9 13-3 7\" /> <path d=\"m17 13-3 7\" />","cloud-snow":"<path d=\"M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242\" /> <path d=\"M8 15h.01\" /> <path d=\"M8 19h.01\" /> <path d=\"M12 17h.01\" /> <path d=\"M12 21h.01\" /> <path d=\"M16 15h.01\" /> <path d=\"M16 19h.01\" />","cloud-sun":"<path d=\"M12 2v2\" /> <path d=\"m4.93 4.93 1.41 1.41\" /> <path d=\"M20 12h2\" /> <path d=\"m19.07 4.93-1.41 1.41\" /> <path d=\"M15.947 12.65a4 4 0 0 0-5.925-4.128\" /> <path d=\"M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6Z\" />","code":"<path d=\"m16 18 6-6-6-6\" /> <path d=\"m8 6-6 6 6 6\" />","door-open":"<path d=\"M10 21H2\" /> <path d=\"M10 3H7a2 2 0 00-2 2v16\" /> <path d=\"M14 12h.01\" /> <path d=\"M19 21V5a2 2 0 00-1.675-1.974l-6.163-1.013A1 1 0 0010 3v18a1 1 0 001.124.992z\" /> <path d=\"M22 21h-3\" />","dot":"<circle cx=\"12\" cy=\"12\" r=\"1\" />","droplets":"<path d=\"M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z\" /> <path d=\"M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97\" />","edit":"<path d=\"M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7\" /> <path d=\"M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z\" />","ellipse":"<ellipse cx=\"12\" cy=\"12\" rx=\"10\" ry=\"6\" />","eye":"<path d=\"M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0\" /> <circle cx=\"12\" cy=\"12\" r=\"3\" />","fan":"<path d=\"M10.827 16.379a6.082 6.082 0 0 1-8.618-7.002l5.412 1.45a6.082 6.082 0 0 1 7.002-8.618l-1.45 5.412a6.082 6.082 0 0 1 8.618 7.002l-5.412-1.45a6.082 6.082 0 0 1-7.002 8.618l1.45-5.412Z\" /> <path d=\"M12 12v.01\" />","file":"<path d=\"M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z\" /> <path d=\"M14 2v5a1 1 0 0 0 1 1h5\" />","flame":"<path d=\"M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4\" />","gauge":"<path d=\"m12 14 4-4\" /> <path d=\"M3.34 19a10 10 0 1 1 17.32 0\" />","ghost":"<path d=\"M15 10v1\" /> <path d=\"M7.528 20.472a1.6 1.6 0 012.277 0l1.057 1.056a1.6 1.6 0 002.276 0l1.057-1.056a1.6 1.6 0 012.277 0l1.114 1.114a1.4 1.4 0 002.414-1V10a8 8 0 00-16 0v10.586a1.4 1.4 0 002.414 1z\" /> <path d=\"M9 10v1\" />","grid":"<rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\" /> <path d=\"M3 9h18\" /> <path d=\"M3 15h18\" /> <path d=\"M9 3v18\" /> <path d=\"M15 3v18\" />","grip":"<circle cx=\"12\" cy=\"5\" r=\"1\" /> <circle cx=\"19\" cy=\"5\" r=\"1\" /> <circle cx=\"5\" cy=\"5\" r=\"1\" /> <circle cx=\"12\" cy=\"12\" r=\"1\" /> <circle cx=\"19\" cy=\"12\" r=\"1\" /> <circle cx=\"5\" cy=\"12\" r=\"1\" /> <circle cx=\"12\" cy=\"19\" r=\"1\" /> <circle cx=\"19\" cy=\"19\" r=\"1\" /> <circle cx=\"5\" cy=\"19\" r=\"1\" />","grip-vertical":"<circle cx=\"9\" cy=\"12\" r=\"1\" /> <circle cx=\"9\" cy=\"5\" r=\"1\" /> <circle cx=\"9\" cy=\"19\" r=\"1\" /> <circle cx=\"15\" cy=\"12\" r=\"1\" /> <circle cx=\"15\" cy=\"5\" r=\"1\" /> <circle cx=\"15\" cy=\"19\" r=\"1\" />","home":"<path d=\"M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8\" /> <path d=\"M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\" />","house":"<path d=\"M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8\" /> <path d=\"M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\" />","lamp-ceiling":"<path d=\"M12 2v5\" /> <path d=\"M14.829 15.998a3 3 0 1 1-5.658 0\" /> <path d=\"M20.92 14.606A1 1 0 0 1 20 16H4a1 1 0 0 1-.92-1.394l3-7A1 1 0 0 1 7 7h10a1 1 0 0 1 .92.606z\" />","lamp-desk":"<path d=\"M10.293 2.293a1 1 0 0 1 1.414 0l2.5 2.5 5.994 1.227a1 1 0 0 1 .506 1.687l-7 7a1 1 0 0 1-1.687-.506l-1.227-5.994-2.5-2.5a1 1 0 0 1 0-1.414z\" /> <path d=\"m14.207 4.793-3.414 3.414\" /> <path d=\"M3 20a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z\" /> <path d=\"m9.086 6.5-4.793 4.793a1 1 0 0 0-.18 1.17L7 18\" />","lamp-floor":"<path d=\"M12 10v12\" /> <path d=\"M17.929 7.629A1 1 0 0 1 17 9H7a1 1 0 0 1-.928-1.371l2-5A1 1 0 0 1 9 2h6a1 1 0 0 1 .928.629z\" /> <path d=\"M9 22h6\" />","lightbulb":"<path d=\"M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5\" /> <path d=\"M9 18h6\" /> <path d=\"M10 22h4\" />","list":"<path d=\"M3 5h.01\" /> <path d=\"M3 12h.01\" /> <path d=\"M3 19h.01\" /> <path d=\"M8 5h13\" /> <path d=\"M8 12h13\" /> <path d=\"M8 19h13\" />","lock":"<rect width=\"18\" height=\"11\" x=\"3\" y=\"11\" rx=\"2\" ry=\"2\" /> <path d=\"M7 11V7a5 5 0 0 1 10 0v4\" />","map-pin":"<path d=\"M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0\" /> <circle cx=\"12\" cy=\"10\" r=\"3\" />","menu":"<path d=\"M4 5h16\" /> <path d=\"M4 12h16\" /> <path d=\"M4 19h16\" />","minus":"<path d=\"M5 12h14\" />","moon":"<path d=\"M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401\" />","pencil":"<path d=\"M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z\" /> <path d=\"m15 5 4 4\" />","pill":"<path d=\"m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z\" /> <path d=\"m8.5 8.5 7 7\" />","pin":"<path d=\"M12 17v5\" /> <path d=\"M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z\" />","play":"<path d=\"M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z\" />","plug":"<path d=\"M12 22v-5\" /> <path d=\"M15 8V2\" /> <path d=\"M17 8a1 1 0 0 1 1 1v4a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1z\" /> <path d=\"M9 8V2\" />","plus":"<path d=\"M5 12h14\" /> <path d=\"M12 5v14\" />","power":"<path d=\"M12 2v10\" /> <path d=\"M18.4 6.6a9 9 0 1 1-12.77.04\" />","radius":"<path d=\"M20.34 17.52a10 10 0 1 0-2.82 2.82\" /> <circle cx=\"19\" cy=\"19\" r=\"2\" /> <path d=\"m13.41 13.41 4.18 4.18\" /> <circle cx=\"12\" cy=\"12\" r=\"2\" />","refrigerator":"<path d=\"M5 6a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6Z\" /> <path d=\"M5 10h14\" /> <path d=\"M15 7v6\" />","search":"<path d=\"m21 21-4.34-4.34\" /> <circle cx=\"11\" cy=\"11\" r=\"8\" />","speaker":"<rect width=\"16\" height=\"20\" x=\"4\" y=\"2\" rx=\"2\" /> <path d=\"M12 6h.01\" /> <circle cx=\"12\" cy=\"14\" r=\"4\" /> <path d=\"M12 14h.01\" />","sun":"<circle cx=\"12\" cy=\"12\" r=\"4\" /> <path d=\"M12 2v2\" /> <path d=\"M12 20v2\" /> <path d=\"m4.93 4.93 1.41 1.41\" /> <path d=\"m17.66 17.66 1.41 1.41\" /> <path d=\"M2 12h2\" /> <path d=\"M20 12h2\" /> <path d=\"m6.34 17.66-1.41 1.41\" /> <path d=\"m19.07 4.93-1.41 1.41\" />","tag":"<path d=\"M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z\" /> <circle cx=\"7.5\" cy=\"7.5\" r=\".5\" fill=\"currentColor\" />","text":"<path d=\"M21 5H3\" /> <path d=\"M15 12H3\" /> <path d=\"M17 19H3\" />","thermometer":"<path d=\"M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z\" />","toggle-left":"<circle cx=\"9\" cy=\"12\" r=\"3\" /> <rect width=\"20\" height=\"14\" x=\"2\" y=\"5\" rx=\"7\" />","trash-2":"<path d=\"M10 11v6\" /> <path d=\"M14 11v6\" /> <path d=\"M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6\" /> <path d=\"M3 6h18\" /> <path d=\"M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2\" />","triangle-alert":"<path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3\" /> <path d=\"M12 9v4\" /> <path d=\"M12 17h.01\" />","tv":"<path d=\"m17 2-5 5-5-5\" /> <rect width=\"20\" height=\"15\" x=\"2\" y=\"7\" rx=\"2\" />","unlock":"<rect width=\"18\" height=\"11\" x=\"3\" y=\"11\" rx=\"2\" ry=\"2\" /> <path d=\"M7 11V7a5 5 0 0 1 9.9-1\" />","upload":"<path d=\"M12 3v12\" /> <path d=\"m17 8-5-5-5 5\" /> <path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\" />","video":"<path d=\"m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5\" /> <rect x=\"2\" y=\"6\" width=\"14\" height=\"12\" rx=\"2\" />","view":"<path d=\"M21 17v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2\" /> <path d=\"M21 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2\" /> <circle cx=\"12\" cy=\"12\" r=\"1\" /> <path d=\"M18.944 12.33a1 1 0 0 0 0-.66 7.5 7.5 0 0 0-13.888 0 1 1 0 0 0 0 .66 7.5 7.5 0 0 0 13.888 0\" />","washing-machine":"<path d=\"M3 6h3\" /> <path d=\"M17 6h.01\" /> <rect width=\"18\" height=\"20\" x=\"3\" y=\"2\" rx=\"2\" /> <circle cx=\"12\" cy=\"13\" r=\"5\" /> <path d=\"M12 18a2.5 2.5 0 0 0 0-5 2.5 2.5 0 0 1 0-5\" />","wind":"<path d=\"M12.8 19.6A2 2 0 1 0 14 16H2\" /> <path d=\"M17.5 8a2.5 2.5 0 1 1 2 4H2\" /> <path d=\"M9.8 4.4A2 2 0 1 1 11 8H2\" />","x":"<path d=\"M18 6 6 18\" /> <path d=\"m6 6 12 12\" />","zap":"<path d=\"M15.914 4a1.5 1.5 0 00-2.474-1.561l-9 9A1.5 1.5 0 005.5 14h4.002a.5.5 0 01.471.666L8.086 20a1.5 1.5 0 002.475 1.56l9-9A1.5 1.5 0 0018.5 10h-3.997a.5.5 0 01-.472-.667z\" />"};
 
 // Referenzbreite/-höhe: darauf wird skaliert, der Rest des Bildschirms geht an den Grundriss
 const STAGE_W = 1280, STAGE_MIN_H = 800;
@@ -161,6 +161,37 @@ function wasteDays(stateObj) {
   return best;
 }
 
+/* ---------- Design (Tab „Design“ im Editor) ---------- */
+const DEFAULT_THEME = {
+  light: { accent: "#E5391D", bg: "#EEECEA", card: "#FFFFFF", tile: "#F4F2F0", text: "#1E1C1B", muted: "#8A8580",
+    dark: "#1F1D1C", wall: "#2E2C2B", floor: "#FFFFFF", outside: "#EDEBE9" },
+  dark: { accent: "#E5391D", bg: "#0F0E0E", card: "#1A1918", tile: "#242221", text: "#ECE9E5", muted: "#8C8782",
+    dark: "#242221", wall: "#77726D", floor: "#1A1918", outside: "#151413" },
+  size: { font: 100, radius: 22, gap: 12, margin: 18, pad: 16, cal: 198, pin: 36, pinFont: 14, label: 11 },
+};
+const THEME_COLORS = [["accent","Akzent (aktiv, Buttons)"],["bg","Hintergrund"],["card","Karten"],["tile","Kacheln in Karten"],
+  ["text","Text"],["muted","Text gedämpft"],["dark","Dunkle Karten (Uhr, Wetter)"],["wall","Wände"],["floor","Boden"],["outside","Außenbereich"]];
+const THEME_SIZES = [["font","Schriftgröße",70,140,"%"],["radius","Ecken-Rundung",0,40,"px"],["gap","Abstand zwischen Karten",0,32,"px"],
+  ["margin","Rand außen",0,48,"px"],["pad","Innenabstand der Karten",6,32,"px"],["cal","Höhe Kalenderleiste",140,320,"px"],
+  ["pin","Größe der Geräte-Pins",22,64,"px"],["pinFont","Schrift in Pins (Werte)",9,26,"px"],["label","Schrift Raum-Labels",7,24,"px"]];
+function mergeTheme(t) {
+  t = t || {};
+  return { light: { ...DEFAULT_THEME.light, ...(t.light || {}) }, dark: { ...DEFAULT_THEME.dark, ...(t.dark || {}) }, size: { ...DEFAULT_THEME.size, ...(t.size || {}) } };
+}
+const hexRgb = (h) => { const m = String(h).replace("#", ""); const n = parseInt(m.length === 3 ? m.split("").map((c) => c + c).join("") : m, 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
+const mixHex = (a, b, w) => { const x = hexRgb(a), y = hexRgb(b); return "#" + x.map((v, i) => Math.round(v * w + y[i] * (1 - w)).toString(16).padStart(2, "0")).join(""); };
+const rgba = (h, al) => { const [r, g, b] = hexRgb(h); return `rgba(${r},${g},${b},${al})`; };
+function themeCss(theme) {
+  const t = mergeTheme(theme), s = t.size;
+  const vars = (o, dark) => `--accent:${o.accent};--accent-soft:${mixHex(o.accent, o.card, dark ? 0.22 : 0.14)};--accent-glow:${rgba(o.accent, dark ? 0.25 : 0.35)};` +
+    `--bg:${o.bg};--card:${o.card};--tile:${o.tile};--tile-2:${mixHex(o.text, o.tile, 0.05)};--text:${o.text};--muted:${o.muted};` +
+    `--soft:${mixHex(o.muted, o.card, 0.5)};--dark:${o.dark};--dark-2:${mixHex("#ffffff", o.dark, 0.07)};` +
+    `--wall:${o.wall};--floor:${o.floor};--outside:${o.outside};--door:${mixHex(o.wall, o.floor, 0.4)}`;
+  return `:host{${vars(t.light)};--fs:${s.font / 100};--radius:${s.radius}px;--gap:${s.gap}px;--m:${s.margin}px;--pad:${s.pad}px;` +
+    `--cal-h:${s.cal}px;--pin:${s.pin}px;--pin-fs:${s.pinFont}px;--label-fs:${s.label}px}` +
+    `:host([data-theme="dark"]){${vars(t.dark, true)}}`;
+}
+
 /* ---------- SVG: säubern, Farben ans Theme binden ---------- */
 const SVG_BAD = new Set(["script","foreignobject","iframe","object","embed","audio","video","animate","set","animatemotion","animatetransform"]);
 function lum(c) {
@@ -231,7 +262,8 @@ function processSvg(raw, recolor, scratch) {
 
 /* ---------- Styles ---------- */
 const CSS = `
-:host{--bg:#EEECEA;--card:#FFFFFF;--tile:#F4F2F0;--tile-2:#ECE9E6;--text:#1E1C1B;--muted:#8A8580;--soft:#C9C4BF;
+:host{--fs:1;--radius:22px;--gap:12px;--m:18px;--pad:16px;--pin:36px;--pin-fs:14px;--label-fs:11px;--cal-h:198px;
+  --bg:#EEECEA;--card:#FFFFFF;--tile:#F4F2F0;--tile-2:#ECE9E6;--text:#1E1C1B;--muted:#8A8580;--soft:#C9C4BF;
   --accent:#E5391D;--accent-soft:#FCE6E1;--accent-glow:rgba(229,57,29,.35);--dark:#1F1D1C;--dark-2:#2C2A28;
   --on-dark:#FFFFFF;--on-dark-muted:#A39E99;--wall:#2E2C2B;--floor:#FFFFFF;--outside:#EDEBE9;--door:#B3AEA9;
   --shadow:0 2px 10px rgba(30,28,27,.06);--pin-shadow:0 2px 8px rgba(30,28,27,.14);--overlay:rgba(30,28,27,.42);
@@ -246,42 +278,42 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 input,select,textarea{font:inherit;color:inherit}
 svg.i{display:block;fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;flex:none}
 #stage{position:absolute;left:0;top:0;width:${STAGE_W}px;height:800px;transform-origin:0 0;user-select:none;-webkit-user-select:none}
-.card{background:var(--card);border-radius:22px;box-shadow:var(--shadow)}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow)}
 #scratch{position:absolute;left:-9999px;top:0;width:10px;height:10px;overflow:hidden;visibility:hidden}
 
-#top{position:absolute;left:18px;right:18px;top:14px;height:42px;display:flex;align-items:center;gap:10px}
+#top{position:absolute;left:var(--m);right:var(--m);top:calc(var(--m) - 4px);height:42px;display:flex;align-items:center;gap:10px}
 .pill{height:42px;border-radius:21px;display:flex;align-items:center;gap:10px;padding:0 18px;flex:none}
-#home{background:var(--card);width:176px;justify-content:center;font-weight:700;font-size:17px;box-shadow:var(--shadow)}
+#home{background:var(--card);width:176px;justify-content:center;font-weight:700;font-size:calc(17px * var(--fs));box-shadow:var(--shadow)}
 .home-ico{width:26px;height:26px;border-radius:8px;background:var(--accent);color:#fff;display:grid;place-items:center}
-#date{margin-left:10px;font-size:23px;font-weight:500;letter-spacing:-.2px;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#date small{font-size:14px;color:var(--muted);font-weight:500;margin-left:8px}
-#clock{background:var(--dark);color:var(--on-dark);font-size:25px;font-weight:700;letter-spacing:-.3px;font-variant-numeric:tabular-nums}
+#date{margin-left:10px;font-size:calc(23px * var(--fs));font-weight:500;letter-spacing:-.2px;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#date small{font-size:calc(14px * var(--fs));color:var(--muted);font-weight:500;margin-left:8px}
+#clock{background:var(--dark);color:var(--on-dark);font-size:calc(25px * var(--fs));font-weight:700;letter-spacing:-.3px;font-variant-numeric:tabular-nums}
 #clock svg{color:var(--accent)}
 .icon-btn{width:42px;height:42px;border-radius:50%;background:var(--card);display:grid;place-items:center;box-shadow:var(--shadow);flex:none}
-.btn{height:42px;border-radius:21px;padding:0 20px;font-weight:700;font-size:15px;background:var(--card);box-shadow:var(--shadow);display:flex;align-items:center;gap:8px;flex:none}
+.btn{height:42px;border-radius:21px;padding:0 20px;font-weight:700;font-size:calc(15px * var(--fs));background:var(--card);box-shadow:var(--shadow);display:flex;align-items:center;gap:8px;flex:none}
 .btn.primary{background:var(--accent);color:#fff}
 .btn.danger{color:var(--accent)}
 .btn:disabled{opacity:.45}
 
-#main{position:absolute;left:18px;right:18px;top:72px;bottom:226px;display:grid;grid-template-columns:176px 1fr 282px;gap:12px}
-#floors{padding:12px;display:flex;flex-direction:column;gap:8px;overflow-y:auto;scrollbar-width:none}
+#main{position:absolute;left:var(--m);right:var(--m);top:calc(var(--m) + 54px);bottom:calc(var(--m) + var(--cal-h) + var(--gap));display:grid;grid-template-columns:176px 1fr 282px;gap:var(--gap)}
+#floors{padding:calc(var(--pad) * .75);display:flex;flex-direction:column;gap:8px;overflow-y:auto;scrollbar-width:none}
 #floors::-webkit-scrollbar{display:none}
 #floors.compact .roof{height:34px}#floors.compact .roof svg{height:34px}
-#floors.compact .floor-btn{height:58px;padding:9px 14px}#floors.compact .floor-btn .code{font-size:19px}
+#floors.compact .floor-btn{height:58px;padding:9px 14px}#floors.compact .floor-btn .code{font-size:calc(19px * var(--fs))}
 #floors.compact .floor-btn .name{margin-top:2px}#floors.compact .floor-btn .count{top:11px}
 .roof{height:52px;display:flex;justify-content:center;align-items:flex-end;flex:none}
 .floor-btn{position:relative;height:82px;border-radius:16px;background:var(--tile);text-align:left;padding:12px 14px;flex:none;transition:background .2s,color .2s}
-.floor-btn .code{font-size:22px;font-weight:800;letter-spacing:-.3px}
-.floor-btn .name{font-size:12.5px;color:var(--muted);margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.floor-btn .count{position:absolute;right:13px;top:15px;display:flex;align-items:center;gap:4px;font-size:12.5px;font-weight:500;color:var(--muted)}
+.floor-btn .code{font-size:calc(22px * var(--fs));font-weight:800;letter-spacing:-.3px}
+.floor-btn .name{font-size:calc(12.5px * var(--fs));color:var(--muted);margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.floor-btn .count{position:absolute;right:13px;top:15px;display:flex;align-items:center;gap:4px;font-size:calc(12.5px * var(--fs));font-weight:500;color:var(--muted)}
 .floor-btn.active{background:var(--accent);color:#fff;box-shadow:0 6px 16px var(--accent-glow)}
 .floor-btn.active .name,.floor-btn.active .count{color:rgba(255,255,255,.92)}
 .floor-sep{height:2px;background:var(--tile-2);margin:2px 4px;border-radius:1px;flex:none}
-.floor-add{height:44px;border-radius:14px;border:2px dashed var(--soft);color:var(--muted);font-weight:600;font-size:13px;display:flex;align-items:center;justify-content:center;gap:6px;flex:none}
+.floor-add{height:44px;border-radius:14px;border:2px dashed var(--soft);color:var(--muted);font-weight:600;font-size:calc(13px * var(--fs));display:flex;align-items:center;justify-content:center;gap:6px;flex:none}
 
-#plan-card{position:relative;padding:18px 20px;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+#plan-card{position:relative;padding:calc(var(--pad) * 1.1) calc(var(--pad) * 1.25);display:flex;flex-direction:column;overflow:hidden;min-width:0}
 #plan-head{display:flex;align-items:center;gap:10px;height:40px;flex:none}
-#plan-title{font-size:21px;font-weight:700;letter-spacing:-.3px;flex:1}
+#plan-title{font-size:calc(21px * var(--fs));font-weight:700;letter-spacing:-.3px;flex:1}
 #all-off{width:40px;height:40px;border-radius:50%;background:var(--dark);color:#fff;display:grid;place-items:center}
 #all-off:active{transform:scale(.94)}
 #plan-wrap{flex:1;position:relative;margin-top:6px}
@@ -290,63 +322,66 @@ svg.i{display:block;fill:none;stroke:currentColor;stroke-linecap:round;stroke-li
 svg.fp{fill:var(--wall)}
 .fp .f-wall{fill:var(--wall)}.fp .f-floor{fill:var(--floor)}.fp .f-out{fill:var(--outside)}.fp .f-door{fill:var(--door)}
 .fp .s-wall{stroke:var(--wall)}.fp .s-floor{stroke:var(--floor)}.fp .s-out{stroke:var(--outside)}.fp .s-door{stroke:var(--door)}
-.room-label{position:absolute;font-size:11px;font-weight:600;color:var(--muted);white-space:nowrap;pointer-events:none}
-.pin{position:absolute;min-width:36px;height:36px;transform:translate(-50%,-50%);border-radius:18px;background:var(--card);color:var(--text);
+.room-label{position:absolute;font-size:calc(var(--label-fs) * var(--k, 1));font-weight:600;color:var(--muted);white-space:nowrap;pointer-events:none}
+.pin{position:absolute;min-width:var(--pin);height:var(--pin);transform:translate(-50%,-50%) scale(var(--k, 1));border-radius:calc(var(--pin) / 2);background:var(--card);color:var(--text);
   display:flex;align-items:center;justify-content:center;gap:4px;box-shadow:var(--pin-shadow);transition:background .2s,color .2s,transform .12s;white-space:nowrap}
-.pin:active{transform:translate(-50%,-50%) scale(.9)}
-.pin.val{padding:0 11px;font-size:14px;font-weight:700;letter-spacing:-.2px;font-variant-numeric:tabular-nums}
-.pin.val.both{padding:0 11px 0 8px}
+.pin:active{transform:translate(-50%,-50%) scale(calc(var(--k, 1) * .9))}
+.pin svg.i{width:calc(var(--pin) * .5);height:calc(var(--pin) * .5)}
+.pin.both svg.i{width:calc(var(--pin) * .42);height:calc(var(--pin) * .42)}
+.pin.val{padding:0 calc(var(--pin) * .3);font-size:var(--pin-fs);font-weight:700;letter-spacing:-.2px;font-variant-numeric:tabular-nums}
+.pin.val.both{padding:0 calc(var(--pin) * .3) 0 calc(var(--pin) * .22)}
 .pin.on{background:var(--accent);color:#fff;box-shadow:0 3px 10px var(--accent-glow)}
 .pin.cam{background:var(--dark);color:#fff}
 .pin.unavail{opacity:.4}
-.empty{position:absolute;inset:0;display:grid;place-items:center;text-align:center;color:var(--muted);font-size:14px;line-height:1.6;padding:20px}
-.empty b{display:block;color:var(--text);font-size:17px;margin-bottom:4px}
+.empty{position:absolute;inset:0;display:grid;place-items:center;text-align:center;color:var(--muted);font-size:calc(14px * var(--fs));line-height:1.6;padding:20px}
+.empty b{display:block;color:var(--text);font-size:calc(17px * var(--fs));margin-bottom:4px}
 
-#right{display:flex;flex-direction:column;gap:12px;min-height:0}
-#weather{background:var(--dark);color:var(--on-dark);border-radius:22px;padding:16px 14px 14px;height:184px;flex:none}
+#right{display:flex;flex-direction:column;gap:var(--gap);min-height:0}
+#weather{background:var(--dark);color:var(--on-dark);border-radius:var(--radius);padding:var(--pad) calc(var(--pad) * .875) calc(var(--pad) * .875);flex:none}
 .w-now{display:flex;align-items:flex-start;padding:0 4px}
-.w-temp{font-size:50px;font-weight:800;letter-spacing:-2px;line-height:1}
-.w-cond{margin-left:12px;margin-top:6px;font-size:13px;color:var(--on-dark-muted);line-height:1.45;min-width:0}
+.w-temp{font-size:calc(50px * var(--fs));font-weight:800;letter-spacing:-2px;line-height:1}
+.w-cond{margin-left:12px;margin-top:6px;font-size:calc(13px * var(--fs));color:var(--on-dark-muted);line-height:1.45;min-width:0}
 .w-cond b{display:block;color:#fff;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .w-ico{margin-left:auto;color:var(--accent)}
 .w-days{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:16px}
-.w-day{background:var(--dark-2);border-radius:13px;padding:8px 0 9px;text-align:center;font-size:12.5px}
+.w-day{background:var(--dark-2);border-radius:13px;padding:8px 0 9px;text-align:center;font-size:calc(12.5px * var(--fs))}
 .w-day .d{font-weight:600;color:var(--on-dark-muted)}
 .w-day svg{margin:6px auto 5px;color:#fff}
+.w-day .t{white-space:nowrap}
 .w-day .t b{font-weight:700}.w-day .t span{color:var(--on-dark-muted)}
-.w-empty{color:var(--on-dark-muted);font-size:13px;padding:8px 4px;line-height:1.5}
+.w-empty{color:var(--on-dark-muted);font-size:calc(13px * var(--fs));padding:8px 4px;line-height:1.5}
 
-#waste{flex:1;padding:16px 14px;min-height:0;overflow:hidden}
-.sec-head{display:flex;align-items:center;gap:8px;font-size:15.5px;font-weight:700;margin:0 4px 12px}
+#waste{flex:1;padding:var(--pad) calc(var(--pad) * .875);min-height:0;overflow:hidden}
+.sec-head{display:flex;align-items:center;gap:8px;font-size:calc(15.5px * var(--fs));font-weight:700;margin:0 4px 12px}
 .sec-head svg{color:var(--accent)}
 .bin{display:flex;align-items:center;gap:11px;padding:8px 10px;border-radius:15px;background:var(--tile);margin-bottom:7px}
 .bin.soon{background:var(--accent-soft)}
 .bin-ico{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;color:#fff;flex:none}
-.bin .n{font-size:14px;font-weight:700}.bin .d{font-size:11.5px;color:var(--muted);margin-top:2px}
-.bin .b{margin-left:auto;font-size:11.5px;font-weight:600;padding:5px 9px;border-radius:12px;background:var(--card);color:var(--muted);white-space:nowrap}
+.bin .n{font-size:calc(14px * var(--fs));font-weight:700}.bin .d{font-size:calc(11.5px * var(--fs));color:var(--muted);margin-top:2px}
+.bin .b{margin-left:auto;font-size:calc(11.5px * var(--fs));font-weight:600;padding:5px 9px;border-radius:12px;background:var(--card);color:var(--muted);white-space:nowrap}
 .bin.soon .b{background:var(--accent);color:#fff}
-.muted-note{font-size:12.5px;color:var(--muted);padding:0 4px;line-height:1.5}
+.muted-note{font-size:calc(12.5px * var(--fs));color:var(--muted);padding:0 4px;line-height:1.5}
 
-#cal{position:absolute;left:18px;right:18px;bottom:16px;height:198px;display:grid;grid-template-columns:162px repeat(7,1fr);gap:8px;padding:14px 12px 12px 16px}
+#cal{position:absolute;left:var(--m);right:var(--m);bottom:var(--m);height:var(--cal-h);display:grid;grid-template-columns:162px repeat(7,1fr);gap:8px;padding:calc(var(--pad) * .875) calc(var(--pad) * .75) calc(var(--pad) * .75) var(--pad)}
 .cal-side{display:flex;flex-direction:column;min-width:0}
-.cal-range{font-size:14px;font-weight:700;margin-top:2px}
-.cal-kw{font-size:12px;color:var(--muted);margin-top:2px}
+.cal-range{font-size:calc(14px * var(--fs));font-weight:700;margin-top:2px}
+.cal-kw{font-size:calc(12px * var(--fs));color:var(--muted);margin-top:2px}
 .cal-nav{display:flex;gap:8px;margin-top:12px}
 .cal-nav button{width:34px;height:34px;border-radius:50%;background:var(--tile);display:grid;place-items:center}
-.legend{margin-top:auto;display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px}
+.legend{margin-top:auto;display:flex;flex-wrap:wrap;gap:4px 12px;font-size:calc(12px * var(--fs))}
 .legend span{display:flex;align-items:center;gap:5px}
 .dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex:none}
 :host([data-theme="dark"]) .dot,:host([data-theme="dark"]) .ev::before,:host([data-theme="dark"]) .ev-pop .bar{box-shadow:0 0 0 1px rgba(255,255,255,.35)}
 .day{background:var(--tile);border-radius:15px;padding:8px 6px 6px;min-width:0;display:flex;flex-direction:column;gap:5px;overflow:hidden}
 .day.today{background:var(--accent-soft)}
-.day-h{padding:0 5px 2px;font-size:12px;color:var(--muted);font-weight:600}
-.day-h b{color:var(--text);font-size:15.5px;font-weight:800;margin-left:4px}
+.day-h{padding:0 5px 2px;font-size:calc(12px * var(--fs));color:var(--muted);font-weight:600}
+.day-h b{color:var(--text);font-size:calc(15.5px * var(--fs));font-weight:800;margin-left:4px}
 .ev{background:var(--card);border-radius:10px;padding:5px 7px 5px 12px;position:relative;text-align:left;width:100%;min-width:0;flex:none}
 .ev::before{content:"";position:absolute;left:5px;top:6px;bottom:6px;width:3px;border-radius:2px;background:var(--c)}
-.ev .t{font-size:10.5px;color:var(--muted);font-variant-numeric:tabular-nums}
-.ev .n{font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.chip{display:inline-flex;align-items:center;gap:5px;background:var(--card);border-radius:10px;padding:4px 8px;font-size:11.5px;font-weight:700;align-self:flex-start;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:none}
-.more{font-size:11px;font-weight:600;color:var(--muted);padding-left:6px;text-align:left}
+.ev .t{font-size:calc(10.5px * var(--fs));color:var(--muted);font-variant-numeric:tabular-nums}
+.ev .n{font-size:calc(12px * var(--fs));font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chip{display:inline-flex;align-items:center;gap:5px;background:var(--card);border-radius:10px;padding:4px 8px;font-size:calc(11.5px * var(--fs));font-weight:700;align-self:flex-start;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:none}
+.more{font-size:calc(11px * var(--fs));font-weight:600;color:var(--muted);padding-left:6px;text-align:left}
 
 #overlay{position:absolute;inset:0;background:var(--overlay);display:none;align-items:center;justify-content:center;z-index:10}
 #overlay.show{display:flex}
@@ -355,17 +390,17 @@ svg.fp{fill:var(--wall)}
 .pop-h{display:flex;align-items:center;gap:14px}
 .pop-ico{width:48px;height:48px;border-radius:13px;background:var(--tile);display:grid;place-items:center;flex:none}
 .pop-ico.on{background:var(--accent);color:#fff}.pop-ico.cam{background:var(--dark);color:#fff}
-.pop-sub{font-size:12.5px;font-weight:600;color:var(--muted)}
-.pop-title{font-size:22px;font-weight:800;letter-spacing:-.4px;margin-top:2px}
+.pop-sub{font-size:calc(12.5px * var(--fs));font-weight:600;color:var(--muted)}
+.pop-title{font-size:calc(22px * var(--fs));font-weight:800;letter-spacing:-.4px;margin-top:2px}
 .pop-x{margin-left:auto;width:42px;height:42px;border-radius:50%;background:var(--tile);display:grid;place-items:center;flex:none;align-self:flex-start}
 .pop-state{display:flex;align-items:center;margin-top:22px;gap:12px}
-.pop-state .big{font-size:42px;font-weight:800;letter-spacing:-1.5px;line-height:1}
-.pop-state .s{font-size:13.5px;color:var(--muted);margin-top:6px}
+.pop-state .big{font-size:calc(42px * var(--fs));font-weight:800;letter-spacing:-1.5px;line-height:1}
+.pop-state .s{font-size:calc(13.5px * var(--fs));color:var(--muted);margin-top:6px}
 .toggle{margin-left:auto;width:66px;height:38px;border-radius:19px;background:var(--tile-2);position:relative;transition:background .2s;flex:none}
 .toggle::after{content:"";position:absolute;left:4px;top:4px;width:30px;height:30px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.2);transition:transform .2s}
 .toggle.on{background:var(--accent)}.toggle.on::after{transform:translateX(28px)}
 .panel{background:var(--tile);border-radius:16px;padding:14px 16px;margin-top:16px}
-.panel-h{display:flex;justify-content:space-between;font-size:13.5px;font-weight:700}
+.panel-h{display:flex;justify-content:space-between;font-size:calc(13.5px * var(--fs));font-weight:700}
 input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:28px;background:transparent;margin-top:6px}
 input[type=range]::-webkit-slider-runnable-track{height:8px;border-radius:4px;background:linear-gradient(90deg,var(--accent) var(--p),var(--card) var(--p));box-shadow:inset 0 0 0 1px var(--soft)}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:50%;background:var(--accent);margin-top:-8px;border:3px solid var(--card)}
@@ -373,34 +408,34 @@ input[type=range]::-moz-range-track{height:8px;border-radius:4px;background:line
 input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--accent);border:3px solid var(--card)}
 .tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
 .tiles .panel{margin-top:0}
-.tiles .l{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tiles .v{font-size:22px;font-weight:800;margin-top:6px;letter-spacing:-.4px}
+.tiles .l{font-size:calc(12.5px * var(--fs));color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tiles .v{font-size:calc(22px * var(--fs));font-weight:800;margin-top:6px;letter-spacing:-.4px}
 .stepper{display:flex;align-items:center;gap:14px;margin-left:auto}
 .stepper button{width:44px;height:44px;border-radius:50%;background:var(--tile);display:grid;place-items:center}
 .modes{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
-.modes button{flex:1 1 calc(50% - 4px);height:40px;border-radius:12px;background:var(--card);font-size:13.5px;font-weight:600}
+.modes button{flex:1 1 calc(50% - 4px);height:40px;border-radius:12px;background:var(--card);font-size:calc(13.5px * var(--fs));font-weight:600}
 .modes button.sel{background:var(--accent);color:#fff}
-.cam-box{margin-top:16px;aspect-ratio:16/9;border-radius:16px;background:#111;overflow:hidden;display:grid;place-items:center;color:#8a8580;font-size:13px}
+.cam-box{margin-top:16px;aspect-ratio:16/9;border-radius:16px;background:#111;overflow:hidden;display:grid;place-items:center;color:#8a8580;font-size:calc(13px * var(--fs))}
 .cam-box img{width:100%;height:100%;object-fit:contain;display:block}
 .ev-pop .bar{width:5px;align-self:stretch;border-radius:3px;background:var(--c);flex:none}
 .ev-row{display:flex;gap:14px;margin-top:18px;align-items:flex-start}
 .ev-row svg{color:var(--muted);margin-top:2px}
-.ev-row b{display:block;font-size:16px;font-weight:700}.ev-row span{font-size:13.5px;color:var(--muted);display:block;margin-top:3px}
-.note{font-size:14.5px;line-height:1.5;white-space:pre-wrap;word-break:break-word}
-#toast{position:absolute;left:50%;bottom:232px;transform:translateX(-50%);background:var(--dark);color:#fff;padding:11px 18px;border-radius:14px;font-size:14px;font-weight:600;opacity:0;transition:opacity .25s;pointer-events:none;z-index:20;white-space:nowrap}
+.ev-row b{display:block;font-size:calc(16px * var(--fs));font-weight:700}.ev-row span{font-size:calc(13.5px * var(--fs));color:var(--muted);display:block;margin-top:3px}
+.note{font-size:calc(14.5px * var(--fs));line-height:1.5;white-space:pre-wrap;word-break:break-word}
+#toast{position:absolute;left:50%;bottom:232px;transform:translateX(-50%);background:var(--dark);color:#fff;padding:11px 18px;border-radius:14px;font-size:calc(14px * var(--fs));font-weight:600;opacity:0;transition:opacity .25s;pointer-events:none;z-index:20;white-space:nowrap}
 #toast.show{opacity:1}
 
 /* ---------- Editor ---------- */
-.edit #main{bottom:16px;grid-template-columns:176px 1fr 360px}
+.edit #main{bottom:var(--m);grid-template-columns:176px 1fr 360px}
 .edit #cal{display:none}
 .edit .pin{cursor:grab;touch-action:none}
 .edit .pin.sel{box-shadow:0 0 0 3px var(--card),0 0 0 6px var(--accent)}
-.edit .room-label{pointer-events:auto;cursor:grab;touch-action:none;padding:3px 7px;margin:-4px 0 0 -8px;border-radius:7px;border:1.5px dashed var(--soft);background:color-mix(in srgb,var(--card) 80%,transparent)}
-.edit .room-label.sel{border-color:var(--accent);color:var(--accent)}
+.edit .room-label{pointer-events:auto;cursor:grab;touch-action:none;border-radius:4px;outline:1.5px dashed var(--soft);outline-offset:3px}
+.edit .room-label.sel{outline-color:var(--accent);color:var(--accent)}
 .edit #plan.drop{outline:3px dashed var(--accent);outline-offset:6px;border-radius:6px}
 #insp{display:flex;flex-direction:column;padding:14px;min-height:0}
-.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;background:var(--tile);border-radius:14px;padding:4px;flex:none}
-.tabs button{height:34px;border-radius:10px;font-size:13px;font-weight:600;color:var(--muted)}
+.tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;background:var(--tile);border-radius:14px;padding:4px;flex:none}
+.tabs button{height:34px;border-radius:10px;font-size:12.5px;font-weight:600;color:var(--muted)}
 .tabs button.sel{background:var(--card);color:var(--text);box-shadow:var(--shadow)}
 .insp-body{flex:1;overflow:auto;margin-top:12px;padding:0 2px 8px;user-select:text;-webkit-user-select:text}
 .fld{margin-bottom:14px}
@@ -479,7 +514,7 @@ class HauspanelPanel extends HTMLElement {
     this._initing = true;
     this._injectFont();
     if (this.kiosk) this.classList.add("kiosk");
-    this.shadowRoot.innerHTML = `<style>${CSS}</style>
+    this.shadowRoot.innerHTML = `<style>${CSS}</style><style id="theme-vars"></style>
       <div id="stage">
         <header id="top"></header>
         <div id="main">
@@ -535,6 +570,7 @@ class HauspanelPanel extends HTMLElement {
     st.style.height = h / s + "px";
     st.style.transform = `scale(${s})`;
     this._layoutPlan();
+    this._fitWaste();
   }
 
   _onConfig(msg) {
@@ -563,6 +599,10 @@ class HauspanelPanel extends HTMLElement {
     if (this.weekOffset) { this.weekOffset = 0; this._fetchEvents(); }
   }
   get C() { return this.mode === "edit" ? this.draft : this.cfg; }
+  /* Vorschau = Ansicht mit dem Entwurf, ohne den Editor zu verlassen */
+  get editing() { return this.mode === "edit" && !this.preview; }
+  get viewing() { return this.mode === "view" || !!this.preview; }
+  _applyThemeVars() { const el = this.$("#theme-vars"); if (el && this.C) el.textContent = themeCss(this.C.theme); }
   get P() { return this.mode === "edit" ? this.draftPlans : this.plans; }
   _floor() { return (this.C.floors || []).find((f) => f.id === this.activeFloor); }
 
@@ -586,7 +626,7 @@ class HauspanelPanel extends HTMLElement {
     if (this._hass.user !== this._prevUser) { this._prevUser = this._hass.user; this._renderTop(); }
     if (!changed) return;
     this._updatePins(); this._renderFloors();
-    if (this.mode === "view") {
+    if (this.viewing) {
       this._renderWeather(); this._renderWaste(); this._applyTheme();
       if (this.popup && this.popup.type === "entity" && !this._sliding) this._renderEntityPop();
     }
@@ -594,21 +634,25 @@ class HauspanelPanel extends HTMLElement {
 
   /* ---------- Rendering ---------- */
   _renderAll() {
-    this.shadowRoot.host.classList.toggle("edit", this.mode === "edit");
-    this.$("#stage").classList.toggle("edit", this.mode === "edit");
+    this.shadowRoot.host.classList.toggle("edit", this.editing);
+    this.$("#stage").classList.toggle("edit", this.editing);
+    this._applyThemeVars();
     this._applyTheme();
     this._renderTop(); this._renderFloors(); this._renderPlan(); this._renderRight();
-    if (this.mode === "view") this._renderCal();
+    if (this.viewing) this._renderCal();
   }
   _renderRight() {
-    if (this.mode === "edit") { this.$("#right").innerHTML = `<div class="card" id="insp"></div>`; this._renderInspector(); return; }
+    if (this.editing) { this.$("#right").innerHTML = `<div class="card" id="insp"></div>`; this._renderInspector(); return; }
     this.$("#right").innerHTML = `<div id="weather"></div><div class="card" id="waste"></div>`;
     this._renderWeather(); this._renderWaste();
+    if (this._wasteRO) this._wasteRO.disconnect();
+    this._wasteRO = new ResizeObserver(() => this._fitWaste());
+    this._wasteRO.observe(this.$("#waste"));
   }
 
   _applyTheme() {
-    if (this.mode === "edit") { this.setAttribute("data-theme", this._themeOverride || "light"); return; }
-    const n = (this.cfg && this.cfg.night) || {};
+    if (this.editing) { this.setAttribute("data-theme", this._themeOverride || "light"); return; }
+    const n = (this.C && this.C.night) || {};
     let dark = false;
     if (this._themeOverride) dark = this._themeOverride === "dark";
     else if (n.mode === "sun") dark = this._hass.states["sun.sun"] && this._hass.states["sun.sun"].state === "below_horizon";
@@ -626,7 +670,7 @@ class HauspanelPanel extends HTMLElement {
     this._applyTheme();
     if (!this._day || !sameDay(this._day, n)) {
       const first = !this._day; this._day = n;
-      if (!first && this.mode === "view") { this._renderWaste(); this._fetchEvents(); }
+      if (!first && this.viewing) { this._renderWaste(); this._fetchEvents(); }
     }
   }
 
@@ -634,7 +678,7 @@ class HauspanelPanel extends HTMLElement {
     const top = this.$("#top"); if (!top) return;
     const admin = this._hass.user && this._hass.user.is_admin;
     const menu = this._narrow && !this.kiosk ? `<button class="icon-btn" data-a="menu" aria-label="Menü">${ic("menu", 20)}</button>` : "";
-    if (this.mode === "edit") {
+    if (this.editing) {
       top.innerHTML = `${menu}<div class="pill" id="home"><span class="home-ico">${ic("pencil", 15)}</span>Bearbeiten</div>
         <div id="date">Hauspanel einrichten<small>${this.dirty ? "Ungespeicherte Änderungen" : "Alles gespeichert"}</small></div>
         <button class="btn" data-a="theme-toggle" title="Hell/Dunkel">${ic("moon", 18)}</button>
@@ -644,7 +688,8 @@ class HauspanelPanel extends HTMLElement {
     }
     top.innerHTML = `${menu}<div class="pill" id="home"><span class="home-ico">${ic("house", 15)}</span>Zuhause</div>
       <div id="date"><span id="date-txt"></span></div>
-      ${admin && !this.kiosk ? `<button class="icon-btn" data-a="edit" aria-label="Bearbeiten" title="Bearbeiten">${ic("pencil", 18)}</button>` : ""}
+      ${this.preview ? `<button class="btn primary" data-a="preview-exit">${ic("pencil", 16)}Zurück zum Editor</button>` : ""}
+      ${admin && !this.kiosk && !this.preview ? `<button class="icon-btn" data-a="edit" aria-label="Bearbeiten" title="Bearbeiten">${ic("pencil", 18)}</button>` : ""}
       <button class="pill" id="clock" data-a="clock">${ic("clock", 20)}<span id="time"></span></button>`;
     this._tick();
   }
@@ -661,8 +706,8 @@ class HauspanelPanel extends HTMLElement {
         <div class="code">${esc(f.code || "?")}</div><div class="name">${esc(f.name || "")}</div>
         <div class="count">${ic("lightbulb", 14)}${this._lightsOn(f)}</div></button>`;
     });
-    if (this.mode === "edit") h += `<button class="floor-add" data-a="floor-add">${ic("plus", 16)}Etage</button>`;
-    el.classList.toggle("compact", (this.C.floors || []).length > (this.mode === "edit" ? 3 : 4));
+    if (this.editing) h += `<button class="floor-add" data-a="floor-add">${ic("plus", 16)}Etage</button>`;
+    el.classList.toggle("compact", (this.C.floors || []).length > (this.editing ? 3 : 4));
     el.innerHTML = h;
   }
 
@@ -681,7 +726,7 @@ class HauspanelPanel extends HTMLElement {
     const head = this.$("#plan-head"), plan = this.$("#plan");
     if (!this.C) return;
     const f = this._floor();
-    const edit = this.mode === "edit";
+    const edit = this.editing;
     if (!f) {
       head.innerHTML = `<h2 id="plan-title">Willkommen</h2>`;
       plan.style.cssText = "inset:0";
@@ -715,11 +760,13 @@ class HauspanelPanel extends HTMLElement {
   _layoutPlan() {
     const wrap = this.$ && this.$("#plan-wrap"), plan = this.$ && this.$("#plan");
     const f = this.C && this._floor();
-    if (!wrap || !plan || !f || !this._aspect || (!this._planFor(f) && this.mode !== "edit")) return;
+    if (!wrap || !plan || !f || !this._aspect || (!this._planFor(f) && !this.editing)) return;
     const W = wrap.clientWidth, H = wrap.clientHeight, a = this._aspect;
     let w = W, h = W / a;
     if (h > H) { h = H; w = H * a; }
-    plan.style.cssText = `width:${w}px;height:${h}px;left:${(W - w) / 2}px;top:${(H - h) / 2}px`;
+    // --k: Pins/Labels skalieren mit dem Grundriss -> überall gleiche Proportionen (Editor, Laptop, Tablet)
+    const k = clamp(Math.min(w, h) / 450, 0.45, 3);
+    plan.style.cssText = `width:${w}px;height:${h}px;left:${(W - w) / 2}px;top:${(H - h) / 2}px;--k:${k.toFixed(3)}`;
   }
 
   /* Inhalt eines Pins: Icon, Wert oder beides (Einstellung pro Gerät) */
@@ -773,7 +820,7 @@ class HauspanelPanel extends HTMLElement {
   }
   _renderWeather() {
     const el = this.$("#weather"); if (!el) return;
-    const id = this.cfg.weather_entity, s = id && this._hass.states[id];
+    const id = this.C.weather_entity, s = id && this._hass.states[id];
     if (!s) { el.innerHTML = `<div class="sec-head" style="color:#fff">${ic("cloud-sun", 18)}Wetter</div><div class="w-empty">Keine Wetter-Entity gewählt. Im Editor unter „Allgemein“ einstellen.</div>`; return; }
     const [icon, label] = WEATHER[s.state] || ["cloud", s.state];
     const fc = this.forecast || [];
@@ -791,7 +838,7 @@ class HauspanelPanel extends HTMLElement {
 
   /* ---------- Müll ---------- */
   _wasteList() {
-    return (this.cfg.waste || []).filter((w) => w.entity_id).map((w) => {
+    return (this.C.waste || []).filter((w) => w.entity_id).map((w) => {
       const n = wasteDays(this._hass.states[w.entity_id]);
       return { w, n, d: n == null ? null : addDays(startOfDay(new Date()), n) };
     }).filter((x) => x.n != null && x.n >= 0).sort((a, b) => a.n - b.n);
@@ -800,7 +847,7 @@ class HauspanelPanel extends HTMLElement {
     const el = this.$("#waste"); if (!el) return;
     let h = `<div class="sec-head">${ic("trash-2", 18)}Müllabfuhr</div>`;
     const list = this._wasteList();
-    if (!(this.cfg.waste || []).length) h += `<div class="muted-note">Noch keine Müll-Sensoren eingestellt.</div>`;
+    if (!(this.C.waste || []).length) h += `<div class="muted-note">Noch keine Müll-Sensoren eingestellt.</div>`;
     else if (!list.length) h += `<div class="muted-note">Keine kommenden Termine erkannt. Im Editor unter „Allgemein“ steht bei jedem Sensor, was gelesen wurde.</div>`;
     list.slice(0, 4).forEach((x) => {
       const label = x.n === 0 ? "Heute" : x.n === 1 ? "Morgen" : `in ${x.n} Tagen`;
@@ -808,12 +855,23 @@ class HauspanelPanel extends HTMLElement {
         <div><div class="n">${esc(x.w.name || friendly(this._hass, x.w.entity_id))}</div><div class="d">${DAYS[x.d.getDay()]}, ${fmtShort(x.d)}</div></div><div class="b">${label}</div></div>`;
     });
     el.innerHTML = h;
+    this._fitWaste();
+  }
+  /* Einträge, die nicht mehr ganz in die Karte passen, ausblenden statt anschneiden */
+  _fitWaste() {
+    requestAnimationFrame(() => {
+      const el = this.$("#waste"); if (!el) return;
+      const bins = [...el.querySelectorAll(".bin")];
+      bins.forEach((b) => { b.style.display = ""; });
+      const limit = el.getBoundingClientRect().bottom - 4;
+      bins.forEach((b) => { if (b.getBoundingClientRect().bottom > limit) b.style.display = "none"; });
+    });
   }
 
   /* ---------- Kalender ---------- */
   async _fetchEvents() {
-    if (!this.cfg || this.mode !== "view") return;
-    const cals = (this.cfg.calendars || []).filter((c) => c.entity_id && this._hass.states[c.entity_id]);
+    if (!this.C || !this.viewing) return;
+    const cals = (this.C.calendars || []).filter((c) => c.entity_id && this._hass.states[c.entity_id]);
     const req = ++this._evReq;
     if (!cals.length) { this.events = []; this._renderCal(); return; }
     const mon = addDays(monday(new Date()), this.weekOffset * 7);
@@ -835,9 +893,9 @@ class HauspanelPanel extends HTMLElement {
     this._renderCal();
   }
   _renderCal() {
-    const el = this.$("#cal"); if (!el || this.mode !== "view") return;
+    const el = this.$("#cal"); if (!el || !this.viewing) return;
     const mon = addDays(monday(new Date()), this.weekOffset * 7), sun = addDays(mon, 6), today = new Date();
-    const cals = this.cfg.calendars || [];
+    const cals = this.C.calendars || [];
     let h = `<div class="cal-side"><div class="sec-head" style="margin:0 0 8px">${ic("calendar", 18)}Termine</div>
       <div class="cal-range">${fmtShort(mon)} – ${fmtShort(sun)}${sun.getFullYear()}</div><div class="cal-kw">KW ${kw(mon)}</div>
       <div class="cal-nav"><button data-wk="-1" aria-label="Vorherige Woche">${ic("chevron-left", 18)}</button>${this.weekOffset ? `<button data-wk="0" aria-label="Diese Woche">${ic("circle-dot", 16)}</button>` : ""}<button data-wk="1" aria-label="Nächste Woche">${ic("chevron-right", 18)}</button></div>
@@ -1012,8 +1070,8 @@ class HauspanelPanel extends HTMLElement {
     const t = ev.target;
     if (this._suppressClick) { this._suppressClick = false; return; }
     const fl = t.closest("[data-floor]");
-    if (fl) { this.activeFloor = fl.dataset.floor; this.sel = null; if (this.mode === "edit" && this.tab === "select") this.tab = "floor";
-      this._renderFloors(); this._renderPlan(); if (this.mode === "edit") this._renderInspector(); return; }
+    if (fl) { this.activeFloor = fl.dataset.floor; this.sel = null; if (this.editing && this.tab === "select") this.tab = "floor";
+      this._renderFloors(); this._renderPlan(); if (this.editing) this._renderInspector(); return; }
     const wk = t.closest("[data-wk]");
     if (wk) { const v = Number(wk.dataset.wk); this.weekOffset = v === 0 ? 0 : this.weekOffset + v; this.events = []; this._renderCal(); this._fetchEvents(); return; }
     const evb = t.closest("[data-ev]");
@@ -1021,7 +1079,7 @@ class HauspanelPanel extends HTMLElement {
     const dayb = t.closest("[data-day]");
     if (dayb) { this._openDay(Number(dayb.dataset.day)); return; }
     const pin = t.closest(".pin");
-    if (pin && this.mode === "view") { this._openPin(pin.dataset.pin); return; }
+    if (pin && this.viewing) { this._openPin(pin.dataset.pin); return; }
     const b = t.closest("[data-a]");
     if (!b) return;
     const a = b.dataset.a;
@@ -1034,6 +1092,7 @@ class HauspanelPanel extends HTMLElement {
         return this._applyTheme();
       case "all-off": return this._allOff();
       case "edit": return this._enterEdit();
+      case "preview-exit": this._closePop(); this.preview = false; this._themeOverride = null; return this._renderAll();
     }
     if (this.mode === "edit") this._editClick(a, b, ev);
   }
@@ -1054,12 +1113,12 @@ class HauspanelPanel extends HTMLElement {
     this.mode = "edit";
     this.draft = clone(this.cfg);
     this.draftPlans = { ...this.plans };
-    this.dirty = false; this.sel = null; this._confirmCancel = false; this._themeOverride = null;
+    this.dirty = false; this.sel = null; this._confirmCancel = false; this._themeOverride = null; this.preview = false; this._designMode = "light";
     this.tab = (this.draft.floors || []).length ? "devices" : "floor";
     this._renderAll();
   }
   _exitEdit() {
-    this.mode = "view"; this.draft = null; this.draftPlans = {}; this.sel = null; this.dirty = false;
+    this.mode = "view"; this.draft = null; this.draftPlans = {}; this.sel = null; this.dirty = false; this.preview = false;
     this._themeOverride = null; this.planCache = {};
     const floors = this.cfg.floors || [];
     if (!floors.some((f) => f.id === this.activeFloor)) this.activeFloor = this._homeFloor();
@@ -1137,6 +1196,9 @@ class HauspanelPanel extends HTMLElement {
         f[key] = f[key].filter((x) => x.id !== this.sel.id); this.sel = null; this.tab = a === "pin-del" ? "devices" : "floor";
         this._markDirty(); this._renderPlan(); this._renderFloors(); return this._renderInspector();
       }
+      case "design-mode": this._designMode = b.dataset.v; this._themeOverride = b.dataset.v; this._applyTheme(); return this._renderInspector();
+      case "theme-reset": this.draft.theme = null; this._markDirty(); this._applyThemeVars(); this._layoutPlan(); return this._renderInspector();
+      case "preview": this.preview = true; this.sel = null; this.events = []; this._renderAll(); this._fetchEvents(); return;
       case "pin-display": {
         const p = this._selPin(); p.display = b.dataset.v;
         this._markDirty(); this._renderPlan(); return this._renderInspector();
@@ -1199,6 +1261,18 @@ class HauspanelPanel extends HTMLElement {
       case "floor-recolor": f.recolor = val; this._renderPlan(); break;
       case "plan-file": if (isChange) this._uploadPlan(el.files && el.files[0]); return;
       case "weather": this.draft.weather_entity = val || null; break;
+      case "theme-color": case "theme-size": {
+        this.draft.theme = mergeTheme(this.draft.theme);
+        if (k === "theme-color") { this.draft.theme[this._designMode || "light"][el.dataset.k] = val; el.nextElementSibling.nextElementSibling.textContent = val; }
+        else {
+          this.draft.theme.size[el.dataset.k] = Number(val);
+          const spec = THEME_SIZES.find((x) => x[0] === el.dataset.k);
+          this.$("#tv-" + el.dataset.k).textContent = val + " " + spec[4];
+          el.style.setProperty("--p", ((val - spec[2]) / (spec[3] - spec[2])) * 100 + "%");
+        }
+        this._applyThemeVars(); this._layoutPlan(); this._fitWaste();
+        break;
+      }
       case "default-floor": this.draft.default_floor = val; break;
       case "night-mode": this.draft.night.mode = val; this._renderInspector(); break;
       case "night-from": this.draft.night.from = Number(val); break;
@@ -1232,7 +1306,7 @@ class HauspanelPanel extends HTMLElement {
   /* ---------- Drag & Drop (Pointer-Events, funktioniert mit Maus und Touch) ---------- */
   _onPointerDown(ev) {
     this._lastTouch = Date.now();
-    if (this.mode !== "edit" || ev.button > 0) return;
+    if (!this.editing || ev.button > 0) return;
     const pinEl = ev.target.closest(".pin"), roomEl = ev.target.closest(".room-label"), grip = ev.target.closest(".grip");
     if (pinEl || roomEl) return this._dragOnPlan(ev, pinEl, roomEl);
     if (grip) return this._dragFromList(ev, grip.closest(".ent").dataset.ent);
@@ -1292,13 +1366,14 @@ class HauspanelPanel extends HTMLElement {
   /* ---------- Inspector ---------- */
   _renderInspector() {
     const el = this.$("#insp"); if (!el) return;
-    const tabs = [["devices", "Geräte"], ["select", "Auswahl"], ["floor", "Etage"], ["general", "Allgemein"]];
+    const tabs = [["devices", "Geräte"], ["select", "Auswahl"], ["floor", "Etage"], ["general", "Allgemein"], ["design", "Design"]];
     el.innerHTML = `<div class="tabs">${tabs.map(([k, l]) => `<button class="${this.tab === k ? "sel" : ""}" data-a="tab" data-tab="${k}">${l}</button>`).join("")}</div>
       <div class="insp-body" id="insp-body"></div>`;
     const body = this.$("#insp-body");
     if (this.tab === "devices") body.innerHTML = this._tabDevices();
     else if (this.tab === "select") body.innerHTML = this._tabSelect();
     else if (this.tab === "floor") body.innerHTML = this._tabFloor();
+    else if (this.tab === "design") body.innerHTML = this._tabDesign();
     else body.innerHTML = this._tabGeneral();
     if (this.tab === "devices") this._renderEntityList();
   }
@@ -1403,6 +1478,22 @@ class HauspanelPanel extends HTMLElement {
     return n == null || n < 0
       ? `<div class="hint" style="color:var(--accent);margin:8px 0 0">Kein Termin erkannt · ${raw}</div>`
       : `<div class="hint" style="margin:8px 0 0">✓ ${n === 0 ? "heute" : n === 1 ? "morgen" : "in " + n + " Tagen"} · ${raw}</div>`;
+  }
+  _tabDesign() {
+    const t = mergeTheme(this.draft.theme), m = this._designMode || "light";
+    return `<div class="row" style="margin-bottom:14px"><button class="sbtn primary" data-a="preview">${ic("eye", 16)}Vorschau</button>
+        <button class="sbtn" data-a="theme-reset">Auf Standard zurücksetzen</button></div>
+      <div class="fld"><label>Farben</label><div class="chips" style="margin:0 0 10px">
+        <button class="${m === "light" ? "sel" : ""}" data-a="design-mode" data-v="light">Hell</button>
+        <button class="${m === "dark" ? "sel" : ""}" data-a="design-mode" data-v="dark">Nachtmodus</button></div>
+        ${THEME_COLORS.map(([k, l]) => `<div class="row" style="margin-bottom:6px"><input type="color" data-f="theme-color" data-k="${k}" value="${t[m][k]}">
+          <span style="flex:1;font-size:13.5px">${l}</span><span class="hint" style="margin:0;font-family:monospace">${t[m][k]}</span></div>`).join("")}</div>
+      <div class="sep"></div>
+      <div class="fld"><label>Größen &amp; Abstände</label>
+        ${THEME_SIZES.map(([k, l, mn, mx, u]) => `<div style="margin-bottom:8px"><div class="row" style="justify-content:space-between;font-size:13.5px">
+          <span>${l}</span><b id="tv-${k}">${t.size[k]} ${u}</b></div>
+          <input type="range" min="${mn}" max="${mx}" step="1" value="${t.size[k]}" data-f="theme-size" data-k="${k}" style="--p:${((t.size[k] - mn) / (mx - mn)) * 100}%"></div>`).join("")}</div>
+      <div class="hint">Pins und Raum-Labels wachsen zusätzlich mit dem Grundriss mit, damit sie auf jedem Bildschirm an derselben Stelle sitzen.</div>`;
   }
   _tabGeneral() {
     const c = this.draft;
