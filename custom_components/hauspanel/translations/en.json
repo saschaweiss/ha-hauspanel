@@ -1,0 +1,11 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Set up Hauspanel",
+        "description": "Adds the Hauspanel to the sidebar. Set up floor plans and devices afterwards inside the panel via “Bearbeiten”."
+      }
+    },
+    "abort": { "single_instance_allowed": "Hauspanel is already set up." }
+  }
+}
