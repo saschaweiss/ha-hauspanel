@@ -2,10 +2,11 @@
  * Ein Web-Component-Modul ohne Build-Abhängigkeiten.
  * Icons: Lucide (ISC-Lizenz). Schrift: Inter (OFL).
  */
-const HP_VERSION = "0.1.0";
+const HP_VERSION = "0.1.1";
 const ICONS = {"activity":"<path d=\"M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2\" />","arrow-down":"<path d=\"M12 5v14\" /> <path d=\"m19 12-7 7-7-7\" />","arrow-up":"<path d=\"m5 12 7-7 7 7\" /> <path d=\"M12 19V5\" />","blinds":"<path d=\"M3 3h18\" /> <path d=\"M20 7H8\" /> <path d=\"M20 11H8\" /> <path d=\"M10 19h10\" /> <path d=\"M8 15h12\" /> <path d=\"M4 3v14\" /> <circle cx=\"4\" cy=\"19\" r=\"2\" />","calendar":"<path d=\"M8 2v3\" /> <path d=\"M16 2v3\" /> <rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\" /> <path d=\"M3 9h18\" />","calendars":"<path d=\"M12 2v2\" /> <path d=\"M15.726 21.01A2 2 0 0 1 14 22H4a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2\" /> <path d=\"M18 2v2\" /> <path d=\"M2 13h2\" /> <path d=\"M8 8h14\" /> <rect x=\"8\" y=\"3\" width=\"14\" height=\"14\" rx=\"2\" />","camera":"<path d=\"M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z\" /> <circle cx=\"12\" cy=\"13\" r=\"3\" />","cctv":"<path d=\"M16.75 12h3.632a1 1 0 0 1 .894 1.447l-2.034 4.069a1 1 0 0 1-1.708.134l-2.124-2.97\" /> <path d=\"M17.106 9.053a1 1 0 0 1 .447 1.341l-3.106 6.211a1 1 0 0 1-1.342.447L3.61 12.3a2.92 2.92 0 0 1-1.3-3.91L3.69 5.6a2.92 2.92 0 0 1 3.92-1.3z\" /> <path d=\"M2 19h3.76a2 2 0 0 0 1.8-1.1L9 15\" /> <path d=\"M2 21v-4\" /> <path d=\"M7 9h.01\" />","check":"<path d=\"M20 6 9 17l-5-5\" />","chevron-left":"<path d=\"m15 18-6-6 6-6\" />","chevron-right":"<path d=\"m9 18 6-6-6-6\" />","circle":"<circle cx=\"12\" cy=\"12\" r=\"10\" />","circle-dot":"<circle cx=\"12\" cy=\"12\" r=\"1\" /> <circle cx=\"12\" cy=\"12\" r=\"10\" />","clock":"<circle cx=\"12\" cy=\"12\" r=\"10\" /> <path d=\"M12 6v6l4 2\" />","cloud":"<path d=\"M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z\" />","cloud-fog":"<path d=\"M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242\" /> <path d=\"M16 17H7\" /> <path d=\"M17 21H9\" />","cloud-hail":"<path d=\"M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242\" /> <path d=\"M16 14v2\" /> <path d=\"M8 14v2\" /> <path d=\"M16 20h.01\" /> <path d=\"M8 20h.01\" /> <path d=\"M12 16v2\" /> <path d=\"M12 22h.01\" />","cloud-lightning":"<path d=\"M6 16.326A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 .5 8.973\" /> <path d=\"m13 12-3 5h4l-3 5\" />","cloud-rain":"<path d=\"M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242\" /> <path d=\"M16 14v6\" /> <path d=\"M8 14v6\" /> <path d=\"M12 16v6\" />","cloud-rain-wind":"<path d=\"M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242\" /> <path d=\"m9.2 22 3-7\" /> <path d=\"m9 13-3 7\" /> <path d=\"m17 13-3 7\" />","cloud-snow":"<path d=\"M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242\" /> <path d=\"M8 15h.01\" /> <path d=\"M8 19h.01\" /> <path d=\"M12 17h.01\" /> <path d=\"M12 21h.01\" /> <path d=\"M16 15h.01\" /> <path d=\"M16 19h.01\" />","cloud-sun":"<path d=\"M12 2v2\" /> <path d=\"m4.93 4.93 1.41 1.41\" /> <path d=\"M20 12h2\" /> <path d=\"m19.07 4.93-1.41 1.41\" /> <path d=\"M15.947 12.65a4 4 0 0 0-5.925-4.128\" /> <path d=\"M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6Z\" />","code":"<path d=\"m16 18 6-6-6-6\" /> <path d=\"m8 6-6 6 6 6\" />","door-open":"<path d=\"M10 21H2\" /> <path d=\"M10 3H7a2 2 0 00-2 2v16\" /> <path d=\"M14 12h.01\" /> <path d=\"M19 21V5a2 2 0 00-1.675-1.974l-6.163-1.013A1 1 0 0010 3v18a1 1 0 001.124.992z\" /> <path d=\"M22 21h-3\" />","dot":"<circle cx=\"12\" cy=\"12\" r=\"1\" />","droplets":"<path d=\"M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z\" /> <path d=\"M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97\" />","edit":"<path d=\"M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7\" /> <path d=\"M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z\" />","ellipse":"<ellipse cx=\"12\" cy=\"12\" rx=\"10\" ry=\"6\" />","fan":"<path d=\"M10.827 16.379a6.082 6.082 0 0 1-8.618-7.002l5.412 1.45a6.082 6.082 0 0 1 7.002-8.618l-1.45 5.412a6.082 6.082 0 0 1 8.618 7.002l-5.412-1.45a6.082 6.082 0 0 1-7.002 8.618l1.45-5.412Z\" /> <path d=\"M12 12v.01\" />","file":"<path d=\"M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z\" /> <path d=\"M14 2v5a1 1 0 0 0 1 1h5\" />","flame":"<path d=\"M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4\" />","gauge":"<path d=\"m12 14 4-4\" /> <path d=\"M3.34 19a10 10 0 1 1 17.32 0\" />","ghost":"<path d=\"M15 10v1\" /> <path d=\"M7.528 20.472a1.6 1.6 0 012.277 0l1.057 1.056a1.6 1.6 0 002.276 0l1.057-1.056a1.6 1.6 0 012.277 0l1.114 1.114a1.4 1.4 0 002.414-1V10a8 8 0 00-16 0v10.586a1.4 1.4 0 002.414 1z\" /> <path d=\"M9 10v1\" />","grid":"<rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\" /> <path d=\"M3 9h18\" /> <path d=\"M3 15h18\" /> <path d=\"M9 3v18\" /> <path d=\"M15 3v18\" />","grip":"<circle cx=\"12\" cy=\"5\" r=\"1\" /> <circle cx=\"19\" cy=\"5\" r=\"1\" /> <circle cx=\"5\" cy=\"5\" r=\"1\" /> <circle cx=\"12\" cy=\"12\" r=\"1\" /> <circle cx=\"19\" cy=\"12\" r=\"1\" /> <circle cx=\"5\" cy=\"12\" r=\"1\" /> <circle cx=\"12\" cy=\"19\" r=\"1\" /> <circle cx=\"19\" cy=\"19\" r=\"1\" /> <circle cx=\"5\" cy=\"19\" r=\"1\" />","grip-vertical":"<circle cx=\"9\" cy=\"12\" r=\"1\" /> <circle cx=\"9\" cy=\"5\" r=\"1\" /> <circle cx=\"9\" cy=\"19\" r=\"1\" /> <circle cx=\"15\" cy=\"12\" r=\"1\" /> <circle cx=\"15\" cy=\"5\" r=\"1\" /> <circle cx=\"15\" cy=\"19\" r=\"1\" />","home":"<path d=\"M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8\" /> <path d=\"M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\" />","house":"<path d=\"M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8\" /> <path d=\"M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\" />","lamp-ceiling":"<path d=\"M12 2v5\" /> <path d=\"M14.829 15.998a3 3 0 1 1-5.658 0\" /> <path d=\"M20.92 14.606A1 1 0 0 1 20 16H4a1 1 0 0 1-.92-1.394l3-7A1 1 0 0 1 7 7h10a1 1 0 0 1 .92.606z\" />","lamp-desk":"<path d=\"M10.293 2.293a1 1 0 0 1 1.414 0l2.5 2.5 5.994 1.227a1 1 0 0 1 .506 1.687l-7 7a1 1 0 0 1-1.687-.506l-1.227-5.994-2.5-2.5a1 1 0 0 1 0-1.414z\" /> <path d=\"m14.207 4.793-3.414 3.414\" /> <path d=\"M3 20a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z\" /> <path d=\"m9.086 6.5-4.793 4.793a1 1 0 0 0-.18 1.17L7 18\" />","lamp-floor":"<path d=\"M12 10v12\" /> <path d=\"M17.929 7.629A1 1 0 0 1 17 9H7a1 1 0 0 1-.928-1.371l2-5A1 1 0 0 1 9 2h6a1 1 0 0 1 .928.629z\" /> <path d=\"M9 22h6\" />","lightbulb":"<path d=\"M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5\" /> <path d=\"M9 18h6\" /> <path d=\"M10 22h4\" />","list":"<path d=\"M3 5h.01\" /> <path d=\"M3 12h.01\" /> <path d=\"M3 19h.01\" /> <path d=\"M8 5h13\" /> <path d=\"M8 12h13\" /> <path d=\"M8 19h13\" />","lock":"<rect width=\"18\" height=\"11\" x=\"3\" y=\"11\" rx=\"2\" ry=\"2\" /> <path d=\"M7 11V7a5 5 0 0 1 10 0v4\" />","map-pin":"<path d=\"M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0\" /> <circle cx=\"12\" cy=\"10\" r=\"3\" />","menu":"<path d=\"M4 5h16\" /> <path d=\"M4 12h16\" /> <path d=\"M4 19h16\" />","minus":"<path d=\"M5 12h14\" />","moon":"<path d=\"M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401\" />","pencil":"<path d=\"M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z\" /> <path d=\"m15 5 4 4\" />","pill":"<path d=\"m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z\" /> <path d=\"m8.5 8.5 7 7\" />","pin":"<path d=\"M12 17v5\" /> <path d=\"M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z\" />","play":"<path d=\"M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z\" />","plug":"<path d=\"M12 22v-5\" /> <path d=\"M15 8V2\" /> <path d=\"M17 8a1 1 0 0 1 1 1v4a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1z\" /> <path d=\"M9 8V2\" />","plus":"<path d=\"M5 12h14\" /> <path d=\"M12 5v14\" />","power":"<path d=\"M12 2v10\" /> <path d=\"M18.4 6.6a9 9 0 1 1-12.77.04\" />","refrigerator":"<path d=\"M5 6a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6Z\" /> <path d=\"M5 10h14\" /> <path d=\"M15 7v6\" />","search":"<path d=\"m21 21-4.34-4.34\" /> <circle cx=\"11\" cy=\"11\" r=\"8\" />","speaker":"<rect width=\"16\" height=\"20\" x=\"4\" y=\"2\" rx=\"2\" /> <path d=\"M12 6h.01\" /> <circle cx=\"12\" cy=\"14\" r=\"4\" /> <path d=\"M12 14h.01\" />","sun":"<circle cx=\"12\" cy=\"12\" r=\"4\" /> <path d=\"M12 2v2\" /> <path d=\"M12 20v2\" /> <path d=\"m4.93 4.93 1.41 1.41\" /> <path d=\"m17.66 17.66 1.41 1.41\" /> <path d=\"M2 12h2\" /> <path d=\"M20 12h2\" /> <path d=\"m6.34 17.66-1.41 1.41\" /> <path d=\"m19.07 4.93-1.41 1.41\" />","tag":"<path d=\"M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z\" /> <circle cx=\"7.5\" cy=\"7.5\" r=\".5\" fill=\"currentColor\" />","text":"<path d=\"M21 5H3\" /> <path d=\"M15 12H3\" /> <path d=\"M17 19H3\" />","thermometer":"<path d=\"M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z\" />","toggle-left":"<circle cx=\"9\" cy=\"12\" r=\"3\" /> <rect width=\"20\" height=\"14\" x=\"2\" y=\"5\" rx=\"7\" />","trash-2":"<path d=\"M10 11v6\" /> <path d=\"M14 11v6\" /> <path d=\"M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6\" /> <path d=\"M3 6h18\" /> <path d=\"M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2\" />","triangle-alert":"<path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3\" /> <path d=\"M12 9v4\" /> <path d=\"M12 17h.01\" />","tv":"<path d=\"m17 2-5 5-5-5\" /> <rect width=\"20\" height=\"15\" x=\"2\" y=\"7\" rx=\"2\" />","unlock":"<rect width=\"18\" height=\"11\" x=\"3\" y=\"11\" rx=\"2\" ry=\"2\" /> <path d=\"M7 11V7a5 5 0 0 1 9.9-1\" />","upload":"<path d=\"M12 3v12\" /> <path d=\"m17 8-5-5-5 5\" /> <path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\" />","video":"<path d=\"m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5\" /> <rect x=\"2\" y=\"6\" width=\"14\" height=\"12\" rx=\"2\" />","view":"<path d=\"M21 17v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2\" /> <path d=\"M21 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2\" /> <circle cx=\"12\" cy=\"12\" r=\"1\" /> <path d=\"M18.944 12.33a1 1 0 0 0 0-.66 7.5 7.5 0 0 0-13.888 0 1 1 0 0 0 0 .66 7.5 7.5 0 0 0 13.888 0\" />","washing-machine":"<path d=\"M3 6h3\" /> <path d=\"M17 6h.01\" /> <rect width=\"18\" height=\"20\" x=\"3\" y=\"2\" rx=\"2\" /> <circle cx=\"12\" cy=\"13\" r=\"5\" /> <path d=\"M12 18a2.5 2.5 0 0 0 0-5 2.5 2.5 0 0 1 0-5\" />","wind":"<path d=\"M12.8 19.6A2 2 0 1 0 14 16H2\" /> <path d=\"M17.5 8a2.5 2.5 0 1 1 2 4H2\" /> <path d=\"M9.8 4.4A2 2 0 1 1 11 8H2\" />","x":"<path d=\"M18 6 6 18\" /> <path d=\"m6 6 12 12\" />","zap":"<path d=\"M15.914 4a1.5 1.5 0 00-2.474-1.561l-9 9A1.5 1.5 0 005.5 14h4.002a.5.5 0 01.471.666L8.086 20a1.5 1.5 0 002.475 1.56l9-9A1.5 1.5 0 0018.5 10h-3.997a.5.5 0 01-.472-.667z\" />"};
 
-const STAGE_W = 1280, STAGE_H = 800;
+// Referenzbreite/-höhe: darauf wird skaliert, der Rest des Bildschirms geht an den Grundriss
+const STAGE_W = 1280, STAGE_MIN_H = 800;
 const PIN_ICONS = ["lightbulb","lamp-ceiling","lamp-floor","lamp-desk","plug","tv","speaker","fan","flame","thermometer","droplets","gauge","zap","cctv","blinds","door-open","lock","washing-machine","refrigerator","activity","sun","power"];
 const PICK_DOMAINS = ["light","switch","climate","sensor","binary_sensor","camera","fan","cover","lock","media_player","input_boolean","scene","script"];
 const ACTIVE_STATES = new Set(["on","open","opening","closing","unlocked","playing","home"]);
@@ -110,18 +111,54 @@ function supportsBrightness(stateObj) {
   const m = stateObj.attributes.supported_color_modes;
   return Array.isArray(m) ? !(m.length === 1 && m[0] === "onoff") : stateObj.attributes.brightness != null;
 }
+/* Findet ein Datum irgendwo in einem Text: 2026-10-16 · 16.10.2026 · Fr, 16.10.26 · 16.10. */
+function findDate(str) {
+  const s = String(str ?? "");
+  let m = s.match(/(\d{4})-(\d{2})-(\d{2})/);
+  if (m) return new Date(+m[1], +m[2] - 1, +m[3]);
+  m = s.match(/(?:^|[^\d])(\d{1,2})\.(\d{1,2})\.(\d{2,4})?(?!\d)/);
+  if (m) {
+    const today = startOfDay(new Date());
+    let y = m[3] ? +m[3] : today.getFullYear();
+    if (y < 100) y += 2000;
+    let d = new Date(y, +m[2] - 1, +m[1]);
+    if (!m[3] && d < addDays(today, -1)) d = new Date(y + 1, +m[2] - 1, +m[1]);
+    return isNaN(d) ? null : d;
+  }
+  return null;
+}
+const daysUntil = (d) => Math.round((startOfDay(d) - startOfDay(new Date())) / 864e5);
+const SKIP_ATTR = new Set(["friendly_name","icon","entity_picture","unit_of_measurement","device_class","attribution","state_class"]);
+/* Tage bis zur Abholung. Versteht Waste Collection Schedule (Zustand „in 3 Tagen“/„morgen“,
+   Attribut daysTo, Termine als Attribute) sowie eigene Template-Sensoren (Datum oder Zahl). */
 function wasteDays(stateObj) {
   if (!stateObj) return null;
   const a = stateObj.attributes;
-  for (const k of ["daysTo", "days_to", "days"]) if (a[k] != null && !isNaN(Number(a[k]))) return Number(a[k]);
-  const st = String(stateObj.state).trim();
-  if (/^-?\d+$/.test(st)) return Number(st);
-  let d = null;
-  const m = st.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})/);
-  if (m) d = new Date(+m[3], +m[2] - 1, +m[1]);
-  else if (/^\d{4}-\d{2}-\d{2}/.test(st)) d = parseDate(st.slice(0, 10));
-  if (!d) return null;
-  return Math.round((startOfDay(d) - startOfDay(new Date())) / 864e5);
+  for (const k of ["daysTo", "days_to", "days"]) if (a[k] != null && a[k] !== "" && !isNaN(Number(a[k]))) return Number(a[k]);
+  const st = String(stateObj.state).trim(), low = st.toLowerCase();
+  if (!["unknown", "unavailable", ""].includes(low)) {
+    if (/^-?\d+$/.test(st)) return Number(st);
+    const d = findDate(st);
+    if (d) return daysUntil(d);
+    if (/\b(heute|today)\b/.test(low)) return 0;
+    if (/\b(übermorgen)\b/.test(low)) return 2;
+    if (/\b(morgen|tomorrow)\b/.test(low)) return 1;
+    const n = low.match(/(\d+)\s*(tag|tagen|day|days)\b/) || low.match(/\bin\s+(\d+)/);
+    if (n) return Number(n[1]);
+  }
+  // Termine stehen in den Attributen (Schlüssel oder Werte) -> frühesten zukünftigen nehmen
+  let best = null;
+  for (const [k, v] of Object.entries(a)) {
+    if (SKIP_ATTR.has(k)) continue;
+    for (const cand of [k, ...(Array.isArray(v) ? v : [v])]) {
+      if (typeof cand !== "string") continue;
+      const d = findDate(cand);
+      if (!d) continue;
+      const n = daysUntil(d);
+      if (n >= 0 && (best === null || n < best)) best = n;
+    }
+  }
+  return best;
 }
 
 /* ---------- SVG: säubern, Farben ans Theme binden ---------- */
@@ -208,7 +245,7 @@ const CSS = `
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 input,select,textarea{font:inherit;color:inherit}
 svg.i{display:block;fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;flex:none}
-#stage{position:absolute;left:0;top:0;width:${STAGE_W}px;height:${STAGE_H}px;transform-origin:0 0;user-select:none;-webkit-user-select:none}
+#stage{position:absolute;left:0;top:0;width:${STAGE_W}px;height:800px;transform-origin:0 0;user-select:none;-webkit-user-select:none}
 .card{background:var(--card);border-radius:22px;box-shadow:var(--shadow)}
 #scratch{position:absolute;left:-9999px;top:0;width:10px;height:10px;overflow:hidden;visibility:hidden}
 
@@ -226,7 +263,7 @@ svg.i{display:block;fill:none;stroke:currentColor;stroke-linecap:round;stroke-li
 .btn.danger{color:var(--accent)}
 .btn:disabled{opacity:.45}
 
-#main{position:absolute;left:18px;right:18px;top:72px;height:502px;display:grid;grid-template-columns:176px 1fr 282px;gap:12px}
+#main{position:absolute;left:18px;right:18px;top:72px;bottom:226px;display:grid;grid-template-columns:176px 1fr 282px;gap:12px}
 #floors{padding:12px;display:flex;flex-direction:column;gap:8px;overflow-y:auto;scrollbar-width:none}
 #floors::-webkit-scrollbar{display:none}
 #floors.compact .roof{height:34px}#floors.compact .roof svg{height:34px}
@@ -288,7 +325,7 @@ svg.fp{fill:var(--wall)}
 .bin.soon .b{background:var(--accent);color:#fff}
 .muted-note{font-size:12.5px;color:var(--muted);padding:0 4px;line-height:1.5}
 
-#cal{position:absolute;left:18px;right:18px;top:586px;bottom:16px;display:grid;grid-template-columns:162px repeat(7,1fr);gap:8px;padding:14px 12px 12px 16px}
+#cal{position:absolute;left:18px;right:18px;bottom:16px;height:198px;display:grid;grid-template-columns:162px repeat(7,1fr);gap:8px;padding:14px 12px 12px 16px}
 .cal-side{display:flex;flex-direction:column;min-width:0}
 .cal-range{font-size:14px;font-weight:700;margin-top:2px}
 .cal-kw{font-size:12px;color:var(--muted);margin-top:2px}
@@ -352,7 +389,7 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;bac
 #toast.show{opacity:1}
 
 /* ---------- Editor ---------- */
-.edit #main{height:auto;bottom:16px;grid-template-columns:176px 1fr 360px}
+.edit #main{bottom:16px;grid-template-columns:176px 1fr 360px}
 .edit #cal{display:none}
 .edit .pin{cursor:grab;touch-action:none}
 .edit .pin.sel{box-shadow:0 0 0 3px var(--card),0 0 0 6px var(--accent)}
@@ -488,9 +525,13 @@ class HauspanelPanel extends HTMLElement {
     const st = this.$ && this.$("#stage");
     if (!st) return;
     const w = this.clientWidth || innerWidth, h = this.clientHeight || innerHeight;
-    const s = Math.min(w / STAGE_W, h / STAGE_H);
+    // Skalierung nach Breite (bzw. Mindesthöhe), die Bühne füllt immer die ganze Fläche:
+    // oben ausgerichtet, Grundriss-Bereich wächst in Höhe und Breite mit.
+    const s = Math.min(w / STAGE_W, h / STAGE_MIN_H);
     this._scale = s;
-    st.style.transform = `translate(${(w - STAGE_W * s) / 2}px,${(h - STAGE_H * s) / 2}px) scale(${s})`;
+    st.style.width = w / s + "px";
+    st.style.height = h / s + "px";
+    st.style.transform = `scale(${s})`;
     this._layoutPlan();
   }
 
@@ -733,6 +774,7 @@ class HauspanelPanel extends HTMLElement {
     let h = `<div class="sec-head">${ic("trash-2", 18)}Müllabfuhr</div>`;
     const list = this._wasteList();
     if (!(this.cfg.waste || []).length) h += `<div class="muted-note">Noch keine Müll-Sensoren eingestellt.</div>`;
+    else if (!list.length) h += `<div class="muted-note">Keine kommenden Termine erkannt. Im Editor unter „Allgemein“ steht bei jedem Sensor, was gelesen wurde.</div>`;
     list.slice(0, 4).forEach((x) => {
       const label = x.n === 0 ? "Heute" : x.n === 1 ? "Morgen" : `in ${x.n} Tagen`;
       h += `<div class="bin${x.n <= 1 ? " soon" : ""}"><div class="bin-ico" style="background:${esc(x.w.color || "#777")}">${ic("trash-2", 17)}</div>
@@ -1132,8 +1174,9 @@ class HauspanelPanel extends HTMLElement {
       case "list": {
         const item = this.draft[el.dataset.list][Number(el.dataset.i)];
         item[el.dataset.k] = val;
-        if (el.dataset.k === "entity_id" && isChange && !item.name && this._hass.states[val]) {
-          item.name = friendly(this._hass, val); this._renderInspector();
+        if (el.dataset.k === "entity_id" && isChange && this._hass.states[val]) {
+          if (!item.name) item.name = friendly(this._hass, val);
+          this._renderInspector();
         }
         break;
       }
@@ -1315,6 +1358,16 @@ class HauspanelPanel extends HTMLElement {
       <button class="sbtn danger full" data-a="floor-del">${ic("trash-2", 16)}Etage löschen</button>`;
   }
 
+  _wasteDiag(id) {
+    if (!id) return "";
+    const s = this._hass.states[id];
+    if (!s) return `<div class="hint" style="color:var(--accent);margin:8px 0 0">Entity nicht gefunden</div>`;
+    const n = wasteDays(s);
+    const raw = `Zustand: „${esc(String(s.state).slice(0, 60))}“`;
+    return n == null || n < 0
+      ? `<div class="hint" style="color:var(--accent);margin:8px 0 0">Kein Termin erkannt · ${raw}</div>`
+      : `<div class="hint" style="margin:8px 0 0">✓ ${n === 0 ? "heute" : n === 1 ? "morgen" : "in " + n + " Tagen"} · ${raw}</div>`;
+  }
   _tabGeneral() {
     const c = this.draft;
     c.night = c.night || { mode: "time", from: 22, to: 6 };
@@ -1324,7 +1377,7 @@ class HauspanelPanel extends HTMLElement {
             : `<select class="inp" data-f="list" data-list="${key}" data-i="${i}" data-k="entity_id">${this._entityOptions(domains, it.entity_id, "Kalender wählen")}</select>`}
           <button class="sbtn" data-a="list-del" data-list="${key}" data-i="${i}" aria-label="Entfernen">${ic("x", 16)}</button></div>
         <div class="row"><input class="inp" data-f="list" data-list="${key}" data-i="${i}" data-k="name" value="${esc(it.name)}" placeholder="Anzeigename">
-          <input type="color" data-f="list" data-list="${key}" data-i="${i}" data-k="color" value="${esc(it.color || "#888888")}"></div></div>`).join("")}
+          <input type="color" data-f="list" data-list="${key}" data-i="${i}" data-k="color" value="${esc(it.color || "#888888")}"></div>${key === "waste" ? this._wasteDiag(it.entity_id) : ""}</div>`).join("")}
       <button class="sbtn" data-a="list-add" data-list="${key}">${ic("plus", 16)}Hinzufügen</button></div>`;
     const hours = (v) => Array.from({ length: 24 }, (_, h) => `<option value="${h}"${Number(v) === h ? " selected" : ""}>${pad(h)}:00</option>`).join("");
     return `<div class="fld"><label>Startetage</label><select class="inp" data-f="default-floor">

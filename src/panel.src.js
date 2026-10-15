@@ -5,7 +5,8 @@
 const HP_VERSION = "__VERSION__";
 const ICONS = __ICONS__;
 
-const STAGE_W = 1280, STAGE_H = 800;
+// Referenzbreite/-höhe: darauf wird skaliert, der Rest des Bildschirms geht an den Grundriss
+const STAGE_W = 1280, STAGE_MIN_H = 800;
 const PIN_ICONS = ["lightbulb","lamp-ceiling","lamp-floor","lamp-desk","plug","tv","speaker","fan","flame","thermometer","droplets","gauge","zap","cctv","blinds","door-open","lock","washing-machine","refrigerator","activity","sun","power"];
 const PICK_DOMAINS = ["light","switch","climate","sensor","binary_sensor","camera","fan","cover","lock","media_player","input_boolean","scene","script"];
 const ACTIVE_STATES = new Set(["on","open","opening","closing","unlocked","playing","home"]);
@@ -110,18 +111,54 @@ function supportsBrightness(stateObj) {
   const m = stateObj.attributes.supported_color_modes;
   return Array.isArray(m) ? !(m.length === 1 && m[0] === "onoff") : stateObj.attributes.brightness != null;
 }
+/* Findet ein Datum irgendwo in einem Text: 2026-10-16 · 16.10.2026 · Fr, 16.10.26 · 16.10. */
+function findDate(str) {
+  const s = String(str ?? "");
+  let m = s.match(/(\d{4})-(\d{2})-(\d{2})/);
+  if (m) return new Date(+m[1], +m[2] - 1, +m[3]);
+  m = s.match(/(?:^|[^\d])(\d{1,2})\.(\d{1,2})\.(\d{2,4})?(?!\d)/);
+  if (m) {
+    const today = startOfDay(new Date());
+    let y = m[3] ? +m[3] : today.getFullYear();
+    if (y < 100) y += 2000;
+    let d = new Date(y, +m[2] - 1, +m[1]);
+    if (!m[3] && d < addDays(today, -1)) d = new Date(y + 1, +m[2] - 1, +m[1]);
+    return isNaN(d) ? null : d;
+  }
+  return null;
+}
+const daysUntil = (d) => Math.round((startOfDay(d) - startOfDay(new Date())) / 864e5);
+const SKIP_ATTR = new Set(["friendly_name","icon","entity_picture","unit_of_measurement","device_class","attribution","state_class"]);
+/* Tage bis zur Abholung. Versteht Waste Collection Schedule (Zustand „in 3 Tagen“/„morgen“,
+   Attribut daysTo, Termine als Attribute) sowie eigene Template-Sensoren (Datum oder Zahl). */
 function wasteDays(stateObj) {
   if (!stateObj) return null;
   const a = stateObj.attributes;
-  for (const k of ["daysTo", "days_to", "days"]) if (a[k] != null && !isNaN(Number(a[k]))) return Number(a[k]);
-  const st = String(stateObj.state).trim();
-  if (/^-?\d+$/.test(st)) return Number(st);
-  let d = null;
-  const m = st.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})/);
-  if (m) d = new Date(+m[3], +m[2] - 1, +m[1]);
-  else if (/^\d{4}-\d{2}-\d{2}/.test(st)) d = parseDate(st.slice(0, 10));
-  if (!d) return null;
-  return Math.round((startOfDay(d) - startOfDay(new Date())) / 864e5);
+  for (const k of ["daysTo", "days_to", "days"]) if (a[k] != null && a[k] !== "" && !isNaN(Number(a[k]))) return Number(a[k]);
+  const st = String(stateObj.state).trim(), low = st.toLowerCase();
+  if (!["unknown", "unavailable", ""].includes(low)) {
+    if (/^-?\d+$/.test(st)) return Number(st);
+    const d = findDate(st);
+    if (d) return daysUntil(d);
+    if (/\b(heute|today)\b/.test(low)) return 0;
+    if (/\b(übermorgen)\b/.test(low)) return 2;
+    if (/\b(morgen|tomorrow)\b/.test(low)) return 1;
+    const n = low.match(/(\d+)\s*(tag|tagen|day|days)\b/) || low.match(/\bin\s+(\d+)/);
+    if (n) return Number(n[1]);
+  }
+  // Termine stehen in den Attributen (Schlüssel oder Werte) -> frühesten zukünftigen nehmen
+  let best = null;
+  for (const [k, v] of Object.entries(a)) {
+    if (SKIP_ATTR.has(k)) continue;
+    for (const cand of [k, ...(Array.isArray(v) ? v : [v])]) {
+      if (typeof cand !== "string") continue;
+      const d = findDate(cand);
+      if (!d) continue;
+      const n = daysUntil(d);
+      if (n >= 0 && (best === null || n < best)) best = n;
+    }
+  }
+  return best;
 }
 
 /* ---------- SVG: säubern, Farben ans Theme binden ---------- */
@@ -208,7 +245,7 @@ const CSS = `
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 input,select,textarea{font:inherit;color:inherit}
 svg.i{display:block;fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;flex:none}
-#stage{position:absolute;left:0;top:0;width:${STAGE_W}px;height:${STAGE_H}px;transform-origin:0 0;user-select:none;-webkit-user-select:none}
+#stage{position:absolute;left:0;top:0;width:${STAGE_W}px;height:800px;transform-origin:0 0;user-select:none;-webkit-user-select:none}
 .card{background:var(--card);border-radius:22px;box-shadow:var(--shadow)}
 #scratch{position:absolute;left:-9999px;top:0;width:10px;height:10px;overflow:hidden;visibility:hidden}
 
@@ -226,7 +263,7 @@ svg.i{display:block;fill:none;stroke:currentColor;stroke-linecap:round;stroke-li
 .btn.danger{color:var(--accent)}
 .btn:disabled{opacity:.45}
 
-#main{position:absolute;left:18px;right:18px;top:72px;height:502px;display:grid;grid-template-columns:176px 1fr 282px;gap:12px}
+#main{position:absolute;left:18px;right:18px;top:72px;bottom:226px;display:grid;grid-template-columns:176px 1fr 282px;gap:12px}
 #floors{padding:12px;display:flex;flex-direction:column;gap:8px;overflow-y:auto;scrollbar-width:none}
 #floors::-webkit-scrollbar{display:none}
 #floors.compact .roof{height:34px}#floors.compact .roof svg{height:34px}
@@ -288,7 +325,7 @@ svg.fp{fill:var(--wall)}
 .bin.soon .b{background:var(--accent);color:#fff}
 .muted-note{font-size:12.5px;color:var(--muted);padding:0 4px;line-height:1.5}
 
-#cal{position:absolute;left:18px;right:18px;top:586px;bottom:16px;display:grid;grid-template-columns:162px repeat(7,1fr);gap:8px;padding:14px 12px 12px 16px}
+#cal{position:absolute;left:18px;right:18px;bottom:16px;height:198px;display:grid;grid-template-columns:162px repeat(7,1fr);gap:8px;padding:14px 12px 12px 16px}
 .cal-side{display:flex;flex-direction:column;min-width:0}
 .cal-range{font-size:14px;font-weight:700;margin-top:2px}
 .cal-kw{font-size:12px;color:var(--muted);margin-top:2px}
@@ -352,7 +389,7 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;bac
 #toast.show{opacity:1}
 
 /* ---------- Editor ---------- */
-.edit #main{height:auto;bottom:16px;grid-template-columns:176px 1fr 360px}
+.edit #main{bottom:16px;grid-template-columns:176px 1fr 360px}
 .edit #cal{display:none}
 .edit .pin{cursor:grab;touch-action:none}
 .edit .pin.sel{box-shadow:0 0 0 3px var(--card),0 0 0 6px var(--accent)}
@@ -488,9 +525,13 @@ class HauspanelPanel extends HTMLElement {
     const st = this.$ && this.$("#stage");
     if (!st) return;
     const w = this.clientWidth || innerWidth, h = this.clientHeight || innerHeight;
-    const s = Math.min(w / STAGE_W, h / STAGE_H);
+    // Skalierung nach Breite (bzw. Mindesthöhe), die Bühne füllt immer die ganze Fläche:
+    // oben ausgerichtet, Grundriss-Bereich wächst in Höhe und Breite mit.
+    const s = Math.min(w / STAGE_W, h / STAGE_MIN_H);
     this._scale = s;
-    st.style.transform = `translate(${(w - STAGE_W * s) / 2}px,${(h - STAGE_H * s) / 2}px) scale(${s})`;
+    st.style.width = w / s + "px";
+    st.style.height = h / s + "px";
+    st.style.transform = `scale(${s})`;
     this._layoutPlan();
   }
 
@@ -733,6 +774,7 @@ class HauspanelPanel extends HTMLElement {
     let h = `<div class="sec-head">${ic("trash-2", 18)}Müllabfuhr</div>`;
     const list = this._wasteList();
     if (!(this.cfg.waste || []).length) h += `<div class="muted-note">Noch keine Müll-Sensoren eingestellt.</div>`;
+    else if (!list.length) h += `<div class="muted-note">Keine kommenden Termine erkannt. Im Editor unter „Allgemein“ steht bei jedem Sensor, was gelesen wurde.</div>`;
     list.slice(0, 4).forEach((x) => {
       const label = x.n === 0 ? "Heute" : x.n === 1 ? "Morgen" : `in ${x.n} Tagen`;
       h += `<div class="bin${x.n <= 1 ? " soon" : ""}"><div class="bin-ico" style="background:${esc(x.w.color || "#777")}">${ic("trash-2", 17)}</div>
@@ -1132,8 +1174,9 @@ class HauspanelPanel extends HTMLElement {
       case "list": {
         const item = this.draft[el.dataset.list][Number(el.dataset.i)];
         item[el.dataset.k] = val;
-        if (el.dataset.k === "entity_id" && isChange && !item.name && this._hass.states[val]) {
-          item.name = friendly(this._hass, val); this._renderInspector();
+        if (el.dataset.k === "entity_id" && isChange && this._hass.states[val]) {
+          if (!item.name) item.name = friendly(this._hass, val);
+          this._renderInspector();
         }
         break;
       }
@@ -1315,6 +1358,16 @@ class HauspanelPanel extends HTMLElement {
       <button class="sbtn danger full" data-a="floor-del">${ic("trash-2", 16)}Etage löschen</button>`;
   }
 
+  _wasteDiag(id) {
+    if (!id) return "";
+    const s = this._hass.states[id];
+    if (!s) return `<div class="hint" style="color:var(--accent);margin:8px 0 0">Entity nicht gefunden</div>`;
+    const n = wasteDays(s);
+    const raw = `Zustand: „${esc(String(s.state).slice(0, 60))}“`;
+    return n == null || n < 0
+      ? `<div class="hint" style="color:var(--accent);margin:8px 0 0">Kein Termin erkannt · ${raw}</div>`
+      : `<div class="hint" style="margin:8px 0 0">✓ ${n === 0 ? "heute" : n === 1 ? "morgen" : "in " + n + " Tagen"} · ${raw}</div>`;
+  }
   _tabGeneral() {
     const c = this.draft;
     c.night = c.night || { mode: "time", from: 22, to: 6 };
@@ -1324,7 +1377,7 @@ class HauspanelPanel extends HTMLElement {
             : `<select class="inp" data-f="list" data-list="${key}" data-i="${i}" data-k="entity_id">${this._entityOptions(domains, it.entity_id, "Kalender wählen")}</select>`}
           <button class="sbtn" data-a="list-del" data-list="${key}" data-i="${i}" aria-label="Entfernen">${ic("x", 16)}</button></div>
         <div class="row"><input class="inp" data-f="list" data-list="${key}" data-i="${i}" data-k="name" value="${esc(it.name)}" placeholder="Anzeigename">
-          <input type="color" data-f="list" data-list="${key}" data-i="${i}" data-k="color" value="${esc(it.color || "#888888")}"></div></div>`).join("")}
+          <input type="color" data-f="list" data-list="${key}" data-i="${i}" data-k="color" value="${esc(it.color || "#888888")}"></div>${key === "waste" ? this._wasteDiag(it.entity_id) : ""}</div>`).join("")}
       <button class="sbtn" data-a="list-add" data-list="${key}">${ic("plus", 16)}Hinzufügen</button></div>`;
     const hours = (v) => Array.from({ length: 24 }, (_, h) => `<option value="${h}"${Number(v) === h ? " selected" : ""}>${pad(h)}:00</option>`).join("");
     return `<div class="fld"><label>Startetage</label><select class="inp" data-f="default-floor">
