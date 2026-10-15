@@ -31,7 +31,9 @@ Als Admin im Panel oben auf den Stift tippen:
 
 ### Müll-Sensoren
 
-Als Zustand wird ein Datum (`2026-10-16` oder `16.10.2026`) oder eine Anzahl Tage (`3`) erkannt. Das Attribut `daysTo` (Waste Collection Schedule) wird ebenfalls ausgewertet.
+**Waste Collection Schedule** funktioniert direkt, egal in welchem Format: Zustand „in 3 Tagen“, „Morgen“ oder „Heute“, das Attribut `daysTo` oder die Termine in den Attributen (`details_format` *upcoming* bzw. *appointment_types*).
+Eigene Template-Sensoren dürfen als Zustand ein Datum (`2026-10-16` oder `16.10.2026`) oder eine Anzahl Tage (`3`) liefern.
+Im Editor steht unter *Allgemein* bei jedem Sensor, was erkannt wurde.
 
 ### Google Kalender
 
