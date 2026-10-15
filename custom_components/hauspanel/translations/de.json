@@ -1,0 +1,11 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Hauspanel einrichten",
+        "description": "Fügt das Hauspanel zur Seitenleiste hinzu. Grundrisse und Geräte richtest du danach direkt im Panel über „Bearbeiten“ ein."
+      }
+    },
+    "abort": { "single_instance_allowed": "Hauspanel ist bereits eingerichtet." }
+  }
+}
