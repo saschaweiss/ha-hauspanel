@@ -1,7 +1,7 @@
 """Konstanten für Hauspanel."""
 
 DOMAIN = "hauspanel"
-VERSION = "0.4.2"
+VERSION = "0.5.0"
 
 PANEL_URL = "hauspanel"
 PANEL_COMPONENT = "hauspanel-panel"
@@ -13,6 +13,8 @@ STATIC_URL = "/hauspanel_static"
 STORAGE_VERSION = 1
 STORAGE_KEY_CONFIG = f"{DOMAIN}.config"
 STORAGE_KEY_PLANS = f"{DOMAIN}.plans"
+STORAGE_KEY_HISTORY = f"{DOMAIN}.history"
+MAX_HISTORY = 30
 
 SIGNAL_UPDATED = f"{DOMAIN}_updated"
 

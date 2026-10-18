@@ -94,7 +94,7 @@ def ws_subscribe(
 
 
 @websocket_api.websocket_command(
-    {vol.Required("type"): "hauspanel/config/save", vol.Required("config"): dict}
+    {vol.Required("type"): "hauspanel/config/save", vol.Required("config"): dict, vol.Optional("force"): bool}
 )
 @websocket_api.require_admin
 @websocket_api.async_response
@@ -113,9 +113,19 @@ async def ws_save_config(
     ):
         connection.send_error(msg["id"], "invalid", "Ungültige Etagen-Konfiguration")
         return
-    await hass.data[DOMAIN].async_save_config(config)
+    data = hass.data[DOMAIN]
+    current = int(data.config.get("_rev", 0))
+    if not msg.get("force") and "_rev" in config and int(config.get("_rev") or 0) != current:
+        connection.send_error(
+            msg["id"],
+            "conflict",
+            "Das Layout wurde inzwischen woanders geändert (anderes Gerät oder Claude). "
+            "Speichern würde das überschreiben – Bearbeiten abbrechen und neu öffnen.",
+        )
+        return
+    rev = await data.async_save_config(config)
     async_dispatcher_send(hass, SIGNAL_UPDATED)
-    connection.send_result(msg["id"])
+    connection.send_result(msg["id"], {"rev": rev})
 
 
 @websocket_api.websocket_command(
