@@ -112,6 +112,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         )
         hass.data[f"{DOMAIN}_static"] = True
 
+    # Karte „Hauspanel als Startseite“ für Lovelace-Dashboards (einmal pro HA-Start)
+    if not hass.data.get(f"{DOMAIN}_start_js"):
+        frontend.add_extra_js_url(hass, f"{STATIC_URL}/hauspanel-start.js?v={VERSION}")
+        hass.data[f"{DOMAIN}_start_js"] = True
+
     await panel_custom.async_register_panel(
         hass,
         frontend_url_path=PANEL_URL,
