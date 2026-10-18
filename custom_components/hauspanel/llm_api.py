@@ -44,7 +44,7 @@ ENTITY_ID_RE = re.compile(r"^[a-z0-9_]+\.[a-z0-9_]+$")
 PIN_KEYS = {"id", "entity_id", "x", "y", "scale", "name", "room", "icon", "display", "status", "power_off", "extras"}
 ROOM_KEYS = {"id", "name", "x", "y", "scale"}
 FLOOR_KEYS = {"code", "name", "separated", "recolor", "css", "position"}
-SETTINGS_KEYS = {"theme", "css", "night", "calendars", "waste", "weather_entity", "default_floor"}
+SETTINGS_KEYS = {"theme", "css", "night", "calendars", "waste", "weather_entity", "default_floor", "cal_mode"}
 
 PROMPT = """Hauspanel ist ein Grundriss-Dashboard für Wandtablets in Home Assistant.
 Aufbau der Konfiguration:
@@ -612,12 +612,12 @@ class UpdateSettingsTool(_WriteTool):
     title = "Design & Einstellungen ändern"
     description = ("Ändert Design und allgemeine Einstellungen per JSON-Merge-Patch: Objekte werden gemischt, null löscht einen Wert "
                    "(= zurück zum Standard), Listen werden komplett ersetzt. Erlaubte Schlüssel: theme, css, night, calendars, waste, "
-                   "weather_entity, default_floor. Beispiel: {\"theme\": {\"light\": {\"accent\": \"#2F6DD0\"}, \"size\": {\"pin\": 40}}}. "
+                   "weather_entity, default_floor, cal_mode (\"week\" | \"weekend\" = am Wochenende ab heute | \"rolling\" = immer 7 Tage ab heute). Beispiel: {\"theme\": {\"light\": {\"accent\": \"#2F6DD0\"}, \"size\": {\"pin\": 40}}}. "
                    "Farbschlüssel in theme.light/dark: accent, bg, card, tile, text, muted, dark, wall, floor, outside, pinOnBg, pinOnFg, "
                    "pinOffBg, pinOffFg, pinValBg, pinValFg, pinCamBg, pinCamFg, floorOnBg, floorOnFg, floorOffBg, floorOffFg, btnBg, btnFg, "
                    "btnSelBg, btnSelFg, powerBg, powerFg, toggleOn, toggleOff, clockBg, clockFg, weatherBg, weatherFg, soonBg, todayBg; "
                    "Schatten: sh.{pin|pinOn|floorOn|card} = {c: Farbe oder 'accent', o: Deckkraft 0-100, b: Weichheit px, y: Versatz px}. "
-                   "theme.size: font (%), radius, gap, margin, pad, cal, pin, pinFont, label (px).")
+                   "theme.size: font (%), radius, gap, margin, pad, cal (Kalenderhöhe, <60 = ausgeblendet), left (Etagen-Spalte), right (rechte Spalte), pin, pinFont, label (px).")
     parameters = vol.Schema({vol.Required("patch"): dict})
 
     def _apply(self, hass, cfg, args):
