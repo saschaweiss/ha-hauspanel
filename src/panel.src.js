@@ -711,7 +711,11 @@ class HauspanelPanel extends HTMLElement {
   _onConfig(msg) {
     const cfgChanged = JSON.stringify(msg.config) !== JSON.stringify(this.cfg);
     this.cfg = msg.config; this.plans = msg.plans || {};
-    if (this.mode === "edit") return; // Entwurf nicht überschreiben
+    if (this.mode === "edit") { // Entwurf nicht überschreiben, aber auf externe Änderungen hinweisen
+      if (cfgChanged && this.draft && !this._saving && (msg.config._rev || 0) !== (this.draft._rev || 0))
+        this._toast("Das Layout wurde gerade woanders geändert – zum Übernehmen Bearbeiten abbrechen");
+      return;
+    }
     const floors = this.cfg.floors || [];
     if (!floors.some((f) => f.id === this.activeFloor)) this.activeFloor = this._homeFloor();
     this._subscribeWeather();
@@ -1287,7 +1291,9 @@ class HauspanelPanel extends HTMLElement {
   async _save() {
     const btn = this.$("[data-a=edit-save]"); if (btn) btn.disabled = true;
     try {
-      await this._hass.callWS({ type: "hauspanel/config/save", config: this.draft });
+      this._saving = true;
+      const res = await this._hass.callWS({ type: "hauspanel/config/save", config: this.draft }).finally(() => { setTimeout(() => { this._saving = false; }, 500); });
+      if (res && res.rev) this.draft._rev = res.rev;
       const ids = new Set([...Object.keys(this.plans), ...Object.keys(this.draftPlans)]);
       for (const fid of ids) {
         if (!this.draft.floors.some((f) => f.id === fid)) continue;

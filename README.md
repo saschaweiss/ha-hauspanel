@@ -52,6 +52,22 @@ Die offizielle Integration *Google Calendar* einrichten. Die Kalender tauchen da
 - Nach 2 Minuten ohne Bedienung kehrt das Panel zur Startetage zurück und schließt offene Popups. Dadurch stoppt auch ein vergessener Kamerastream.
 - Ein Tap auf die Uhr schaltet für 5 Minuten zwischen Hell und Dunkel um.
 
+## KI-Assistent (Claude & Co.) über MCP
+
+Hauspanel bringt Werkzeuge für KI-Assistenten mit. Damit kann z. B. Claude das Layout direkt in deinem HA bearbeiten: Entities suchen, Pins und Raum-Labels setzen, Etagen anlegen, Design und CSS ändern.
+
+- Die Werkzeuge ändern **nur das Hauspanel-Layout**: keine Geräte schalten, keine Dateien schreiben, keine Neustarts.
+- Vor jeder Änderung wird automatisch gesichert (die letzten 30 Stände). „Rückgängig“ geht jederzeit, auch für Änderungen aus dem Editor.
+- Ist der Editor gerade offen, wenn sich das Layout von woanders ändert, meldet er das. Speichern überschreibt fremde Änderungen dann nicht stillschweigend.
+- Grundrisse analysiert das Werkzeug selbst (Räume an Türöffnungen erkennen), damit Pins in den richtigen Raum kommen.
+
+**Einrichten:**
+1. *Einstellungen → System → Netzwerk → Home-Assistant-URL → Internet*: die externe Adresse eintragen, z. B. `https://dyn.streb.digital`. Ohne diese URL funktioniert die Anmeldung über OAuth nicht.
+2. *Einstellungen → Geräte & Dienste → Integration hinzufügen → **Model Context Protocol Server***. Die Standardeinstellungen passen („Admin erforderlich“ bleibt an).
+3. Im KI-Client einen eigenen Connector mit der URL `https://<deine-adresse>/api/mcp/hauspanel` anlegen und mit einem **Admin**-Konto bei HA anmelden. Diese URL bietet nur die Hauspanel-Werkzeuge an, nicht die Gerätesteuerung von Assist.
+
+Werkzeuge: `hauspanel_get_config`, `hauspanel_plan_info`, `hauspanel_find_entities`, `hauspanel_set_pins`, `hauspanel_remove_pins`, `hauspanel_set_rooms`, `hauspanel_remove_rooms`, `hauspanel_set_floor`, `hauspanel_remove_floor`, `hauspanel_update_settings`, `hauspanel_list_backups`, `hauspanel_undo`.
+
 ## Entwicklung
 
 Der Quellcode liegt in `src/panel.src.js`. Gebaut wird mit:
