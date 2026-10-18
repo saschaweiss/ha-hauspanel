@@ -38,6 +38,12 @@ const scaleField = (o, f) => `<div class="fld"><div class="row" style="justify-c
   <span class="row" style="gap:6px"><b id="sv-${f}">${o.scale || 100} %</b>${o.scale && o.scale !== 100 ? `<button class="sx" data-a="scale-reset" data-k="${f}" title="Zurück auf 100 %">${ic("x", 13)}</button>` : ""}</span></div>
   <input type="range" min="50" max="200" step="5" value="${o.scale || 100}" data-f="${f}" style="--p:${((o.scale || 100) - 50) / 1.5}%">
   <div class="hint" style="margin-top:4px">Nur dieses ${f === "room-scale" ? "Label" : "Gerät"}; die allgemeine Größe stellst du im Design-Tab ein.</div></div>`;
+/* "#abc", "abc", "#AABBCC" -> "#aabbcc"; ungültig -> null */
+const normHex = (v) => {
+  let s = String(v || "").trim().replace(/^#/, "").toLowerCase();
+  if (/^[0-9a-f]{3}$/.test(s)) s = s.split("").map((c) => c + c).join("");
+  return /^[0-9a-f]{6}$/.test(s) ? "#" + s : null;
+};
 const scaleVar = (o) => (o.scale && o.scale !== 100 ? `;--ps:${o.scale / 100}` : "");
 const uid = (p = "") => p + Math.random().toString(36).slice(2, 10);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -603,6 +609,19 @@ select.inp{padding-right:6px}
 .cgroup summary{cursor:pointer;font-size:13.5px;font-weight:700;padding:6px 0;list-style:none;display:flex;align-items:center;gap:6px}
 .cgroup summary::before{content:"›";display:inline-block;width:12px;transition:transform .15s;color:var(--muted)}
 .cgroup[open] summary::before{transform:rotate(90deg)}
+.cpop{background:var(--tile);border-radius:14px;padding:10px;margin:2px 0 10px}
+.cpop .inp{background:var(--card)}
+.cprev{width:32px;height:32px;border-radius:9px;flex:none;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)}
+.cp-hex{flex:1;min-width:0;font-family:ui-monospace,Menlo,monospace}
+.cp-hex.bad{box-shadow:0 0 0 2px var(--accent)}
+.cp-h{display:flex;justify-content:space-between;align-items:center;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin:10px 0 6px}
+.lnk{color:var(--accent);font-weight:700;font-size:11.5px;background:none;border:0;padding:0}
+.sws{display:flex;flex-wrap:wrap;gap:6px}
+.sw{width:30px;height:30px;border-radius:8px;border:0;background:var(--c);box-shadow:inset 0 0 0 1px rgba(0,0,0,.14);display:grid;place-items:center;color:#fff;padding:0}
+.sw.cur{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--text)}
+.sw svg{filter:drop-shadow(0 0 2px rgba(0,0,0,.8))}
+.sw.add{background:transparent;box-shadow:inset 0 0 0 1.5px var(--soft);color:var(--muted)}
+.sw.add svg{filter:none}
 .crow{margin-bottom:6px}.crow .cl{flex:1;font-size:13px}.crow .cv{font:11.5px ui-monospace,Menlo,monospace;color:var(--muted);width:62px;text-align:right}
 .crow .cx{width:22px;height:22px;border-radius:6px;display:grid;place-items:center;color:var(--muted);flex:none}
 .crow button.cx{background:var(--tile)}
@@ -1237,6 +1256,13 @@ class HauspanelPanel extends HTMLElement {
   _onClick(ev) {
     const t = ev.target;
     if (this._suppressClick) { this._suppressClick = false; return; }
+    if (this.editing && t.matches && t.matches('input[type="color"]')) {
+      ev.preventDefault();
+      if (this._cp && this._cp.input === t) this._closeColorPop(); else this._colorPop(t);
+      return;
+    }
+    const cpb = t.closest("[data-a^='cp-']");
+    if (cpb) return this._colorPopAction(cpb);
     const sum = t.closest(".cgroup summary");
     if (sum) { const d = sum.parentElement; this._openGroups = this._openGroups || new Set();
       if (d.dataset.group) { if (d.open) this._openGroups.delete(d.dataset.group); else this._openGroups.add(d.dataset.group); } return; }
@@ -1625,8 +1651,78 @@ class HauspanelPanel extends HTMLElement {
   }
 
   /* ---------- Inspector ---------- */
+  /* ---------- Farbwähler mit Hex-Eingabe und Palette ---------- */
+  _usedColors() {
+    const out = new Set(), add = (c) => { const h = normHex(c); if (h) out.add(h); };
+    const th = (this.draft && this.draft.theme) || {};
+    ["light", "dark"].forEach((m) => {
+      Object.entries(th[m] || {}).forEach(([k, v]) => { if (k === "sh") Object.values(v || {}).forEach((s) => add(s && s.c)); else add(v); });
+    });
+    [...((this.draft && this.draft.calendars) || []), ...((this.draft && this.draft.waste) || [])].forEach((x) => add(x.color));
+    return [...out].slice(0, 30);
+  }
+  _closeColorPop() { if (this._cp) { this._cp.div.remove(); this._cp = null; } }
+  _colorPop(input) {
+    this._closeColorPop();
+    const pal = this.draft.palette || [], cur = normHex(input.value) || "#000000";
+    const used = this._usedColors().filter((c) => !pal.includes(c));
+    const sw = (c, own) => `<button class="sw${c === cur ? " cur" : ""}" data-a="cp-pick" data-c="${c}"${own ? ' data-own="1"' : ""} style="--c:${c}" title="${c}">${own && this._palEdit ? ic("x", 13) : ""}</button>`;
+    const div = document.createElement("div"); div.className = "cpop";
+    div.innerHTML = `<div class="row" style="gap:8px"><span class="cprev" style="background:${cur}"></span>
+        <input class="inp cp-hex" value="${cur}" maxlength="7" spellcheck="false" autocomplete="off" aria-label="Hex-Code">
+        <button class="sbtn" data-a="cp-sys" title="Farbrad öffnen">${ic("pipette", 16)}</button>
+        <button class="sbtn" data-a="cp-close" aria-label="Schließen">${ic("x", 16)}</button></div>
+      <div class="cp-h"><span>Palette</span>${pal.length ? `<button class="lnk" data-a="cp-edit">${this._palEdit ? "Fertig" : "Bearbeiten"}</button>` : ""}</div>
+      <div class="sws">${pal.map((c) => sw(c, true)).join("")}<button class="sw add" data-a="cp-add" title="Aktuelle Farbe in die Palette">${ic("plus", 14)}</button></div>
+      ${pal.length ? "" : `<div class="hint" style="margin:6px 0 0">Mit + legst du die aktuelle Farbe in deine Palette. Sie wird mit dem Layout gespeichert.</div>`}
+      ${used.length ? `<div class="cp-h"><span>Schon benutzt</span></div><div class="sws">${used.map((c) => sw(c)).join("")}</div>` : ""}`;
+    (input.closest(".row") || input.parentElement).after(div);
+    this._cp = { input, div, committed: cur };
+    const hex = div.querySelector(".cp-hex");
+    const stop = (e) => e.stopPropagation();
+    hex.addEventListener("change", stop);
+    hex.addEventListener("input", (e) => { stop(e); const v = normHex(hex.value); hex.classList.toggle("bad", !v && hex.value.length > 0); if (v) this._cpApply(v, false); });
+    hex.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") { const v = normHex(hex.value); if (v) { this._cpApply(v, true); this._closeColorPop(); } }
+      else if (e.key === "Escape") this._closeColorPop();
+    });
+    hex.addEventListener("blur", () => { const v = normHex(hex.value); if (v && this._cp && this._cp.input === input && v !== this._cp.committed) this._cpApply(v, true, true); });
+    if (matchMedia("(pointer: fine)").matches) { hex.focus(); hex.select(); }
+  }
+  _cpApply(v, commit, keepOpen) {
+    const cp = this._cp; if (!cp) return;
+    cp.input.value = v;
+    const pv = cp.div.querySelector(".cprev"); if (pv) pv.style.background = v;
+    cp.input.dispatchEvent(new Event("input", { bubbles: true }));
+    if (commit) { cp.committed = v; cp.input.dispatchEvent(new Event("change", { bubbles: true })); }
+    if (keepOpen && this._cp && !this._cp.div.isConnected) this._cp = null;
+  }
+  _colorPopAction(b) {
+    const cp = this._cp; if (!cp) return;
+    const a = b.dataset.a;
+    if (a === "cp-close") return this._closeColorPop();
+    if (a === "cp-sys") { try { cp.input.showPicker(); } catch (e) { /* ältere Browser */ } return; }
+    if (a === "cp-edit") { this._palEdit = !this._palEdit; return this._colorPop(cp.input); }
+    if (a === "cp-add") {
+      const v = normHex(cp.input.value); if (!v) return;
+      const pal = (this.draft.palette = this.draft.palette || []);
+      if (!pal.includes(v)) { pal.push(v); if (pal.length > 30) pal.shift(); this._markDirty(); }
+      return this._colorPop(cp.input);
+    }
+    if (a === "cp-pick") {
+      const c = b.dataset.c;
+      if (this._palEdit && b.dataset.own) {
+        this.draft.palette = (this.draft.palette || []).filter((x) => x !== c);
+        if (!this.draft.palette.length) { delete this.draft.palette; this._palEdit = false; }
+        this._markDirty(); return this._colorPop(cp.input);
+      }
+      this._cpApply(c, true); this._closeColorPop();
+    }
+  }
+
   _renderInspector() {
     const el = this.$("#insp"); if (!el) return;
+    this._cp = null;
     // Scrollposition pro Tab merken, damit Neuzeichnen nicht nach oben springt
     this._inspScroll = this._inspScroll || {};
     const old = this.$("#insp-body");
