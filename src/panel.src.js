@@ -45,6 +45,12 @@ const startOfDay = (d) => { const x = new Date(d); x.setHours(0, 0, 0, 0); retur
 const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
 const sameDay = (a, b) => a.toDateString() === b.toDateString();
 const monday = (d) => { const x = startOfDay(d); return addDays(x, -((x.getDay() + 6) % 7)); };
+/* Erster angezeigter Kalendertag: "week" = Montag, "rolling" = heute, "weekend" = Montag, aber Sa/So ab heute */
+const calStart = (mode, offset) => {
+  const now = new Date(), wd = now.getDay();
+  const base = mode === "rolling" || (mode === "weekend" && (wd === 6 || wd === 0)) ? startOfDay(now) : monday(now);
+  return addDays(base, offset * 7);
+};
 const fmtShort = (d) => pad(d.getDate()) + "." + pad(d.getMonth() + 1) + ".";
 const hhmm = (d) => pad(d.getHours()) + ":" + pad(d.getMinutes());
 const isoLocal = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:00`;
@@ -190,8 +196,9 @@ const DEFAULT_THEME = {
 const THEME_COLORS = [["accent","Akzent (aktiv, Buttons)"],["bg","Hintergrund"],["card","Karten"],["tile","Kacheln in Karten"],
   ["text","Text"],["muted","Text gedämpft"],["dark","Dunkle Karten (Uhr, Wetter)"],["wall","Wände"],["floor","Boden"],["outside","Außenbereich"]];
 const THEME_SIZES = [["font","Schriftgröße",70,140,"%"],["radius","Ecken-Rundung",0,40,"px"],["gap","Abstand zwischen Karten",0,32,"px"],
-  ["left","Breite Etagen-Spalte",120,320,"px"],["right","Breite rechte Spalte (Wetter, Müll)",220,460,"px"],["margin","Rand außen",0,48,"px"],["pad","Innenabstand der Karten",6,32,"px"],["cal","Höhe Kalenderleiste (ganz links = ausblenden)",0,360,"px"],
+  ["left","Breite Etagen-Spalte",120,320,"px"],["right","Breite rechte Spalte (Wetter, Müll)",220,460,"px"],["margin","Rand außen",0,48,"px"],["pad","Innenabstand der Karten",6,32,"px"],["cal","Höhe Kalenderleiste",0,360,"px"],
   ["pin","Größe der Geräte-Pins",22,64,"px"],["pinFont","Schrift in Pins (Werte)",9,26,"px"],["label","Schrift Raum-Labels",7,24,"px"]];
+const LAYOUT_SIZES = ["left", "right", "cal"];
 const THEME_DETAIL = [
   ["Geräte-Pins", "Eingeschaltet = Licht an, Steckdose an, Heizung heizt gerade. Messwert = Sensoren und Heizungen, die gerade nicht heizen.", [
     ["pinOnBg", "--pin-on-bg", "Eingeschaltet – Hintergrund"], ["pinOnFg", "--pin-on-fg", "Eingeschaltet – Icon/Schrift"],
@@ -484,6 +491,8 @@ svg.fp{fill:var(--wall)}
 :host([data-theme="dark"]) .dot,:host([data-theme="dark"]) .ev::before,:host([data-theme="dark"]) .ev-pop .bar{box-shadow:0 0 0 1px rgba(255,255,255,.35)}
 .day{background:var(--tile);border-radius:15px;padding:8px 6px 6px;min-width:0;display:flex;flex-direction:column;gap:5px;overflow:hidden}
 .day.today{background:var(--today-bg)}
+.day.wk-start{box-shadow:inset 3px 0 0 var(--accent-soft)}
+.wk-tag{float:right;font-size:calc(10px * var(--fs));font-weight:700;color:var(--accent);opacity:.8;margin-top:1px}
 .day-h{padding:0 5px 2px;font-size:calc(12px * var(--fs));color:var(--muted);font-weight:600}
 .day-h b{color:var(--text);font-size:calc(15.5px * var(--fs));font-weight:800;margin-left:4px}
 .ev{background:var(--card);border-radius:10px;padding:5px 7px 5px 12px;position:relative;text-align:left;width:100%;min-width:0;flex:none}
@@ -1030,7 +1039,7 @@ class HauspanelPanel extends HTMLElement {
     const cals = (this.C.calendars || []).filter((c) => c.entity_id && this._hass.states[c.entity_id]);
     const req = ++this._evReq;
     if (!cals.length) { this.events = []; this._renderCal(); return; }
-    const mon = addDays(monday(new Date()), this.weekOffset * 7);
+    const mon = calStart(this.C.cal_mode, this.weekOffset);
     try {
       const r = await this._hass.callWS({ type: "call_service", domain: "calendar", service: "get_events",
         service_data: { start_date_time: isoLocal(mon), end_date_time: isoLocal(addDays(mon, 7)) },
@@ -1050,11 +1059,12 @@ class HauspanelPanel extends HTMLElement {
   }
   _renderCal() {
     const el = this.$("#cal"); if (!el || !this.viewing) return;
-    const mon = addDays(monday(new Date()), this.weekOffset * 7), sun = addDays(mon, 6), today = new Date();
+    const mon = calStart(this.C.cal_mode, this.weekOffset), sun = addDays(mon, 6), today = new Date();
+    const kwTxt = kw(mon) === kw(sun) ? `KW ${kw(mon)}` : `KW ${kw(mon)} / ${kw(sun)}`;
     const cals = this.C.calendars || [];
     let h = `<div class="cal-side"><div class="sec-head" style="margin:0 0 8px">${ic("calendar", 18)}Termine</div>
-      <div class="cal-range">${fmtShort(mon)} – ${fmtShort(sun)}${sun.getFullYear()}</div><div class="cal-kw">KW ${kw(mon)}</div>
-      <div class="cal-nav"><button data-wk="-1" aria-label="Vorherige Woche">${ic("chevron-left", 18)}</button>${this.weekOffset ? `<button data-wk="0" aria-label="Diese Woche">${ic("circle-dot", 16)}</button>` : ""}<button data-wk="1" aria-label="Nächste Woche">${ic("chevron-right", 18)}</button></div>
+      <div class="cal-range">${fmtShort(mon)} – ${fmtShort(sun)}${sun.getFullYear()}</div><div class="cal-kw">${kwTxt}</div>
+      <div class="cal-nav"><button data-wk="-1" aria-label="7 Tage zurück">${ic("chevron-left", 18)}</button>${this.weekOffset ? `<button data-wk="0" aria-label="Diese Woche">${ic("circle-dot", 16)}</button>` : ""}<button data-wk="1" aria-label="7 Tage weiter">${ic("chevron-right", 18)}</button></div>
       <div class="legend">${cals.map((c) => `<span><i class="dot" style="background:${esc(c.color)}"></i>${esc(c.name || friendly(this._hass, c.entity_id))}</span>`).join("")}</div></div>`;
     const waste = this._wasteList();
     const MAX = 3;
@@ -1068,7 +1078,8 @@ class HauspanelPanel extends HTMLElement {
         else items.push(`<button class="ev" data-ev="${idx}" style="--c:${esc(e.cal.color)}"><div class="t">${e.start >= day ? hhmm(e.start) : "Fortsetzung"}</div><div class="n">${esc(e.summary)}</div></button>`);
       });
       let body = items.length > MAX ? items.slice(0, MAX - 1).join("") + `<button class="more" data-day="${i}">+${items.length - MAX + 1} weitere</button>` : items.join("");
-      h += `<div class="day${sameDay(day, today) ? " today" : ""}"><div class="day-h">${DAYS[day.getDay()]}<b>${day.getDate()}.</b></div>${body}</div>`;
+      const wkStart = i > 0 && day.getDay() === 1; // neue Woche beginnt mitten in der Leiste -> markieren
+      h += `<div class="day${sameDay(day, today) ? " today" : ""}${wkStart ? " wk-start" : ""}"><div class="day-h">${DAYS[day.getDay()]}<b>${day.getDate()}.</b>${wkStart ? `<span class="wk-tag">KW ${kw(day)}</span>` : ""}</div>${body}</div>`;
     }
     el.innerHTML = h;
   }
@@ -1196,7 +1207,7 @@ class HauspanelPanel extends HTMLElement {
     this._showPop(h);
   }
   _openDay(i) {
-    const mon = addDays(monday(new Date()), this.weekOffset * 7), day = addDays(mon, i), dayEnd = addDays(day, 1);
+    const mon = calStart(this.C.cal_mode, this.weekOffset), day = addDays(mon, i), dayEnd = addDays(day, 1);
     let h = `<div class="pop-h"><div class="pop-ico">${ic("calendar", 24)}</div><div><div class="pop-sub">Alle Termine</div><div class="pop-title">${DAYS_LONG[day.getDay()]}, ${day.getDate()}. ${MONTHS[day.getMonth()]}</div></div>
       <button class="pop-x" data-a="pop-close" aria-label="Schließen">${ic("x", 20)}</button></div><div style="display:flex;flex-direction:column;gap:8px;margin-top:16px">`;
     this._wasteList().forEach((x) => { if (sameDay(x.d, day)) h += `<span class="chip" style="background:var(--tile)"><i class="dot" style="background:${esc(x.w.color)}"></i>${esc(x.w.name)}</span>`; });
@@ -1496,6 +1507,7 @@ class HauspanelPanel extends HTMLElement {
       }
       case "default-floor": this.draft.default_floor = val; break;
       case "night-mode": this.draft.night.mode = val; this._renderInspector(); break;
+      case "cal-mode": if (val === "week") delete this.draft.cal_mode; else this.draft.cal_mode = val; break;
       case "night-from": this.draft.night.from = Number(val); break;
       case "night-to": this.draft.night.to = Number(val); break;
       case "list": {
@@ -1752,6 +1764,9 @@ class HauspanelPanel extends HTMLElement {
       : `<div class="hint" style="margin:8px 0 0">✓ ${n === 0 ? "heute" : n === 1 ? "morgen" : "in " + n + " Tagen"} · ${raw}</div>`;
   }
   _tabDesign() {
+    const sizeRow = ([k, l, mn, mx, u]) => `<div style="margin-bottom:8px"><div class="row" style="justify-content:space-between;font-size:13.5px">
+          <span>${l}</span><b id="tv-${k}">${k === "cal" && t.size[k] < 60 ? "aus" : `${t.size[k]} ${u}`}</b></div>
+          <input type="range" min="${mn}" max="${mx}" step="1" value="${t.size[k]}" data-f="theme-size" data-k="${k}" style="--p:${((t.size[k] - mn) / (mx - mn)) * 100}%"></div>`;
     const t = mergeTheme(this.draft.theme), m = this._designMode || "light";
     const f = this._floor(), lines = (s) => (s || "").split("\n").filter((x) => x.trim()).length;
     return `<div class="row" style="margin-bottom:14px"><button class="sbtn primary" data-a="preview">${ic("eye", 16)}Vorschau</button>
@@ -1774,10 +1789,11 @@ class HauspanelPanel extends HTMLElement {
         </details>`).join("")}
         ${this._shadowGroup(t, m)}</div>
       <div class="sep"></div>
+      <div class="fld"><label>Layout</label>
+        <div class="hint" style="margin:0 0 8px">Der Grundriss füllt immer den Platz dazwischen. Kalenderleiste ganz nach links = ausgeblendet.</div>
+        ${THEME_SIZES.filter(([k]) => LAYOUT_SIZES.includes(k)).map(sizeRow).join("")}</div>
       <div class="fld"><label>Größen &amp; Abstände</label>
-        ${THEME_SIZES.map(([k, l, mn, mx, u]) => `<div style="margin-bottom:8px"><div class="row" style="justify-content:space-between;font-size:13.5px">
-          <span>${l}</span><b id="tv-${k}">${k === "cal" && t.size[k] < 60 ? "aus" : `${t.size[k]} ${u}`}</b></div>
-          <input type="range" min="${mn}" max="${mx}" step="1" value="${t.size[k]}" data-f="theme-size" data-k="${k}" style="--p:${((t.size[k] - mn) / (mx - mn)) * 100}%"></div>`).join("")}</div>
+        ${THEME_SIZES.filter(([k]) => !LAYOUT_SIZES.includes(k)).map(sizeRow).join("")}</div>
       <div class="hint">Pins und Raum-Labels wachsen zusätzlich mit dem Grundriss mit, damit sie auf jedem Bildschirm an derselben Stelle sitzen.</div>`;
   }
   /* aktuellen Farbwert einer Variable als #hex (für „auto“-Felder) */
@@ -1857,6 +1873,10 @@ class HauspanelPanel extends HTMLElement {
       <div class="fld"><label>Wetter</label><select class="inp" data-f="weather">${this._entityOptions(["weather"], c.weather_entity, "– kein Wetter –")}</select></div>
       <div class="sep"></div>
       ${listBlock("calendars", "Kalender", ["calendar"], "Google-Kalender über die Google-Calendar-Integration in HA einbinden – hier erscheinen sie dann.")}
+      <div class="fld"><label>Kalenderleiste zeigt</label><select class="inp" data-f="cal-mode">
+        ${[["week", "Kalenderwoche (Mo–So)"], ["weekend", "Kalenderwoche – am Wochenende ab heute"], ["rolling", "Immer die nächsten 7 Tage ab heute"]].map(([v, l]) =>
+          `<option value="${v}"${(c.cal_mode || "week") === v ? " selected" : ""}>${l}</option>`).join("")}</select>
+        <div class="hint" style="margin-top:6px">„Am Wochenende ab heute“: Samstag und Sonntag zeigen schon die kommende Woche mit. Wo eine neue Woche beginnt, steht die KW am Tag.</div></div>
       <div class="sep"></div>
       ${listBlock("waste", "Müllabfuhr", "sensor", "Sensor mit Datum (z. B. 2026-10-16 oder 16.10.2026) oder Anzahl Tage als Zustand. Attribut daysTo wird auch erkannt.")}
       ${this._datalist()}
