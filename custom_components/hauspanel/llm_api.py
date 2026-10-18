@@ -41,16 +41,16 @@ _ToolAnnotations = getattr(llm, "ToolAnnotations", None)
 FLOOR_ID_RE = re.compile(r"^[a-z0-9_-]{1,40}$")
 ENTITY_ID_RE = re.compile(r"^[a-z0-9_]+\.[a-z0-9_]+$")
 
-PIN_KEYS = {"id", "entity_id", "x", "y", "name", "room", "icon", "display", "status", "power_off", "extras"}
-ROOM_KEYS = {"id", "name", "x", "y"}
+PIN_KEYS = {"id", "entity_id", "x", "y", "scale", "name", "room", "icon", "display", "status", "power_off", "extras"}
+ROOM_KEYS = {"id", "name", "x", "y", "scale"}
 FLOOR_KEYS = {"code", "name", "separated", "recolor", "css", "position"}
 SETTINGS_KEYS = {"theme", "css", "night", "calendars", "waste", "weather_entity", "default_floor"}
 
 PROMPT = """Hauspanel ist ein Grundriss-Dashboard für Wandtablets in Home Assistant.
 Aufbau der Konfiguration:
 - floors: Etagen mit id, code (Kürzel auf dem Etagen-Button, z. B. "EG"), name, separated, recolor, css
-  - rooms: Raum-Labels {id, name, x, y}; x/y in Prozent der Grundrissbreite/-höhe ab oben links, das Label sitzt an der oberen linken Raumecke
-  - pins: Geräte {id, entity_id, x, y (Prozent, Mittelpunkt des Pins), name, room, icon (mdi-/lucide-Name oder null), display ("icon"|"value"|"both"), status (null=automatisch, "mode", "none"), power_off (wird vom Power-Button der Etage ausgeschaltet), extras (bis zu 4 Zusatz-Entities im Popup, z. B. Leistung/Verbrauch)}
+  - rooms: Raum-Labels {id, name, x, y, scale (Größe in %, 50–200)}; x/y in Prozent der Grundrissbreite/-höhe ab oben links, das Label sitzt an der oberen linken Raumecke
+  - pins: Geräte {id, entity_id, x, y (Prozent, Mittelpunkt des Pins), name, room, icon (mdi-/lucide-Name oder null), display ("icon"|"value"|"both"), scale (Größe in %, 50–200, Standard 100), status (null=automatisch, "mode", "none"), power_off (wird vom Power-Button der Etage ausgeschaltet), extras (bis zu 4 Zusatz-Entities im Popup, z. B. Leistung/Verbrauch)}
 - theme: {light:{...Farben}, dark:{...Farben}, size:{font, radius, gap, margin, pad, cal, pin, pinFont, label}}
 - css: eigenes CSS für die ganze Seite; floors[].css gilt nur für diese Etage
 - calendars/waste: Listen {entity_id, name, color}; weather_entity; default_floor; night {mode:"time"|"sun"|"off", from, to}
@@ -113,6 +113,16 @@ def _pct(v: Any, what: str) -> float:
     if not 0 <= n <= 100 or math.isnan(n):
         raise ValueError(f"{what} muss zwischen 0 und 100 liegen (Prozent)")
     return round(n, 1)
+
+
+def _set_scale(obj: dict, v) -> None:
+    """Größe einzelner Pins/Labels in Prozent (50–200); 100 bzw. null = Standard."""
+    if v is None or int(v) == 100:
+        obj.pop("scale", None)
+        return
+    if not 50 <= int(v) <= 200:
+        raise ValueError("scale muss zwischen 50 und 200 liegen (Prozent)")
+    obj["scale"] = int(v)
 
 
 def _uid(prefix: str) -> str:
@@ -376,7 +386,7 @@ class UpsertPinsTool(_WriteTool):
     title = "Geräte-Pins setzen"
     description = ("Legt Geräte-Pins auf einer Etage an oder ändert sie (mehrere auf einmal). Ein Pin wird über 'id' gefunden, "
                    "sonst über 'entity_id' auf dieser Etage; gibt es keinen, wird er neu angelegt (dann sind entity_id, x und y Pflicht). "
-                   "x/y = Mittelpunkt in Prozent der Grundrissbreite/-höhe ab oben links. Nur angegebene Felder werden geändert, null setzt ein Feld zurück.")
+                   "x/y = Mittelpunkt in Prozent der Grundrissbreite/-höhe ab oben links. scale = Größe dieses Pins in Prozent (50–200, 100/null = Standard). Nur angegebene Felder werden geändert, null setzt ein Feld zurück.")
     parameters = vol.Schema({
         vol.Required("floor_id"): str,
         vol.Required("pins"): [vol.Schema({
@@ -391,6 +401,7 @@ class UpsertPinsTool(_WriteTool):
             vol.Optional("status"): vol.Any(None, vol.In(["mode", "none"])),
             vol.Optional("power_off"): bool,
             vol.Optional("extras"): [str],
+            vol.Optional("scale"): vol.Any(None, vol.Coerce(int)),
         })],
     })
 
@@ -432,6 +443,9 @@ class UpsertPinsTool(_WriteTool):
                     continue
                 if k == "entity_id" and not ENTITY_ID_RE.match(v):
                     raise ValueError(f"Ungültige entity_id '{v}'")
+                if k == "scale":
+                    _set_scale(pin, v)
+                    continue
                 if k in ("x", "y"):
                     v = _pct(v, k)
                 if k == "extras":
@@ -475,7 +489,7 @@ class UpsertRoomsTool(_WriteTool):
     name = "hauspanel_set_rooms"
     title = "Raum-Labels setzen"
     description = ("Legt Raum-Labels an oder ändert sie (mehrere auf einmal). Gefunden über 'id', sonst über den Namen. "
-                   "x/y = obere linke Ecke des Labels in Prozent; das Label gehört an die obere linke Innenecke des Raums. "
+                   "x/y = obere linke Ecke des Labels in Prozent; scale = Schriftgröße dieses Labels in Prozent (50–200); das Label gehört an die obere linke Innenecke des Raums. "
                    "Wird ein Raum umbenannt, ziehen die zugeordneten Pins mit.")
     parameters = vol.Schema({
         vol.Required("floor_id"): str,
@@ -484,6 +498,7 @@ class UpsertRoomsTool(_WriteTool):
             vol.Optional("name"): str,
             vol.Optional("x"): vol.Coerce(float),
             vol.Optional("y"): vol.Coerce(float),
+            vol.Optional("scale"): vol.Any(None, vol.Coerce(int)),
         })],
     })
 
@@ -509,6 +524,8 @@ class UpsertRoomsTool(_WriteTool):
                 room = {"id": _uid("r"), "name": item["name"], "x": 0, "y": 0}
                 rooms.append(room)
             old = room.get("name")
+            if "scale" in item:
+                _set_scale(room, item["scale"])
             for k in ("name", "x", "y"):
                 if k in item:
                     room[k] = _pct(item[k], k) if k != "name" else item[k].strip()
