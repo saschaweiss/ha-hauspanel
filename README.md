@@ -15,7 +15,7 @@ Etagen, Grundrisse und Geräte richtest du direkt im Panel ein: SVG hochladen un
 
 **Manuell**: Den Ordner `custom_components/hauspanel` nach `/config/custom_components/hauspanel` kopieren, z. B. über das Samba- oder Studio-Code-Server-Add-on. Danach Home Assistant neu starten.
 
-**HACS**: Repo auf GitHub legen, dann in HACS über ⋮ → *Benutzerdefinierte Repositories* die URL mit dem Typ *Integration* hinzufügen.
+**HACS** (empfohlen): HACS → ⋮ → *Benutzerdefinierte Repositories* → `https://github.com/saschaweiss/ha-hauspanel`, Typ *Integration* → hinzufügen, dann „Hauspanel“ herunterladen und HA neu starten. Updates erscheinen danach automatisch in HACS.
 
 Danach: *Einstellungen → Geräte & Dienste → Integration hinzufügen → Hauspanel*. In der Seitenleiste erscheint dann „Hauspanel“.
 
@@ -47,7 +47,7 @@ Die offizielle Integration *Google Calendar* einrichten. Die Kalender tauchen da
 
 ## Tablet (Fully Kiosk)
 
-- Start-URL: `http://<ha-adresse>:8123/hauspanel?kiosk`. Mit `?kiosk` deckt das Panel die HA-Seitenleiste ab, und der Bearbeiten-Stift wird ausgeblendet.
+- Start-URL: `http://<ha-adresse>:8123/hauspanel?kiosk` (bzw. `https://<your-ha-address>/hauspanel?kiosk`). Mit `?kiosk` deckt das Panel die HA-Seitenleiste ab, und der Bearbeiten-Stift wird ausgeblendet.
 - Für das Tablet einen eigenen HA-Benutzer **ohne** Adminrechte anlegen. Der kann schalten, aber nichts am Layout ändern.
 - Nach 2 Minuten ohne Bedienung kehrt das Panel zur Startetage zurück und schließt offene Popups. Dadurch stoppt auch ein vergessener Kamerastream.
 - Ein Tap auf die Uhr schaltet für 5 Minuten zwischen Hell und Dunkel um.
