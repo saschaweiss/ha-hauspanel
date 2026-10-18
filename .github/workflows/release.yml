@@ -1,0 +1,32 @@
+name: Release
+
+# Legt automatisch ein GitHub-Release an, sobald sich die Version in manifest.json ändert.
+# HACS zeigt dann echte Versionsnummern statt Commit-Kürzeln.
+on:
+  push:
+    branches: [main]
+    paths: [custom_components/hauspanel/manifest.json]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Version lesen
+        id: v
+        run: echo "version=$(jq -r .version custom_components/hauspanel/manifest.json)" >> "$GITHUB_OUTPUT"
+      - name: Release anlegen (falls noch nicht vorhanden)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          V: ${{ steps.v.outputs.version }}
+        run: |
+          if gh release view "v$V" >/dev/null 2>&1; then echo "v$V existiert schon"; exit 0; fi
+          PREV=$(git describe --tags --abbrev=0 2>/dev/null || true)
+          if [ -n "$PREV" ]; then NOTES=$(git log --pretty='- %s' "$PREV"..HEAD); else NOTES=$(git log --pretty='- %s' -n 20); fi
+          gh release create "v$V" --target "$GITHUB_SHA" --title "$V" --notes "$NOTES"
