@@ -2,11 +2,11 @@
  * Ein Web-Component-Modul ohne Build-Abhängigkeiten.
  * Icons: Lucide (ISC-Lizenz). Schrift: Inter (OFL).
  */
-const HP_VERSION = "0.5.6";
+const HP_VERSION = "0.6.0";
 const ICONS = {"activity":"<path d=\"M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2\" />","arrow-down":"<path d=\"M12 5v14\" /> <path d=\"m19 12-7 7-7-7\" />","arrow-up":"<path d=\"m5 12 7-7 7 7\" /> <path d=\"M12 19V5\" />","blinds":"<path d=\"M3 3h18\" /> <path d=\"M20 7H8\" /> <path d=\"M20 11H8\" /> <path d=\"M10 19h10\" /> <path d=\"M8 15h12\" /> <path d=\"M4 3v14\" /> <circle cx=\"4\" cy=\"19\" r=\"2\" />","calendar":"<path d=\"M8 2v3\" /> <path d=\"M16 2v3\" /> <rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\" /> <path d=\"M3 9h18\" />","calendars":"<path d=\"M12 2v2\" /> <path d=\"M15.726 21.01A2 2 0 0 1 14 22H4a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2\" /> <path d=\"M18 2v2\" /> <path d=\"M2 13h2\" /> <path d=\"M8 8h14\" /> <rect x=\"8\" y=\"3\" width=\"14\" height=\"14\" rx=\"2\" />","camera":"<path d=\"M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z\" /> <circle cx=\"12\" cy=\"13\" r=\"3\" />","cctv":"<path d=\"M16.75 12h3.632a1 1 0 0 1 .894 1.447l-2.034 4.069a1 1 0 0 1-1.708.134l-2.124-2.97\" /> <path d=\"M17.106 9.053a1 1 0 0 1 .447 1.341l-3.106 6.211a1 1 0 0 1-1.342.447L3.61 12.3a2.92 2.92 0 0 1-1.3-3.91L3.69 5.6a2.92 2.92 0 0 1 3.92-1.3z\" /> <path d=\"M2 19h3.76a2 2 0 0 0 1.8-1.1L9 15\" /> <path d=\"M2 21v-4\" /> <path d=\"M7 9h.01\" />","check":"<path d=\"M20 6 9 17l-5-5\" />","chevron-left":"<path d=\"m15 18-6-6 6-6\" />","chevron-right":"<path d=\"m9 18 6-6-6-6\" />","circle":"<circle cx=\"12\" cy=\"12\" r=\"10\" />","circle-dot":"<circle cx=\"12\" cy=\"12\" r=\"1\" /> <circle cx=\"12\" cy=\"12\" r=\"10\" />","clock":"<circle cx=\"12\" cy=\"12\" r=\"10\" /> <path d=\"M12 6v6l4 2\" />","cloud":"<path d=\"M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z\" />","cloud-fog":"<path d=\"M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242\" /> <path d=\"M16 17H7\" /> <path d=\"M17 21H9\" />","cloud-hail":"<path d=\"M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242\" /> <path d=\"M16 14v2\" /> <path d=\"M8 14v2\" /> <path d=\"M16 20h.01\" /> <path d=\"M8 20h.01\" /> <path d=\"M12 16v2\" /> <path d=\"M12 22h.01\" />","cloud-lightning":"<path d=\"M6 16.326A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 .5 8.973\" /> <path d=\"m13 12-3 5h4l-3 5\" />","cloud-rain":"<path d=\"M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242\" /> <path d=\"M16 14v6\" /> <path d=\"M8 14v6\" /> <path d=\"M12 16v6\" />","cloud-rain-wind":"<path d=\"M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242\" /> <path d=\"m9.2 22 3-7\" /> <path d=\"m9 13-3 7\" /> <path d=\"m17 13-3 7\" />","cloud-snow":"<path d=\"M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242\" /> <path d=\"M8 15h.01\" /> <path d=\"M8 19h.01\" /> <path d=\"M12 17h.01\" /> <path d=\"M12 21h.01\" /> <path d=\"M16 15h.01\" /> <path d=\"M16 19h.01\" />","cloud-sun":"<path d=\"M12 2v2\" /> <path d=\"m4.93 4.93 1.41 1.41\" /> <path d=\"M20 12h2\" /> <path d=\"m19.07 4.93-1.41 1.41\" /> <path d=\"M15.947 12.65a4 4 0 0 0-5.925-4.128\" /> <path d=\"M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6Z\" />","code":"<path d=\"m16 18 6-6-6-6\" /> <path d=\"m8 6-6 6 6 6\" />","door-open":"<path d=\"M10 21H2\" /> <path d=\"M10 3H7a2 2 0 00-2 2v16\" /> <path d=\"M14 12h.01\" /> <path d=\"M19 21V5a2 2 0 00-1.675-1.974l-6.163-1.013A1 1 0 0010 3v18a1 1 0 001.124.992z\" /> <path d=\"M22 21h-3\" />","dot":"<circle cx=\"12\" cy=\"12\" r=\"1\" />","droplets":"<path d=\"M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z\" /> <path d=\"M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97\" />","edit":"<path d=\"M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7\" /> <path d=\"M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z\" />","ellipse":"<ellipse cx=\"12\" cy=\"12\" rx=\"10\" ry=\"6\" />","eye":"<path d=\"M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0\" /> <circle cx=\"12\" cy=\"12\" r=\"3\" />","fan":"<path d=\"M10.827 16.379a6.082 6.082 0 0 1-8.618-7.002l5.412 1.45a6.082 6.082 0 0 1 7.002-8.618l-1.45 5.412a6.082 6.082 0 0 1 8.618 7.002l-5.412-1.45a6.082 6.082 0 0 1-7.002 8.618l1.45-5.412Z\" /> <path d=\"M12 12v.01\" />","file":"<path d=\"M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z\" /> <path d=\"M14 2v5a1 1 0 0 0 1 1h5\" />","flame":"<path d=\"M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4\" />","gauge":"<path d=\"m12 14 4-4\" /> <path d=\"M3.34 19a10 10 0 1 1 17.32 0\" />","ghost":"<path d=\"M15 10v1\" /> <path d=\"M7.528 20.472a1.6 1.6 0 012.277 0l1.057 1.056a1.6 1.6 0 002.276 0l1.057-1.056a1.6 1.6 0 012.277 0l1.114 1.114a1.4 1.4 0 002.414-1V10a8 8 0 00-16 0v10.586a1.4 1.4 0 002.414 1z\" /> <path d=\"M9 10v1\" />","grid":"<rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\" /> <path d=\"M3 9h18\" /> <path d=\"M3 15h18\" /> <path d=\"M9 3v18\" /> <path d=\"M15 3v18\" />","grip":"<circle cx=\"12\" cy=\"5\" r=\"1\" /> <circle cx=\"19\" cy=\"5\" r=\"1\" /> <circle cx=\"5\" cy=\"5\" r=\"1\" /> <circle cx=\"12\" cy=\"12\" r=\"1\" /> <circle cx=\"19\" cy=\"12\" r=\"1\" /> <circle cx=\"5\" cy=\"12\" r=\"1\" /> <circle cx=\"12\" cy=\"19\" r=\"1\" /> <circle cx=\"19\" cy=\"19\" r=\"1\" /> <circle cx=\"5\" cy=\"19\" r=\"1\" />","grip-vertical":"<circle cx=\"9\" cy=\"12\" r=\"1\" /> <circle cx=\"9\" cy=\"5\" r=\"1\" /> <circle cx=\"9\" cy=\"19\" r=\"1\" /> <circle cx=\"15\" cy=\"12\" r=\"1\" /> <circle cx=\"15\" cy=\"5\" r=\"1\" /> <circle cx=\"15\" cy=\"19\" r=\"1\" />","home":"<path d=\"M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8\" /> <path d=\"M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\" />","house":"<path d=\"M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8\" /> <path d=\"M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\" />","lamp-ceiling":"<path d=\"M12 2v5\" /> <path d=\"M14.829 15.998a3 3 0 1 1-5.658 0\" /> <path d=\"M20.92 14.606A1 1 0 0 1 20 16H4a1 1 0 0 1-.92-1.394l3-7A1 1 0 0 1 7 7h10a1 1 0 0 1 .92.606z\" />","lamp-desk":"<path d=\"M10.293 2.293a1 1 0 0 1 1.414 0l2.5 2.5 5.994 1.227a1 1 0 0 1 .506 1.687l-7 7a1 1 0 0 1-1.687-.506l-1.227-5.994-2.5-2.5a1 1 0 0 1 0-1.414z\" /> <path d=\"m14.207 4.793-3.414 3.414\" /> <path d=\"M3 20a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z\" /> <path d=\"m9.086 6.5-4.793 4.793a1 1 0 0 0-.18 1.17L7 18\" />","lamp-floor":"<path d=\"M12 10v12\" /> <path d=\"M17.929 7.629A1 1 0 0 1 17 9H7a1 1 0 0 1-.928-1.371l2-5A1 1 0 0 1 9 2h6a1 1 0 0 1 .928.629z\" /> <path d=\"M9 22h6\" />","lightbulb":"<path d=\"M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5\" /> <path d=\"M9 18h6\" /> <path d=\"M10 22h4\" />","list":"<path d=\"M3 5h.01\" /> <path d=\"M3 12h.01\" /> <path d=\"M3 19h.01\" /> <path d=\"M8 5h13\" /> <path d=\"M8 12h13\" /> <path d=\"M8 19h13\" />","lock":"<rect width=\"18\" height=\"11\" x=\"3\" y=\"11\" rx=\"2\" ry=\"2\" /> <path d=\"M7 11V7a5 5 0 0 1 10 0v4\" />","map-pin":"<path d=\"M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0\" /> <circle cx=\"12\" cy=\"10\" r=\"3\" />","menu":"<path d=\"M4 5h16\" /> <path d=\"M4 12h16\" /> <path d=\"M4 19h16\" />","minus":"<path d=\"M5 12h14\" />","moon":"<path d=\"M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401\" />","pencil":"<path d=\"M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z\" /> <path d=\"m15 5 4 4\" />","pill":"<path d=\"m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z\" /> <path d=\"m8.5 8.5 7 7\" />","pin":"<path d=\"M12 17v5\" /> <path d=\"M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z\" />","pipette":"<path d=\"m12 9-8.414 8.414A2 2 0 0 0 3 18.828v1.344a2 2 0 0 1-.586 1.414A2 2 0 0 1 3.828 21h1.344a2 2 0 0 0 1.414-.586L15 12\" /> <path d=\"m18 9 .4.4a1 1 0 1 1-3 3l-3.8-3.8a1 1 0 1 1 3-3l.4.4 3.4-3.4a1 1 0 1 1 3 3z\" /> <path d=\"m2 22 .414-.414\" />","play":"<path d=\"M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z\" />","plug":"<path d=\"M12 22v-5\" /> <path d=\"M15 8V2\" /> <path d=\"M17 8a1 1 0 0 1 1 1v4a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1z\" /> <path d=\"M9 8V2\" />","plus":"<path d=\"M5 12h14\" /> <path d=\"M12 5v14\" />","power":"<path d=\"M12 2v10\" /> <path d=\"M18.4 6.6a9 9 0 1 1-12.77.04\" />","radius":"<path d=\"M20.34 17.52a10 10 0 1 0-2.82 2.82\" /> <circle cx=\"19\" cy=\"19\" r=\"2\" /> <path d=\"m13.41 13.41 4.18 4.18\" /> <circle cx=\"12\" cy=\"12\" r=\"2\" />","refrigerator":"<path d=\"M5 6a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6Z\" /> <path d=\"M5 10h14\" /> <path d=\"M15 7v6\" />","search":"<path d=\"m21 21-4.34-4.34\" /> <circle cx=\"11\" cy=\"11\" r=\"8\" />","speaker":"<rect width=\"16\" height=\"20\" x=\"4\" y=\"2\" rx=\"2\" /> <path d=\"M12 6h.01\" /> <circle cx=\"12\" cy=\"14\" r=\"4\" /> <path d=\"M12 14h.01\" />","sun":"<circle cx=\"12\" cy=\"12\" r=\"4\" /> <path d=\"M12 2v2\" /> <path d=\"M12 20v2\" /> <path d=\"m4.93 4.93 1.41 1.41\" /> <path d=\"m17.66 17.66 1.41 1.41\" /> <path d=\"M2 12h2\" /> <path d=\"M20 12h2\" /> <path d=\"m6.34 17.66-1.41 1.41\" /> <path d=\"m19.07 4.93-1.41 1.41\" />","tag":"<path d=\"M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z\" /> <circle cx=\"7.5\" cy=\"7.5\" r=\".5\" fill=\"currentColor\" />","text":"<path d=\"M21 5H3\" /> <path d=\"M15 12H3\" /> <path d=\"M17 19H3\" />","thermometer":"<path d=\"M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z\" />","toggle-left":"<circle cx=\"9\" cy=\"12\" r=\"3\" /> <rect width=\"20\" height=\"14\" x=\"2\" y=\"5\" rx=\"7\" />","trash-2":"<path d=\"M10 11v6\" /> <path d=\"M14 11v6\" /> <path d=\"M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6\" /> <path d=\"M3 6h18\" /> <path d=\"M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2\" />","triangle-alert":"<path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3\" /> <path d=\"M12 9v4\" /> <path d=\"M12 17h.01\" />","tv":"<path d=\"m17 2-5 5-5-5\" /> <rect width=\"20\" height=\"15\" x=\"2\" y=\"7\" rx=\"2\" />","unlock":"<rect width=\"18\" height=\"11\" x=\"3\" y=\"11\" rx=\"2\" ry=\"2\" /> <path d=\"M7 11V7a5 5 0 0 1 9.9-1\" />","upload":"<path d=\"M12 3v12\" /> <path d=\"m17 8-5-5-5 5\" /> <path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\" />","video":"<path d=\"m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5\" /> <rect x=\"2\" y=\"6\" width=\"14\" height=\"12\" rx=\"2\" />","view":"<path d=\"M21 17v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2\" /> <path d=\"M21 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2\" /> <circle cx=\"12\" cy=\"12\" r=\"1\" /> <path d=\"M18.944 12.33a1 1 0 0 0 0-.66 7.5 7.5 0 0 0-13.888 0 1 1 0 0 0 0 .66 7.5 7.5 0 0 0 13.888 0\" />","washing-machine":"<path d=\"M3 6h3\" /> <path d=\"M17 6h.01\" /> <rect width=\"18\" height=\"20\" x=\"3\" y=\"2\" rx=\"2\" /> <circle cx=\"12\" cy=\"13\" r=\"5\" /> <path d=\"M12 18a2.5 2.5 0 0 0 0-5 2.5 2.5 0 0 1 0-5\" />","wind":"<path d=\"M12.8 19.6A2 2 0 1 0 14 16H2\" /> <path d=\"M17.5 8a2.5 2.5 0 1 1 2 4H2\" /> <path d=\"M9.8 4.4A2 2 0 1 1 11 8H2\" />","x":"<path d=\"M18 6 6 18\" /> <path d=\"m6 6 12 12\" />","zap":"<path d=\"M15.914 4a1.5 1.5 0 00-2.474-1.561l-9 9A1.5 1.5 0 005.5 14h4.002a.5.5 0 01.471.666L8.086 20a1.5 1.5 0 002.475 1.56l9-9A1.5 1.5 0 0018.5 10h-3.997a.5.5 0 01-.472-.667z\" />"};
 
 // Referenzbreite/-höhe: darauf wird skaliert, der Rest des Bildschirms geht an den Grundriss
-const STAGE_W = 1280, STAGE_MIN_H = 800;
+const STAGE_W = 1280, STAGE_MIN_H = 800, MOBILE_W = 430;
 const PIN_ICONS = ["lightbulb","lamp-ceiling","lamp-floor","lamp-desk","plug","tv","speaker","fan","flame","thermometer","droplets","gauge","zap","cctv","blinds","door-open","lock","washing-machine","refrigerator","activity","sun","power"];
 const PICK_DOMAINS = ["light","switch","climate","sensor","binary_sensor","camera","fan","cover","lock","media_player","input_boolean","scene","script"];
 const ACTIVE_STATES = new Set(["on","open","opening","closing","unlocked","playing","home"]);
@@ -499,6 +499,7 @@ svg.fp{fill:var(--wall)}
 .day.today{background:var(--today-bg)}
 .day.wk-start{box-shadow:inset 3px 0 0 var(--accent-soft)}
 .wk-tag{float:right;font-size:calc(10px * var(--fs));font-weight:700;color:var(--accent);opacity:.8;margin-top:1px}
+.day-b{display:contents}
 .day-h{padding:0 5px 2px;font-size:calc(12px * var(--fs));color:var(--muted);font-weight:600}
 .day-h b{color:var(--text);font-size:calc(15.5px * var(--fs));font-weight:800;margin-left:4px}
 .ev{background:var(--card);border-radius:10px;padding:5px 7px 5px 12px;position:relative;text-align:left;width:100%;min-width:0;flex:none}
@@ -508,6 +509,45 @@ svg.fp{fill:var(--wall)}
 .chip{display:inline-flex;align-items:center;gap:5px;background:var(--card);border-radius:10px;padding:4px 8px;font-size:calc(11.5px * var(--fs));font-weight:700;align-self:flex-start;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:none}
 .more{font-size:calc(11px * var(--fs));font-weight:600;color:var(--muted);padding-left:6px;text-align:left}
 
+/* ---------- Handy / Hochformat ---------- */
+:host(.mobile){overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+:host(.mobile) #stage{position:relative;transform:none;width:auto;height:auto;padding:calc(var(--m) * .75);display:flex;flex-direction:column;gap:var(--gap);user-select:auto}
+:host(.mobile) #top{position:static;height:40px;gap:8px}
+:host(.mobile) #home{display:none}
+:host(.mobile) #date{margin-left:4px;font-size:calc(17px * var(--fs));font-weight:600}
+:host(.mobile) #clock{height:40px;padding:0 14px;font-size:calc(19px * var(--fs))}
+:host(.mobile) #clock svg{width:17px;height:17px}
+:host(.mobile) #main{position:static;display:flex;flex-direction:column;gap:var(--gap)}
+:host(.mobile) #floors{flex-direction:row;overflow-x:auto;padding:6px;gap:6px}
+:host(.mobile) #floors .roof,:host(.mobile) #floors .floor-sep,:host(.mobile) #floors .floor-add{display:none}
+:host(.mobile) .floor-btn{flex:1 0 auto;min-width:86px;height:auto;padding:9px 12px;border-radius:14px}
+:host(.mobile) .floor-btn .code{font-size:calc(18px * var(--fs))}
+:host(.mobile) .floor-btn .name{margin-top:1px;font-size:calc(11.5px * var(--fs))}
+:host(.mobile) .floor-btn .count{top:10px;right:10px}
+:host(.mobile) #plan-card{padding:calc(var(--pad) * .75)}
+:host(.mobile) #plan-head{height:34px}
+:host(.mobile) #plan-title{font-size:calc(18px * var(--fs))}
+:host(.mobile) #plan-wrap{flex:none;margin-top:4px}
+:host(.mobile) #right{display:flex;flex-direction:column;gap:var(--gap)}
+:host(.mobile) #waste{flex:none;overflow:visible}
+:host(.mobile) #cal{position:static;height:auto;display:flex;flex-direction:column;gap:6px;padding:var(--pad)}
+:host(.mobile) .cal-side{display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:10px;margin-bottom:4px}
+:host(.mobile) .cal-side .sec-head{grid-column:1/-1}
+:host(.mobile) .cal-nav{grid-column:2;grid-row:2/4;margin:0}
+:host(.mobile) .legend{grid-column:1/-1;margin-top:8px}
+:host(.mobile) .day{flex-direction:row;align-items:flex-start;gap:8px;padding:8px 10px;overflow:visible}
+:host(.mobile) .day-h{width:62px;flex:none;padding:4px 0 0}
+:host(.mobile) .day-b{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
+:host(.mobile) .day-h b{margin-left:3px}
+:host(.mobile) .wk-tag{float:none;display:block;margin:2px 0 0}
+:host(.mobile) .day .ev{width:100%}
+:host(.mobile) .day .chip{align-self:center}
+:host(.mobile) .day.none{background:transparent;padding:2px 10px;opacity:.6}
+:host(.mobile) .day.none .day-h{padding:0}
+:host(.mobile) .day.none.today{background:var(--today-bg);opacity:1}
+:host(.mobile) .day.wk-start{box-shadow:inset 0 2px 0 var(--accent-soft)}
+:host(.mobile) #overlay{position:fixed}
+:host(.mobile) .pop,:host(.mobile) .pop.wide{width:calc(100vw / var(--z, 1) - 24px);max-width:520px;max-height:calc(100vh - 40px)}
 #overlay{position:absolute;inset:0;background:var(--overlay);display:none;align-items:center;justify-content:center;z-index:10}
 #overlay.show{display:flex}
 .pop{background:var(--card);border-radius:26px;width:460px;max-height:740px;overflow:auto;padding:22px;box-shadow:0 20px 50px rgba(0,0,0,.25)}
@@ -731,6 +771,22 @@ class HauspanelPanel extends HTMLElement {
     const st = this.$ && this.$("#stage");
     if (!st) return;
     const w = this.clientWidth || innerWidth, h = this.clientHeight || innerHeight;
+    // Handy (und Tablet) im Hochformat: eigenes, scrollbares Layout statt skalierter Bühne
+    const mobile = !this.editing && w < 820 && h > w * 1.15;
+    if (mobile !== !!this._mobile) {
+      this._mobile = mobile;
+      this.classList.toggle("mobile", mobile);
+      if (this._ready) { this._renderTop(); this._renderCal(); this._tick(); }
+    }
+    if (mobile) {
+      const z = clamp(w / MOBILE_W, 0.85, 1.9);
+      this._scale = 1;
+      st.style.width = ""; st.style.height = ""; st.style.transform = "";
+      st.style.zoom = z; st.style.setProperty("--z", z);
+      this._layoutPlan(); this._fitWaste();
+      return;
+    }
+    st.style.zoom = ""; st.style.removeProperty("--z");
     // Skalierung nach Breite (bzw. Mindesthöhe), die Bühne füllt immer die ganze Fläche:
     // oben ausgerichtet, Grundriss-Bereich wächst in Höhe und Breite mit.
     const s = Math.min(w / STAGE_W, h / STAGE_MIN_H);
@@ -814,6 +870,7 @@ class HauspanelPanel extends HTMLElement {
 
   /* ---------- Rendering ---------- */
   _renderAll() {
+    this._fit();
     this.shadowRoot.host.classList.toggle("edit", this.editing);
     this.$("#stage").classList.toggle("edit", this.editing);
     this._applyThemeVars();
@@ -846,7 +903,7 @@ class HauspanelPanel extends HTMLElement {
   _tick() {
     const n = new Date();
     const t = this.$("#time"); if (t) t.textContent = hhmm(n);
-    const d = this.$("#date-txt"); if (d) d.textContent = `${DAYS_LONG[n.getDay()]}, ${n.getDate()}. ${MONTHS[n.getMonth()]} ${n.getFullYear()}`;
+    const d = this.$("#date-txt"); if (d) d.textContent = this._mobile ? `${DAYS_LONG[n.getDay()]}, ${n.getDate()}. ${MONTHS[n.getMonth()]}` : `${DAYS_LONG[n.getDay()]}, ${n.getDate()}. ${MONTHS[n.getMonth()]} ${n.getFullYear()}`;
     this._applyTheme();
     if (!this._day || !sameDay(this._day, n)) {
       const first = !this._day; this._day = n;
@@ -869,7 +926,7 @@ class HauspanelPanel extends HTMLElement {
     top.innerHTML = `${menu}<div class="pill" id="home"><span class="home-ico">${ic("house", 15)}</span>Zuhause</div>
       <div id="date"><span id="date-txt"></span></div>
       ${this.preview ? `<button class="btn primary" data-a="preview-exit">${ic("pencil", 16)}Zurück zum Editor</button>` : ""}
-      ${admin && !this.kiosk && !this.preview ? `<button class="icon-btn" data-a="edit" aria-label="Bearbeiten" title="Bearbeiten">${ic("pencil", 18)}</button>` : ""}
+      ${admin && !this.kiosk && !this.preview && !this._mobile ? `<button class="icon-btn" data-a="edit" aria-label="Bearbeiten" title="Bearbeiten">${ic("pencil", 18)}</button>` : ""}
       <button class="pill" id="clock" data-a="clock">${ic("clock", 20)}<span id="time"></span></button>`;
     this._tick();
   }
@@ -943,6 +1000,7 @@ class HauspanelPanel extends HTMLElement {
     const wrap = this.$ && this.$("#plan-wrap"), plan = this.$ && this.$("#plan");
     const f = this.C && this._floor();
     if (!wrap || !plan || !f || !this._aspect || (!this._planFor(f) && !this.editing)) return;
+    if (this._mobile) wrap.style.height = Math.round(wrap.clientWidth / this._aspect) + "px"; else wrap.style.height = "";
     const W = wrap.clientWidth, H = wrap.clientHeight, a = this._aspect;
     let w = W, h = W / a;
     if (h > H) { h = H; w = H * a; }
@@ -1046,6 +1104,7 @@ class HauspanelPanel extends HTMLElement {
       const el = this.$("#waste"); if (!el) return;
       const bins = [...el.querySelectorAll(".bin")];
       bins.forEach((b) => { b.style.display = ""; });
+      if (this._mobile) return;
       const limit = el.getBoundingClientRect().bottom - 4;
       bins.forEach((b) => { if (b.getBoundingClientRect().bottom > limit) b.style.display = "none"; });
     });
@@ -1086,7 +1145,7 @@ class HauspanelPanel extends HTMLElement {
       <div class="cal-nav"><button data-wk="-1" aria-label="7 Tage zurück">${ic("chevron-left", 18)}</button>${this.weekOffset ? `<button data-wk="0" aria-label="Diese Woche">${ic("circle-dot", 16)}</button>` : ""}<button data-wk="1" aria-label="7 Tage weiter">${ic("chevron-right", 18)}</button></div>
       <div class="legend">${cals.map((c) => `<span><i class="dot" style="background:${esc(c.color)}"></i>${esc(c.name || friendly(this._hass, c.entity_id))}</span>`).join("")}</div></div>`;
     const waste = this._wasteList();
-    const MAX = 3;
+    const MAX = this._mobile ? 99 : 3;
     for (let i = 0; i < 7; i++) {
       const day = addDays(mon, i), dayEnd = addDays(day, 1);
       const items = [];
@@ -1098,7 +1157,7 @@ class HauspanelPanel extends HTMLElement {
       });
       let body = items.length > MAX ? items.slice(0, MAX - 1).join("") + `<button class="more" data-day="${i}">+${items.length - MAX + 1} weitere</button>` : items.join("");
       const wkStart = i > 0 && day.getDay() === 1; // neue Woche beginnt mitten in der Leiste -> markieren
-      h += `<div class="day${sameDay(day, today) ? " today" : ""}${wkStart ? " wk-start" : ""}"><div class="day-h">${DAYS[day.getDay()]}<b>${day.getDate()}.</b>${wkStart ? `<span class="wk-tag">KW ${kw(day)}</span>` : ""}</div>${body}</div>`;
+      h += `<div class="day${sameDay(day, today) ? " today" : ""}${wkStart ? " wk-start" : ""}${items.length ? "" : " none"}"><div class="day-h">${DAYS[day.getDay()]}<b>${day.getDate()}.</b>${wkStart ? `<span class="wk-tag">KW ${kw(day)}</span>` : ""}</div><div class="day-b">${body}</div></div>`;
     }
     el.innerHTML = h;
   }

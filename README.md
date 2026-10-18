@@ -45,6 +45,10 @@ Im Editor steht unter *Allgemein* bei jedem Sensor, was erkannt wurde.
 
 Die offizielle Integration *Google Calendar* einrichten. Die Kalender tauchen dann als `calendar.*` auf und lassen sich unter *Allgemein* auswählen.
 
+## Handy & Hochformat
+
+Im Hochformat (Handy, Tablet hochkant) schaltet das Panel automatisch auf ein scrollbares Layout um: Etagen als Reiter oben, Grundriss in voller Breite, darunter Wetter, Müll und die Termine als Liste. Bearbeiten geht nur im Querformat.
+
 ## Tablet (Fully Kiosk)
 
 - Start-URL: `http://<ha-adresse>:8123/hauspanel?kiosk` (bzw. `https://<your-ha-address>/hauspanel?kiosk`). Mit `?kiosk` deckt das Panel die HA-Seitenleiste ab, und der Bearbeiten-Stift wird ausgeblendet.
