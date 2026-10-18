@@ -562,8 +562,7 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;bac
 .cw-foot{padding:0 12px 10px;color:var(--muted);font-size:12px;flex:none}
 
 /* ---------- Editor ---------- */
-.edit #main{bottom:var(--m);grid-template-columns:var(--col-l) 1fr 360px}
-.edit #cal{display:none}
+.edit #main{grid-template-columns:var(--col-l) 1fr 360px}
 .edit .pin{cursor:grab;touch-action:none}
 .edit .pin.sel{box-shadow:0 0 0 3px var(--card),0 0 0 6px var(--accent)}
 .edit .room-label{pointer-events:auto;cursor:grab;touch-action:none;border-radius:4px;outline:1.5px dashed var(--soft);outline-offset:3px}
@@ -801,7 +800,7 @@ class HauspanelPanel extends HTMLElement {
     this._applyThemeVars();
     this._applyTheme();
     this._renderTop(); this._renderFloors(); this._renderPlan(); this._renderRight();
-    if (this.viewing) this._renderCal();
+    this._renderCal();
   }
   _renderRight() {
     if (this.editing) { this.$("#right").innerHTML = `<div class="card" id="insp"></div>`; this._renderInspector(); return; }
@@ -1035,7 +1034,7 @@ class HauspanelPanel extends HTMLElement {
 
   /* ---------- Kalender ---------- */
   async _fetchEvents() {
-    if (!this.C || !this.viewing) return;
+    if (!this.C) return;
     const cals = (this.C.calendars || []).filter((c) => c.entity_id && this._hass.states[c.entity_id]);
     const req = ++this._evReq;
     if (!cals.length) { this.events = []; this._renderCal(); return; }
@@ -1057,8 +1056,9 @@ class HauspanelPanel extends HTMLElement {
     } catch (e) { console.warn("Hauspanel: Kalender", e); this.events = []; }
     this._renderCal();
   }
+  _calSoon() { clearTimeout(this._calT); this._calT = setTimeout(() => this._fetchEvents(), 400); }
   _renderCal() {
-    const el = this.$("#cal"); if (!el || !this.viewing) return;
+    const el = this.$("#cal"); if (!el || !this.C) return;
     const mon = calStart(this.C.cal_mode, this.weekOffset), sun = addDays(mon, 6), today = new Date();
     const kwTxt = kw(mon) === kw(sun) ? `KW ${kw(mon)}` : `KW ${kw(mon)} / ${kw(sun)}`;
     const cals = this.C.calendars || [];
@@ -1412,6 +1412,7 @@ class HauspanelPanel extends HTMLElement {
       }
       case "list-del": {
         this.draft[b.dataset.list].splice(Number(b.dataset.i), 1);
+        if (b.dataset.list === "calendars") this._calSoon(); else this._renderCal();
         this._markDirty(); return this._renderInspector();
       }
       case "extra-add": { const p = this._selPin(); p.extras = p.extras || []; if (p.extras.length < 4) p.extras.push(""); this._markDirty(); return this._renderInspector(); }
@@ -1507,7 +1508,7 @@ class HauspanelPanel extends HTMLElement {
       }
       case "default-floor": this.draft.default_floor = val; break;
       case "night-mode": this.draft.night.mode = val; this._renderInspector(); break;
-      case "cal-mode": if (val === "week") delete this.draft.cal_mode; else this.draft.cal_mode = val; break;
+      case "cal-mode": if (val === "week") delete this.draft.cal_mode; else this.draft.cal_mode = val; this.weekOffset = 0; this._fetchEvents(); break;
       case "night-from": this.draft.night.from = Number(val); break;
       case "night-to": this.draft.night.to = Number(val); break;
       case "list": {
@@ -1517,6 +1518,8 @@ class HauspanelPanel extends HTMLElement {
           if (!item.name) item.name = friendly(this._hass, val);
           this._renderInspector();
         }
+        if (el.dataset.list === "calendars" && (isChange || el.dataset.k !== "entity_id")) this._calSoon();
+        if (el.dataset.list === "waste") this._renderCal();
         break;
       }
       default: return;
