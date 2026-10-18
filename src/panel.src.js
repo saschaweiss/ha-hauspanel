@@ -34,6 +34,11 @@ const ic = (name, size = 20, sw = 2) =>
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const pad = (n) => (n < 10 ? "0" : "") + n;
 const domainOf = (id) => String(id).split(".")[0];
+const scaleField = (o, f) => `<div class="fld"><div class="row" style="justify-content:space-between"><span class="lbl" style="margin:0">Größe</span>
+  <span class="row" style="gap:6px"><b id="sv-${f}">${o.scale || 100} %</b>${o.scale && o.scale !== 100 ? `<button class="sx" data-a="scale-reset" data-k="${f}" title="Zurück auf 100 %">${ic("x", 13)}</button>` : ""}</span></div>
+  <input type="range" min="50" max="200" step="5" value="${o.scale || 100}" data-f="${f}" style="--p:${((o.scale || 100) - 50) / 1.5}%">
+  <div class="hint" style="margin-top:4px">Nur dieses ${f === "room-scale" ? "Label" : "Gerät"}; die allgemeine Größe stellst du im Design-Tab ein.</div></div>`;
+const scaleVar = (o) => (o.scale && o.scale !== 100 ? `;--ps:${o.scale / 100}` : "");
 const uid = (p = "") => p + Math.random().toString(36).slice(2, 10);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const startOfDay = (d) => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; };
@@ -425,10 +430,10 @@ svg.i{display:block;fill:none;stroke:currentColor;stroke-linecap:round;stroke-li
 svg.fp{fill:var(--wall)}
 .fp .f-wall{fill:var(--wall)}.fp .f-floor{fill:var(--floor)}.fp .f-out{fill:var(--outside)}.fp .f-door{fill:var(--door)}
 .fp .s-wall{stroke:var(--wall)}.fp .s-floor{stroke:var(--floor)}.fp .s-out{stroke:var(--outside)}.fp .s-door{stroke:var(--door)}
-.room-label{position:absolute;font-size:calc(var(--label-fs) * var(--k, 1));font-weight:600;color:var(--muted);white-space:nowrap;pointer-events:none}
-.pin{position:absolute;min-width:var(--pin);height:var(--pin);transform:translate(-50%,-50%) scale(var(--k, 1));border-radius:calc(var(--pin) / 2);background:var(--pin-off-bg);color:var(--pin-off-fg);
+.room-label{position:absolute;font-size:calc(var(--label-fs) * var(--k, 1) * var(--ps, 1));font-weight:600;color:var(--muted);white-space:nowrap;pointer-events:none}
+.pin{position:absolute;min-width:var(--pin);height:var(--pin);transform:translate(-50%,-50%) scale(calc(var(--k, 1) * var(--ps, 1)));border-radius:calc(var(--pin) / 2);background:var(--pin-off-bg);color:var(--pin-off-fg);
   display:flex;align-items:center;justify-content:center;gap:4px;box-shadow:var(--sh-pin);transition:background .2s,color .2s,transform .12s;white-space:nowrap}
-.pin:active{transform:translate(-50%,-50%) scale(calc(var(--k, 1) * .9))}
+.pin:active{transform:translate(-50%,-50%) scale(calc(var(--k, 1) * var(--ps, 1) * .9))}
 .pin svg.i{width:calc(var(--pin) * .5);height:calc(var(--pin) * .5)}
 .pin.both svg.i{width:calc(var(--pin) * .42);height:calc(var(--pin) * .42)}
 .pin.plain{background:var(--pin-val-bg);color:var(--pin-val-fg)}
@@ -592,6 +597,7 @@ select.inp{padding-right:6px}
 .crow{margin-bottom:6px}.crow .cl{flex:1;font-size:13px}.crow .cv{font:11.5px ui-monospace,Menlo,monospace;color:var(--muted);width:62px;text-align:right}
 .crow .cx{width:22px;height:22px;border-radius:6px;display:grid;place-items:center;color:var(--muted);flex:none}
 .crow button.cx{background:var(--tile)}
+.sx{width:22px;height:22px;border-radius:6px;display:grid;place-items:center;color:var(--muted);background:var(--tile);flex:none}
 .icon-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
 .icon-grid button{height:38px;border-radius:10px;background:var(--tile);display:grid;place-items:center}
 .icon-grid button.sel{background:var(--accent);color:#fff}
@@ -894,11 +900,11 @@ class HauspanelPanel extends HTMLElement {
     } else this._aspect = pl.aspect;
     let h = pl ? pl.html : "";
     (f.rooms || []).forEach((r) => {
-      h += `<div class="room-label${edit && this.sel && this.sel.type === "room" && this.sel.id === r.id ? " sel" : ""}" data-room="${r.id}" data-room-name="${esc(r.name)}" style="left:${r.x}%;top:${r.y}%">${esc(r.name)}</div>`;
+      h += `<div class="room-label${edit && this.sel && this.sel.type === "room" && this.sel.id === r.id ? " sel" : ""}" data-room="${r.id}" data-room-name="${esc(r.name)}" style="left:${r.x}%;top:${r.y}%${scaleVar(r)}">${esc(r.name)}</div>`;
     });
     (f.pins || []).forEach((p) => {
       const s = this._hass.states[p.entity_id];
-      h += `<button class="pin${edit && this.sel && this.sel.type === "pin" && this.sel.id === p.id ? " sel" : ""}" data-pin="${p.id}" data-entity="${esc(p.entity_id)}" data-domain="${domainOf(p.entity_id)}" style="left:${p.x}%;top:${p.y}%" title="${esc(p.name || friendly(this._hass, p.entity_id))}">${this._pinInner(p, s)}</button>`;
+      h += `<button class="pin${edit && this.sel && this.sel.type === "pin" && this.sel.id === p.id ? " sel" : ""}" data-pin="${p.id}" data-entity="${esc(p.entity_id)}" data-domain="${domainOf(p.entity_id)}" style="left:${p.x}%;top:${p.y}%${scaleVar(p)}" title="${esc(p.name || friendly(this._hass, p.entity_id))}">${this._pinInner(p, s)}</button>`;
     });
     plan.innerHTML = h;
     plan.classList.toggle("inv", !!f.raster && f.recolor !== false);
@@ -1373,6 +1379,10 @@ class HauspanelPanel extends HTMLElement {
         const p = this._selPin(); p.status = b.dataset.v === "auto" ? null : b.dataset.v;
         this._markDirty(); this._renderPlan(); return this._renderInspector();
       }
+      case "scale-reset": {
+        const o = b.dataset.k === "pin-scale" ? this._selPin() : this._selRoom(); if (o) delete o.scale;
+        this._markDirty(); this._renderPlan(); return this._renderInspector();
+      }
       case "pin-display": {
         const p = this._selPin(); p.display = b.dataset.v;
         this._markDirty(); this._renderPlan(); return this._renderInspector();
@@ -1429,6 +1439,16 @@ class HauspanelPanel extends HTMLElement {
       case "pin-extra": if (!isChange && !this._hass.states[val]) return; p.extras[Number(el.dataset.i)] = val; break;
       case "pin-entity": if (!this._hass.states[val]) return; p.entity_id = val; this._renderPlan(); break;
       case "room-name": r.name = val; this._renderPlan(); break;
+      case "pin-scale": case "room-scale": {
+        const o = k === "pin-scale" ? p : r, v = Number(val);
+        if (v === 100) delete o.scale; else o.scale = v;
+        el.style.setProperty("--p", `${(v - 50) / 1.5}%`);
+        const lbl = this.$(`#sv-${k}`); if (lbl) lbl.textContent = `${v} %`;
+        const node = this.$(k === "pin-scale" ? `[data-pin="${p.id}"]` : `[data-room="${r.id}"]`);
+        if (node) { if (v === 100) node.style.removeProperty("--ps"); else node.style.setProperty("--ps", v / 100); }
+        if (isChange) this._renderInspector();
+        break;
+      }
       case "floor-code": f.code = val.slice(0, 4); this._renderFloors(); break;
       case "floor-name": f.name = val; this._renderFloors(); this.$("#plan-title").textContent = val; break;
       case "floor-sep": f.separated = val; this._renderFloors(); break;
@@ -1656,6 +1676,7 @@ class HauspanelPanel extends HTMLElement {
   _tabSelect() {
     const f = this._floor(), p = this._selPin(), r = this._selRoom();
     if (r) return `<div class="fld"><label>Raumname</label><input class="inp" data-f="room-name" value="${esc(r.name)}"></div>
+      ${scaleField(r, "room-scale")}
       <div class="hint">Label auf dem Plan an die richtige Stelle ziehen. Geräte ohne festen Raum bekommen automatisch das nächstgelegene Label.</div>
       <button class="sbtn danger full" data-a="room-del">${ic("trash-2", 16)}Label entfernen</button>`;
     if (!p) return `<div class="hint">Tippe auf dem Plan ein Gerät oder Raum-Label an, um es zu bearbeiten.</div>`;
@@ -1672,6 +1693,7 @@ class HauspanelPanel extends HTMLElement {
       <div class="fld"><label>Icon</label><div class="icon-grid"><button class="${p.icon ? "" : "sel"}" data-a="pin-icon" data-icon="auto" title="Automatisch" style="font-size:11px;font-weight:700">Auto</button>
         ${PIN_ICONS.map((n) => `<button class="${p.icon === n ? "sel" : ""}" data-a="pin-icon" data-icon="${n}" title="${n}">${ic(n, 17)}</button>`).join("")}</div></div>
       ${this._statusField(p, d)}
+      ${scaleField(p, "pin-scale")}
       <label class="check"><input type="checkbox" data-f="pin-power" ${p.power_off ? "checked" : ""}>Mit Power-Button ausschalten</label>
       <div class="sep"></div>
       <div class="fld"><label>Zusatzwerte im Popup</label>
