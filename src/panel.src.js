@@ -1135,17 +1135,21 @@ class HauspanelPanel extends HTMLElement {
     } catch (e) { console.warn("Hauspanel: Kalender", e); this.events = []; }
     this._renderCal();
   }
-  async _createStartDash() {
+  async _setStart(scope) {
+    const sys = scope === "system";
     try {
-      const list = await this._hass.callWS({ type: "lovelace/dashboards/list" });
-      if (!list.some((d) => d.url_path === "hauspanel-start")) {
-        await this._hass.callWS({ type: "lovelace/dashboards/create", url_path: "hauspanel-start", title: "Hauspanel", icon: "mdi:floor-plan",
-          require_admin: false, show_in_sidebar: false, mode: "storage" });
-      }
-      await this._hass.callWS({ type: "lovelace/config/save", url_path: "hauspanel-start",
-        config: { views: [{ type: "panel", cards: [{ type: "custom:hauspanel-start-card" }] }] } });
-      this._toast("Fertig – jetzt unter Profil → Erscheinungsbild → Dashboard „Hauspanel“ wählen");
-    } catch (e) { this._toast("Anlegen fehlgeschlagen: " + (e.message || e.code || e)); }
+      const get = sys ? "frontend/get_system_data" : "frontend/get_user_data", set = sys ? "frontend/set_system_data" : "frontend/set_user_data";
+      const cur = ((await this._hass.callWS({ type: get, key: "core" })) || {}).value || {};
+      await this._hass.callWS({ type: set, key: "core", value: { ...cur, default_panel: "hauspanel" } });
+      // früheres Weiterleitungs-Dashboard aufräumen
+      let cleaned = false;
+      try {
+        const list = await this._hass.callWS({ type: "lovelace/dashboards/list" });
+        const old = list.find((d) => d.url_path === "hauspanel-start");
+        if (old) { await this._hass.callWS({ type: "lovelace/dashboards/delete", dashboard_id: old.id }); cleaned = true; }
+      } catch (e) { /* egal */ }
+      this._toast((sys ? "Hauspanel ist jetzt Startseite für alle" : "Hauspanel ist jetzt deine Startseite") + (cleaned ? " – altes Weiterleitungs-Dashboard entfernt" : ""));
+    } catch (e) { this._toast("Ging nicht: " + (e.message || e.code || e)); }
   }
   _calSoon() { clearTimeout(this._calT); this._calT = setTimeout(() => this._fetchEvents(), 400); }
   _renderCal() {
@@ -1493,7 +1497,7 @@ class HauspanelPanel extends HTMLElement {
         const o = b.dataset.k === "pin-scale" ? this._selPin() : this._selRoom(); if (o) delete o.scale;
         this._markDirty(); this._renderPlan(); return this._renderInspector();
       }
-      case "start-dash": { this._createStartDash(); return; }
+      case "start-set": { this._setStart(b.dataset.v); return; }
       case "pin-display": {
         const p = this._selPin(); p.display = b.dataset.v;
         this._markDirty(); this._renderPlan(); return this._renderInspector();
@@ -2062,8 +2066,10 @@ class HauspanelPanel extends HTMLElement {
       <div class="hint">Tipp: Auf dem Tablet schaltet ein Tap auf die Uhr für 5 Minuten zwischen Hell und Dunkel um.</div>
       <div class="sep"></div>
       <div class="fld"><label>Als Startseite</label>
-        <div class="hint">HA bietet unter Profil → Erscheinungsbild → Dashboard nur Dashboards an. Dieser Knopf legt ein unsichtbares Dashboard „Hauspanel“ an, das sofort hierher weiterleitet – das kannst du dort dann auswählen.</div>
-        <button class="sbtn" data-a="start-dash">${ic("house", 16)}Startseiten-Dashboard anlegen</button></div>`;
+        <div class="hint">HA bietet im Profil nur Dashboards zur Auswahl an. Diese Knöpfe tragen das Hauspanel direkt als Startseite ein – ohne Umweg, der Menüeintrag bleibt dabei aktiv markiert.</div>
+        <div class="row" style="gap:8px;flex-wrap:wrap"><button class="sbtn" data-a="start-set" data-v="user">${ic("house", 16)}Für mich</button>
+        <button class="sbtn" data-a="start-set" data-v="system">${ic("users", 16)}Für alle Benutzer</button></div>
+        <div class="hint" style="margin-top:6px">„Für alle“ gilt für jeden, der im Profil nichts Eigenes gewählt hat.</div></div>`;
   }
 }
 

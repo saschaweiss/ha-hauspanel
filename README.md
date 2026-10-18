@@ -47,7 +47,7 @@ Die offizielle Integration *Google Calendar* einrichten. Die Kalender tauchen da
 
 ## Als Startseite
 
-HA lässt unter *Profil → Erscheinungsbild → Dashboard* nur Dashboards zu. Im Editor unter *Allgemein → Als Startseite* legt ein Knopf ein unsichtbares Dashboard „Hauspanel“ an, das sofort aufs Panel weiterleitet. Dieses dann im Profil auswählen (gilt pro Benutzer bzw. Gerät).
+HA lässt im Profil nur Dashboards auswählen. Im Editor unter *Allgemein → Als Startseite* trägt „Für mich“ bzw. „Für alle Benutzer“ das Hauspanel direkt als Startseite ein. Es steht dann oben in der Seitenleiste und wird als aktiv markiert.
 
 ## Handy & Hochformat
 

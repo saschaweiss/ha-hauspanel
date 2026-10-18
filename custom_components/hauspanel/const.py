@@ -1,7 +1,7 @@
 """Konstanten für Hauspanel."""
 
 DOMAIN = "hauspanel"
-VERSION = "0.6.1"
+VERSION = "0.6.2"
 
 PANEL_URL = "hauspanel"
 PANEL_COMPONENT = "hauspanel-panel"
