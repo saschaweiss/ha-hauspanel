@@ -6,7 +6,7 @@ const HP_VERSION = "__VERSION__";
 const ICONS = __ICONS__;
 
 // Referenzbreite/-höhe: darauf wird skaliert, der Rest des Bildschirms geht an den Grundriss
-const STAGE_W = 1280, STAGE_MIN_H = 800;
+const STAGE_W = 1280, STAGE_MIN_H = 800, MOBILE_W = 430;
 const PIN_ICONS = ["lightbulb","lamp-ceiling","lamp-floor","lamp-desk","plug","tv","speaker","fan","flame","thermometer","droplets","gauge","zap","cctv","blinds","door-open","lock","washing-machine","refrigerator","activity","sun","power"];
 const PICK_DOMAINS = ["light","switch","climate","sensor","binary_sensor","camera","fan","cover","lock","media_player","input_boolean","scene","script"];
 const ACTIVE_STATES = new Set(["on","open","opening","closing","unlocked","playing","home"]);
@@ -499,6 +499,7 @@ svg.fp{fill:var(--wall)}
 .day.today{background:var(--today-bg)}
 .day.wk-start{box-shadow:inset 3px 0 0 var(--accent-soft)}
 .wk-tag{float:right;font-size:calc(10px * var(--fs));font-weight:700;color:var(--accent);opacity:.8;margin-top:1px}
+.day-b{display:contents}
 .day-h{padding:0 5px 2px;font-size:calc(12px * var(--fs));color:var(--muted);font-weight:600}
 .day-h b{color:var(--text);font-size:calc(15.5px * var(--fs));font-weight:800;margin-left:4px}
 .ev{background:var(--card);border-radius:10px;padding:5px 7px 5px 12px;position:relative;text-align:left;width:100%;min-width:0;flex:none}
@@ -508,6 +509,45 @@ svg.fp{fill:var(--wall)}
 .chip{display:inline-flex;align-items:center;gap:5px;background:var(--card);border-radius:10px;padding:4px 8px;font-size:calc(11.5px * var(--fs));font-weight:700;align-self:flex-start;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:none}
 .more{font-size:calc(11px * var(--fs));font-weight:600;color:var(--muted);padding-left:6px;text-align:left}
 
+/* ---------- Handy / Hochformat ---------- */
+:host(.mobile){overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+:host(.mobile) #stage{position:relative;transform:none;width:auto;height:auto;padding:calc(var(--m) * .75);display:flex;flex-direction:column;gap:var(--gap);user-select:auto}
+:host(.mobile) #top{position:static;height:40px;gap:8px}
+:host(.mobile) #home{display:none}
+:host(.mobile) #date{margin-left:4px;font-size:calc(17px * var(--fs));font-weight:600}
+:host(.mobile) #clock{height:40px;padding:0 14px;font-size:calc(19px * var(--fs))}
+:host(.mobile) #clock svg{width:17px;height:17px}
+:host(.mobile) #main{position:static;display:flex;flex-direction:column;gap:var(--gap)}
+:host(.mobile) #floors{flex-direction:row;overflow-x:auto;padding:6px;gap:6px}
+:host(.mobile) #floors .roof,:host(.mobile) #floors .floor-sep,:host(.mobile) #floors .floor-add{display:none}
+:host(.mobile) .floor-btn{flex:1 0 auto;min-width:86px;height:auto;padding:9px 12px;border-radius:14px}
+:host(.mobile) .floor-btn .code{font-size:calc(18px * var(--fs))}
+:host(.mobile) .floor-btn .name{margin-top:1px;font-size:calc(11.5px * var(--fs))}
+:host(.mobile) .floor-btn .count{top:10px;right:10px}
+:host(.mobile) #plan-card{padding:calc(var(--pad) * .75)}
+:host(.mobile) #plan-head{height:34px}
+:host(.mobile) #plan-title{font-size:calc(18px * var(--fs))}
+:host(.mobile) #plan-wrap{flex:none;margin-top:4px}
+:host(.mobile) #right{display:flex;flex-direction:column;gap:var(--gap)}
+:host(.mobile) #waste{flex:none;overflow:visible}
+:host(.mobile) #cal{position:static;height:auto;display:flex;flex-direction:column;gap:6px;padding:var(--pad)}
+:host(.mobile) .cal-side{display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:10px;margin-bottom:4px}
+:host(.mobile) .cal-side .sec-head{grid-column:1/-1}
+:host(.mobile) .cal-nav{grid-column:2;grid-row:2/4;margin:0}
+:host(.mobile) .legend{grid-column:1/-1;margin-top:8px}
+:host(.mobile) .day{flex-direction:row;align-items:flex-start;gap:8px;padding:8px 10px;overflow:visible}
+:host(.mobile) .day-h{width:62px;flex:none;padding:4px 0 0}
+:host(.mobile) .day-b{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
+:host(.mobile) .day-h b{margin-left:3px}
+:host(.mobile) .wk-tag{float:none;display:block;margin:2px 0 0}
+:host(.mobile) .day .ev{width:100%}
+:host(.mobile) .day .chip{align-self:center}
+:host(.mobile) .day.none{background:transparent;padding:2px 10px;opacity:.6}
+:host(.mobile) .day.none .day-h{padding:0}
+:host(.mobile) .day.none.today{background:var(--today-bg);opacity:1}
+:host(.mobile) .day.wk-start{box-shadow:inset 0 2px 0 var(--accent-soft)}
+:host(.mobile) #overlay{position:fixed}
+:host(.mobile) .pop,:host(.mobile) .pop.wide{width:calc(100vw / var(--z, 1) - 24px);max-width:520px;max-height:calc(100vh - 40px)}
 #overlay{position:absolute;inset:0;background:var(--overlay);display:none;align-items:center;justify-content:center;z-index:10}
 #overlay.show{display:flex}
 .pop{background:var(--card);border-radius:26px;width:460px;max-height:740px;overflow:auto;padding:22px;box-shadow:0 20px 50px rgba(0,0,0,.25)}
@@ -731,6 +771,22 @@ class HauspanelPanel extends HTMLElement {
     const st = this.$ && this.$("#stage");
     if (!st) return;
     const w = this.clientWidth || innerWidth, h = this.clientHeight || innerHeight;
+    // Handy (und Tablet) im Hochformat: eigenes, scrollbares Layout statt skalierter Bühne
+    const mobile = !this.editing && w < 820 && h > w * 1.15;
+    if (mobile !== !!this._mobile) {
+      this._mobile = mobile;
+      this.classList.toggle("mobile", mobile);
+      if (this._ready) { this._renderTop(); this._renderCal(); this._tick(); }
+    }
+    if (mobile) {
+      const z = clamp(w / MOBILE_W, 0.85, 1.9);
+      this._scale = 1;
+      st.style.width = ""; st.style.height = ""; st.style.transform = "";
+      st.style.zoom = z; st.style.setProperty("--z", z);
+      this._layoutPlan(); this._fitWaste();
+      return;
+    }
+    st.style.zoom = ""; st.style.removeProperty("--z");
     // Skalierung nach Breite (bzw. Mindesthöhe), die Bühne füllt immer die ganze Fläche:
     // oben ausgerichtet, Grundriss-Bereich wächst in Höhe und Breite mit.
     const s = Math.min(w / STAGE_W, h / STAGE_MIN_H);
@@ -814,6 +870,7 @@ class HauspanelPanel extends HTMLElement {
 
   /* ---------- Rendering ---------- */
   _renderAll() {
+    this._fit();
     this.shadowRoot.host.classList.toggle("edit", this.editing);
     this.$("#stage").classList.toggle("edit", this.editing);
     this._applyThemeVars();
@@ -846,7 +903,7 @@ class HauspanelPanel extends HTMLElement {
   _tick() {
     const n = new Date();
     const t = this.$("#time"); if (t) t.textContent = hhmm(n);
-    const d = this.$("#date-txt"); if (d) d.textContent = `${DAYS_LONG[n.getDay()]}, ${n.getDate()}. ${MONTHS[n.getMonth()]} ${n.getFullYear()}`;
+    const d = this.$("#date-txt"); if (d) d.textContent = this._mobile ? `${DAYS_LONG[n.getDay()]}, ${n.getDate()}. ${MONTHS[n.getMonth()]}` : `${DAYS_LONG[n.getDay()]}, ${n.getDate()}. ${MONTHS[n.getMonth()]} ${n.getFullYear()}`;
     this._applyTheme();
     if (!this._day || !sameDay(this._day, n)) {
       const first = !this._day; this._day = n;
@@ -869,7 +926,7 @@ class HauspanelPanel extends HTMLElement {
     top.innerHTML = `${menu}<div class="pill" id="home"><span class="home-ico">${ic("house", 15)}</span>Zuhause</div>
       <div id="date"><span id="date-txt"></span></div>
       ${this.preview ? `<button class="btn primary" data-a="preview-exit">${ic("pencil", 16)}Zurück zum Editor</button>` : ""}
-      ${admin && !this.kiosk && !this.preview ? `<button class="icon-btn" data-a="edit" aria-label="Bearbeiten" title="Bearbeiten">${ic("pencil", 18)}</button>` : ""}
+      ${admin && !this.kiosk && !this.preview && !this._mobile ? `<button class="icon-btn" data-a="edit" aria-label="Bearbeiten" title="Bearbeiten">${ic("pencil", 18)}</button>` : ""}
       <button class="pill" id="clock" data-a="clock">${ic("clock", 20)}<span id="time"></span></button>`;
     this._tick();
   }
@@ -943,6 +1000,7 @@ class HauspanelPanel extends HTMLElement {
     const wrap = this.$ && this.$("#plan-wrap"), plan = this.$ && this.$("#plan");
     const f = this.C && this._floor();
     if (!wrap || !plan || !f || !this._aspect || (!this._planFor(f) && !this.editing)) return;
+    if (this._mobile) wrap.style.height = Math.round(wrap.clientWidth / this._aspect) + "px"; else wrap.style.height = "";
     const W = wrap.clientWidth, H = wrap.clientHeight, a = this._aspect;
     let w = W, h = W / a;
     if (h > H) { h = H; w = H * a; }
@@ -1046,6 +1104,7 @@ class HauspanelPanel extends HTMLElement {
       const el = this.$("#waste"); if (!el) return;
       const bins = [...el.querySelectorAll(".bin")];
       bins.forEach((b) => { b.style.display = ""; });
+      if (this._mobile) return;
       const limit = el.getBoundingClientRect().bottom - 4;
       bins.forEach((b) => { if (b.getBoundingClientRect().bottom > limit) b.style.display = "none"; });
     });
@@ -1086,7 +1145,7 @@ class HauspanelPanel extends HTMLElement {
       <div class="cal-nav"><button data-wk="-1" aria-label="7 Tage zurück">${ic("chevron-left", 18)}</button>${this.weekOffset ? `<button data-wk="0" aria-label="Diese Woche">${ic("circle-dot", 16)}</button>` : ""}<button data-wk="1" aria-label="7 Tage weiter">${ic("chevron-right", 18)}</button></div>
       <div class="legend">${cals.map((c) => `<span><i class="dot" style="background:${esc(c.color)}"></i>${esc(c.name || friendly(this._hass, c.entity_id))}</span>`).join("")}</div></div>`;
     const waste = this._wasteList();
-    const MAX = 3;
+    const MAX = this._mobile ? 99 : 3;
     for (let i = 0; i < 7; i++) {
       const day = addDays(mon, i), dayEnd = addDays(day, 1);
       const items = [];
@@ -1098,7 +1157,7 @@ class HauspanelPanel extends HTMLElement {
       });
       let body = items.length > MAX ? items.slice(0, MAX - 1).join("") + `<button class="more" data-day="${i}">+${items.length - MAX + 1} weitere</button>` : items.join("");
       const wkStart = i > 0 && day.getDay() === 1; // neue Woche beginnt mitten in der Leiste -> markieren
-      h += `<div class="day${sameDay(day, today) ? " today" : ""}${wkStart ? " wk-start" : ""}"><div class="day-h">${DAYS[day.getDay()]}<b>${day.getDate()}.</b>${wkStart ? `<span class="wk-tag">KW ${kw(day)}</span>` : ""}</div>${body}</div>`;
+      h += `<div class="day${sameDay(day, today) ? " today" : ""}${wkStart ? " wk-start" : ""}${items.length ? "" : " none"}"><div class="day-h">${DAYS[day.getDay()]}<b>${day.getDate()}.</b>${wkStart ? `<span class="wk-tag">KW ${kw(day)}</span>` : ""}</div><div class="day-b">${body}</div></div>`;
     }
     el.innerHTML = h;
   }
