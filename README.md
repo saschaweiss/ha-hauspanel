@@ -45,6 +45,10 @@ Im Editor steht unter *Allgemein* bei jedem Sensor, was erkannt wurde.
 
 Die offizielle Integration *Google Calendar* einrichten. Die Kalender tauchen dann als `calendar.*` auf und lassen sich unter *Allgemein* auswählen.
 
+## Als Startseite
+
+HA lässt unter *Profil → Erscheinungsbild → Dashboard* nur Dashboards zu. Im Editor unter *Allgemein → Als Startseite* legt ein Knopf ein unsichtbares Dashboard „Hauspanel“ an, das sofort aufs Panel weiterleitet. Dieses dann im Profil auswählen (gilt pro Benutzer bzw. Gerät).
+
 ## Handy & Hochformat
 
 Im Hochformat (Handy, Tablet hochkant) schaltet das Panel automatisch auf ein scrollbares Layout um: Etagen als Reiter oben, Grundriss in voller Breite, darunter Wetter, Müll und die Termine als Liste. Bearbeiten geht nur im Querformat.
