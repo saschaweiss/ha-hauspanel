@@ -185,12 +185,12 @@ const DEFAULT_THEME = {
     dark: "#1F1D1C", wall: "#2E2C2B", floor: "#FFFFFF", outside: "#EDEBE9" },
   dark: { accent: "#E5391D", bg: "#0F0E0E", card: "#1A1918", tile: "#242221", text: "#ECE9E5", muted: "#8C8782",
     dark: "#242221", wall: "#77726D", floor: "#1A1918", outside: "#151413" },
-  size: { font: 100, radius: 22, gap: 12, margin: 18, pad: 16, cal: 198, pin: 36, pinFont: 14, label: 11 },
+  size: { font: 100, radius: 22, gap: 12, margin: 18, pad: 16, cal: 198, pin: 36, pinFont: 14, label: 11, left: 176, right: 282 },
 };
 const THEME_COLORS = [["accent","Akzent (aktiv, Buttons)"],["bg","Hintergrund"],["card","Karten"],["tile","Kacheln in Karten"],
   ["text","Text"],["muted","Text gedämpft"],["dark","Dunkle Karten (Uhr, Wetter)"],["wall","Wände"],["floor","Boden"],["outside","Außenbereich"]];
 const THEME_SIZES = [["font","Schriftgröße",70,140,"%"],["radius","Ecken-Rundung",0,40,"px"],["gap","Abstand zwischen Karten",0,32,"px"],
-  ["margin","Rand außen",0,48,"px"],["pad","Innenabstand der Karten",6,32,"px"],["cal","Höhe Kalenderleiste",140,320,"px"],
+  ["left","Breite Etagen-Spalte",120,320,"px"],["right","Breite rechte Spalte (Wetter, Müll)",220,460,"px"],["margin","Rand außen",0,48,"px"],["pad","Innenabstand der Karten",6,32,"px"],["cal","Höhe Kalenderleiste (ganz links = ausblenden)",0,360,"px"],
   ["pin","Größe der Geräte-Pins",22,64,"px"],["pinFont","Schrift in Pins (Werte)",9,26,"px"],["label","Schrift Raum-Labels",7,24,"px"]];
 const THEME_DETAIL = [
   ["Geräte-Pins", "Eingeschaltet = Licht an, Steckdose an, Heizung heizt gerade. Messwert = Sensoren und Heizungen, die gerade nicht heizen.", [
@@ -245,7 +245,8 @@ function themeCss(theme) {
       return `;${v}:${Number(s.o) === 0 ? "none" : `0 ${s.y}px ${s.b}px ${rgba(s.c, s.o / 100)}`}`;
     }).join("");
   return `:host{${vars(t.light)};--fs:${s.font / 100};--radius:${s.radius}px;--gap:${s.gap}px;--m:${s.margin}px;--pad:${s.pad}px;` +
-    `--cal-h:${s.cal}px;--pin:${s.pin}px;--pin-fs:${s.pinFont}px;--label-fs:${s.label}px}` +
+    `--cal-h:${s.cal}px;--col-l:${s.left}px;--col-r:${s.right}px;--pin:${s.pin}px;--pin-fs:${s.pinFont}px;--label-fs:${s.label}px}` +
+    (Number(s.cal) < 60 ? "#cal{display:none}#main{bottom:var(--m)}" : "") +
     `:host([data-theme="dark"]){${vars(t.dark, true)}}`;
 }
 
@@ -369,7 +370,7 @@ const CSS = `
   --btn-bg:var(--tile);--btn-fg:var(--text);--btn-sel-bg:var(--accent);--btn-sel-fg:#fff;--power-bg:var(--dark);--power-fg:#fff;
   --toggle-on:var(--accent);--toggle-off:var(--tile-2);--clock-bg:var(--dark);--clock-fg:#fff;--weather-bg:var(--dark);--weather-fg:#fff;
   --soon-bg:var(--accent-soft);--today-bg:var(--accent-soft);
-  --fs:1;--radius:22px;--gap:12px;--m:18px;--pad:16px;--pin:36px;--pin-fs:14px;--label-fs:11px;--cal-h:198px;
+  --fs:1;--radius:22px;--gap:12px;--m:18px;--pad:16px;--pin:36px;--pin-fs:14px;--label-fs:11px;--cal-h:198px;--col-l:176px;--col-r:282px;
   --bg:#EEECEA;--card:#FFFFFF;--tile:#F4F2F0;--tile-2:#ECE9E6;--text:#1E1C1B;--muted:#8A8580;--soft:#C9C4BF;
   --accent:#E5391D;--accent-soft:#FCE6E1;--accent-glow:rgba(229,57,29,.35);--dark:#1F1D1C;--dark-2:#2C2A28;
   --on-dark:#FFFFFF;--on-dark-muted:#A39E99;--wall:#2E2C2B;--floor:#FFFFFF;--outside:#EDEBE9;--door:#B3AEA9;
@@ -402,7 +403,7 @@ svg.i{display:block;fill:none;stroke:currentColor;stroke-linecap:round;stroke-li
 .btn.danger{color:var(--accent)}
 .btn:disabled{opacity:.45}
 
-#main{position:absolute;left:var(--m);right:var(--m);top:calc(var(--m) + 54px);bottom:calc(var(--m) + var(--cal-h) + var(--gap));display:grid;grid-template-columns:176px 1fr 282px;gap:var(--gap)}
+#main{position:absolute;left:var(--m);right:var(--m);top:calc(var(--m) + 54px);bottom:calc(var(--m) + var(--cal-h) + var(--gap));display:grid;grid-template-columns:var(--col-l) 1fr var(--col-r);gap:var(--gap)}
 #floors{padding:calc(var(--pad) * .75);display:flex;flex-direction:column;gap:8px;overflow-y:auto;scrollbar-width:none}
 #floors::-webkit-scrollbar{display:none}
 #floors.compact .roof{height:34px}#floors.compact .roof svg{height:34px}
@@ -471,7 +472,7 @@ svg.fp{fill:var(--wall)}
 .bin.soon .b{background:var(--accent);color:#fff}
 .muted-note{font-size:calc(12.5px * var(--fs));color:var(--muted);padding:0 4px;line-height:1.5}
 
-#cal{position:absolute;left:var(--m);right:var(--m);bottom:var(--m);height:var(--cal-h);display:grid;grid-template-columns:162px repeat(7,1fr);gap:8px;padding:calc(var(--pad) * .875) calc(var(--pad) * .75) calc(var(--pad) * .75) var(--pad)}
+#cal{position:absolute;left:var(--m);right:var(--m);bottom:var(--m);height:var(--cal-h);display:grid;grid-template-columns:calc(var(--col-l) - 14px) repeat(7,1fr);gap:8px;padding:calc(var(--pad) * .875) calc(var(--pad) * .75) calc(var(--pad) * .75) var(--pad)}
 .cal-side{display:flex;flex-direction:column;min-width:0}
 .cal-range{font-size:calc(14px * var(--fs));font-weight:700;margin-top:2px}
 .cal-kw{font-size:calc(12px * var(--fs));color:var(--muted);margin-top:2px}
@@ -552,7 +553,7 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;bac
 .cw-foot{padding:0 12px 10px;color:var(--muted);font-size:12px;flex:none}
 
 /* ---------- Editor ---------- */
-.edit #main{bottom:var(--m);grid-template-columns:176px 1fr 360px}
+.edit #main{bottom:var(--m);grid-template-columns:var(--col-l) 1fr 360px}
 .edit #cal{display:none}
 .edit .pin{cursor:grab;touch-action:none}
 .edit .pin.sel{box-shadow:0 0 0 3px var(--card),0 0 0 6px var(--accent)}
@@ -1487,7 +1488,7 @@ class HauspanelPanel extends HTMLElement {
         else {
           this.draft.theme.size[el.dataset.k] = Number(val);
           const spec = THEME_SIZES.find((x) => x[0] === el.dataset.k);
-          this.$("#tv-" + el.dataset.k).textContent = val + " " + spec[4];
+          this.$("#tv-" + el.dataset.k).textContent = el.dataset.k === "cal" && val < 60 ? "aus" : val + " " + spec[4];
           el.style.setProperty("--p", ((val - spec[2]) / (spec[3] - spec[2])) * 100 + "%");
         }
         this._applyThemeVars(); this._layoutPlan(); this._fitWaste();
@@ -1775,7 +1776,7 @@ class HauspanelPanel extends HTMLElement {
       <div class="sep"></div>
       <div class="fld"><label>Größen &amp; Abstände</label>
         ${THEME_SIZES.map(([k, l, mn, mx, u]) => `<div style="margin-bottom:8px"><div class="row" style="justify-content:space-between;font-size:13.5px">
-          <span>${l}</span><b id="tv-${k}">${t.size[k]} ${u}</b></div>
+          <span>${l}</span><b id="tv-${k}">${k === "cal" && t.size[k] < 60 ? "aus" : `${t.size[k]} ${u}`}</b></div>
           <input type="range" min="${mn}" max="${mx}" step="1" value="${t.size[k]}" data-f="theme-size" data-k="${k}" style="--p:${((t.size[k] - mn) / (mx - mn)) * 100}%"></div>`).join("")}</div>
       <div class="hint">Pins und Raum-Labels wachsen zusätzlich mit dem Grundriss mit, damit sie auf jedem Bildschirm an derselben Stelle sitzen.</div>`;
   }
