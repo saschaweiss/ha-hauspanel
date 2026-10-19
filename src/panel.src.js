@@ -508,6 +508,7 @@ svg.fp{fill:var(--wall)}
 .day{background:var(--tile);border-radius:15px;padding:8px 6px 6px;min-width:0;display:flex;flex-direction:column;gap:5px;overflow:hidden}
 .day.today{background:var(--today-bg);color:var(--today-fg)}
 .day.today .day-h,.day.today .day-h b,.day.today .more{color:var(--today-fg)}
+.day .ev,.day .chip{color:var(--text)}
 .day.wk-start{box-shadow:inset 3px 0 0 var(--accent-soft)}
 .wk-tag{float:right;font-size:calc(10px * var(--fs));font-weight:700;color:var(--accent);opacity:.8;margin-top:1px}
 .day-b{display:contents}
