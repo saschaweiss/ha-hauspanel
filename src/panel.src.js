@@ -223,7 +223,8 @@ const THEME_DETAIL = [
     ["clockBg", "--clock-bg", "Uhr – Hintergrund"], ["clockFg", "--clock-fg", "Uhr – Schrift"],
     ["weatherBg", "--weather-bg", "Wetter – Hintergrund"], ["weatherFg", "--weather-fg", "Wetter – Schrift"]]],
   ["Hervorhebungen", "", [
-    ["soonBg", "--soon-bg", "Müll heute/morgen – Hintergrund"], ["todayBg", "--today-bg", "Kalender heute – Hintergrund"]]],
+    ["soonBg", "--soon-bg", "Müll heute/morgen – Hintergrund"], ["soonFg", "--soon-fg", "Müll heute/morgen – Schrift"],
+    ["todayBg", "--today-bg", "Kalender heute – Hintergrund"], ["todayFg", "--today-fg", "Kalender heute – Schrift"]]],
 ];
 const DETAIL_VARS = THEME_DETAIL.flatMap((g) => g[2]);
 /* Schatten: Farbe „accent“ = Akzentfarbe des jeweiligen Modus */
@@ -243,6 +244,11 @@ function mergeTheme(t) {
   t = t || {};
   return { light: { ...DEFAULT_THEME.light, ...(t.light || {}) }, dark: { ...DEFAULT_THEME.dark, ...(t.dark || {}) }, size: { ...DEFAULT_THEME.size, ...(t.size || {}) } };
 }
+const contrastFg = (bg, text, card) => {
+  const lum = (h) => { const [r, g, b] = hexRgb(h).map((c) => { c /= 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; }); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
+  const L = lum(bg), ratio = (a, b) => (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+  return ratio(L, lum(text)) >= ratio(L, lum(card)) ? text : card;
+};
 const hexRgb = (h) => { const m = String(h).replace("#", ""); const n = parseInt(m.length === 3 ? m.split("").map((c) => c + c).join("") : m, 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
 const mixHex = (a, b, w) => { const x = hexRgb(a), y = hexRgb(b); return "#" + x.map((v, i) => Math.round(v * w + y[i] * (1 - w)).toString(16).padStart(2, "0")).join(""); };
 const rgba = (h, al) => { const [r, g, b] = hexRgb(h); return `rgba(${r},${g},${b},${al})`; };
@@ -253,6 +259,9 @@ function themeCss(theme) {
     `--soft:${mixHex(o.muted, o.card, 0.5)};--dark:${o.dark};--dark-2:${mixHex("#ffffff", o.dark, 0.07)};` +
     `--wall:${o.wall};--floor:${o.floor};--outside:${o.outside};--door:${mixHex(o.wall, o.floor, 0.4)}` +
     DETAIL_VARS.filter(([k]) => o[k]).map(([k, v]) => `;${v}:${o[k]}`).join("") +
+    // Hintergrund gesetzt, Schrift nicht: automatisch dunkle oder helle Schrift für guten Kontrast
+    [["soonBg", "soonFg", "--soon-fg"], ["todayBg", "todayFg", "--today-fg"]].filter(([b, f]) => o[b] && !o[f])
+      .map(([b, , v]) => `;${v}:${contrastFg(o[b], o.text, o.card)}`).join("") +
     THEME_SHADOWS.filter(([k]) => o.sh && o.sh[k]).map(([k, v]) => {
       const s = shadowVals(o, dark ? "dark" : "light", k);
       return `;${v}:${Number(s.o) === 0 ? "none" : `0 ${s.y}px ${s.b}px ${rgba(s.c, s.o / 100)}`}`;
@@ -382,7 +391,7 @@ const CSS = `
   --pin-cam-bg:var(--dark);--pin-cam-fg:#fff;--floor-on-bg:var(--accent);--floor-on-fg:#fff;--floor-off-bg:var(--tile);--floor-off-fg:var(--text);
   --btn-bg:var(--tile);--btn-fg:var(--text);--btn-sel-bg:var(--accent);--btn-sel-fg:#fff;--power-bg:var(--dark);--power-fg:#fff;
   --toggle-on:var(--accent);--toggle-off:var(--tile-2);--clock-bg:var(--dark);--clock-fg:#fff;--weather-bg:var(--dark);--weather-fg:#fff;
-  --soon-bg:var(--accent-soft);--today-bg:var(--accent-soft);
+  --soon-bg:var(--accent-soft);--today-bg:var(--accent-soft);--soon-fg:var(--text);--today-fg:var(--text);
   --fs:1;--radius:22px;--gap:12px;--m:18px;--pad:16px;--pin:36px;--pin-fs:14px;--label-fs:11px;--cal-h:198px;--col-l:176px;--col-r:282px;
   --bg:#EEECEA;--card:#FFFFFF;--tile:#F4F2F0;--tile-2:#ECE9E6;--text:#1E1C1B;--muted:#8A8580;--soft:#C9C4BF;
   --accent:#E5391D;--accent-soft:#FCE6E1;--accent-glow:rgba(229,57,29,.35);--dark:#1F1D1C;--dark-2:#2C2A28;
@@ -478,7 +487,8 @@ svg.fp{fill:var(--wall)}
 .sec-head{display:flex;align-items:center;gap:8px;font-size:calc(15.5px * var(--fs));font-weight:700;margin:0 4px 12px}
 .sec-head svg{color:var(--accent)}
 .bin{display:flex;align-items:center;gap:11px;padding:8px 10px;border-radius:15px;background:var(--tile);margin-bottom:7px}
-.bin.soon{background:var(--soon-bg)}
+.bin.soon{background:var(--soon-bg);color:var(--soon-fg)}
+.bin.soon .d{color:var(--soon-fg);opacity:.7}
 .bin-ico{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;color:#fff;flex:none}
 .bin .n{font-size:calc(14px * var(--fs));font-weight:700}.bin .d{font-size:calc(11.5px * var(--fs));color:var(--muted);margin-top:2px}
 .bin .b{margin-left:auto;font-size:calc(11.5px * var(--fs));font-weight:600;padding:5px 9px;border-radius:12px;background:var(--card);color:var(--muted);white-space:nowrap}
@@ -496,7 +506,8 @@ svg.fp{fill:var(--wall)}
 .dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex:none}
 :host([data-theme="dark"]) .dot,:host([data-theme="dark"]) .ev::before,:host([data-theme="dark"]) .ev-pop .bar{box-shadow:0 0 0 1px rgba(255,255,255,.35)}
 .day{background:var(--tile);border-radius:15px;padding:8px 6px 6px;min-width:0;display:flex;flex-direction:column;gap:5px;overflow:hidden}
-.day.today{background:var(--today-bg)}
+.day.today{background:var(--today-bg);color:var(--today-fg)}
+.day.today .day-h,.day.today .day-h b,.day.today .more{color:var(--today-fg)}
 .day.wk-start{box-shadow:inset 3px 0 0 var(--accent-soft)}
 .wk-tag{float:right;font-size:calc(10px * var(--fs));font-weight:700;color:var(--accent);opacity:.8;margin-top:1px}
 .day-b{display:contents}
