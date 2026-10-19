@@ -763,6 +763,25 @@ class HauspanelPanel extends HTMLElement {
     this._timers.push(setInterval(() => this._fetchEvents(), 10 * 60000));
     this._ready = true;
     this._initing = false;
+    this._migrateStartDash();
+  }
+  /* 0.6.1 legte ein Weiterleitungs-Dashboard „hauspanel-start“ an. Seit 0.6.2 wird das Panel direkt als Startseite
+     eingetragen – das alte Dashboard (bei manchen Geräten mit „Konfigurationsfehler“) hier einmalig aufräumen. */
+  async _migrateStartDash() {
+    if (!this._hass || !this._hass.user || !this._hass.user.is_admin) return;
+    try {
+      const list = await this._hass.callWS({ type: "lovelace/dashboards/list" });
+      const old = list.find((d) => d.url_path === "hauspanel-start");
+      if (!old) return;
+      for (const [get, set] of [["frontend/get_user_data", "frontend/set_user_data"], ["frontend/get_system_data", "frontend/set_system_data"]]) {
+        try {
+          const cur = ((await this._hass.callWS({ type: get, key: "core" })) || {}).value || {};
+          if (cur.default_panel === "hauspanel-start") await this._hass.callWS({ type: set, key: "core", value: { ...cur, default_panel: "hauspanel" } });
+        } catch (e) { /* weiter */ }
+      }
+      await this._hass.callWS({ type: "lovelace/dashboards/delete", dashboard_id: old.id });
+      this._toast("Altes Startseiten-Dashboard entfernt – Hauspanel ist direkt als Startseite eingetragen");
+    } catch (e) { console.warn("Hauspanel: Aufräumen", e); }
   }
 
   /* Uhr genau zum Minutenwechsel aktualisieren (nicht nur alle 15 s) */
