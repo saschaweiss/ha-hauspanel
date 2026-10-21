@@ -90,6 +90,7 @@ function isActive(stateObj) {
   return ACTIVE_STATES.has(st);
 }
 /* Hat das Gerät überhaupt einen An/Aus-Status? */
+const TOGGLE_DOMAINS = new Set(["light","switch","fan","input_boolean","media_player","cover"]);
 const STATUS_DOMAINS = new Set(["light","switch","fan","input_boolean","media_player","cover","lock","climate","binary_sensor"]);
 /* Farbe/Status eines Pins: p.status = "auto" | "action" | "mode" | "none" (wie Messwert) */
 function pinStatusful(p) { return STATUS_DOMAINS.has(domainOf(p.entity_id)) && p.status !== "none"; }
@@ -465,6 +466,9 @@ svg.fp{fill:var(--wall)}
 .pin.on{background:var(--pin-on-bg);color:var(--pin-on-fg);box-shadow:var(--sh-pin-on)}
 .pin.cam{background:var(--pin-cam-bg);color:var(--pin-cam-fg)}
 .pin.unavail{opacity:.4}
+.pin{-webkit-touch-callout:none}
+.pin.tapped{animation:tapped .35s ease-out}
+@keyframes tapped{0%{filter:brightness(1.35)}100%{filter:none}}
 .empty{position:absolute;inset:0;display:grid;place-items:center;text-align:center;color:var(--muted);font-size:calc(14px * var(--fs));line-height:1.6;padding:20px}
 .empty b{display:block;color:var(--text);font-size:calc(17px * var(--fs));margin-bottom:4px}
 
@@ -1383,7 +1387,11 @@ class HauspanelPanel extends HTMLElement {
     const dayb = t.closest("[data-day]");
     if (dayb) { this._openDay(Number(dayb.dataset.day)); return; }
     const pin = t.closest(".pin");
-    if (pin && this.viewing) { this._openPin(pin.dataset.pin); return; }
+    if (pin && this.viewing) {
+      const pp = this._pinById(pin.dataset.pin);
+      if (pp && pp.toggle && TOGGLE_DOMAINS.has(domainOf(pp.entity_id))) { this._togglePin(pp, pin); return; }
+      this._openPin(pin.dataset.pin); return;
+    }
     const b = t.closest("[data-a]");
     if (!b) return;
     const a = b.dataset.a;
@@ -1583,6 +1591,7 @@ class HauspanelPanel extends HTMLElement {
       case "pin-name": p.name = val || null; break;
       case "pin-room": p.room = val || null; break;
       case "pin-power": p.power_off = val; break;
+      case "pin-toggle": if (val) p.toggle = true; else delete p.toggle; break;
       case "pin-extra": if (!isChange && !this._hass.states[val]) return; p.extras[Number(el.dataset.i)] = val; break;
       case "pin-entity": if (!this._hass.states[val]) return; p.entity_id = val; this._renderPlan(); break;
       case "room-name": r.name = val; this._renderPlan(); break;
@@ -1698,9 +1707,33 @@ class HauspanelPanel extends HTMLElement {
   }
 
   /* ---------- Drag & Drop (Pointer-Events, funktioniert mit Maus und Touch) ---------- */
+  _pinById(id) {
+    for (const f of (this.C && this.C.floors) || []) { const p = (f.pins || []).find((x) => x.id === id); if (p) return p; }
+    return null;
+  }
+  _togglePin(p, el) {
+    const d = domainOf(p.entity_id);
+    const svc = d === "cover" ? ["cover", "toggle"] : d === "media_player" ? ["media_player", "toggle"] : ["homeassistant", "toggle"];
+    this._hass.callService(svc[0], svc[1], { entity_id: p.entity_id });
+    if (el) { el.classList.add("tapped"); setTimeout(() => el.classList.remove("tapped"), 350); }
+    if (navigator.vibrate) try { navigator.vibrate(15); } catch (e) { /* egal */ }
+  }
   _onPointerDown(ev) {
     this._lastTouch = Date.now();
     if (ev.target.closest(".cw-head") && !ev.target.closest("button")) return this._dragCssWin(ev);
+    if (this.viewing && ev.button <= 0) {
+      const pv = ev.target.closest(".pin");
+      const pp = pv && this._pinById(pv.dataset.pin);
+      if (pp && pp.toggle && TOGGLE_DOMAINS.has(domainOf(pp.entity_id))) {
+        clearTimeout(this._lpT);
+        const x0 = ev.clientX, y0 = ev.clientY;
+        const cancel = () => { clearTimeout(this._lpT); pv.removeEventListener("pointerup", cancel); pv.removeEventListener("pointercancel", cancel); pv.removeEventListener("pointermove", mv); };
+        const mv = (e) => { if (Math.abs(e.clientX - x0) + Math.abs(e.clientY - y0) > 12) cancel(); };
+        pv.addEventListener("pointerup", cancel); pv.addEventListener("pointercancel", cancel); pv.addEventListener("pointermove", mv);
+        this._lpT = setTimeout(() => { cancel(); this._suppressClick = true; setTimeout(() => { this._suppressClick = false; }, 800); this._openPin(pp.id); }, 550);
+      }
+      return;
+    }
     if (!this.editing || ev.button > 0) return;
     const pinEl = ev.target.closest(".pin"), roomEl = ev.target.closest(".room-label"), grip = ev.target.closest(".grip");
     if (pinEl || roomEl) return this._dragOnPlan(ev, pinEl, roomEl);
@@ -1914,6 +1947,8 @@ class HauspanelPanel extends HTMLElement {
         ${PIN_ICONS.map((n) => `<button class="${p.icon === n ? "sel" : ""}" data-a="pin-icon" data-icon="${n}" title="${n}">${ic(n, 17)}</button>`).join("")}</div></div>
       ${this._statusField(p, d)}
       ${scaleField(p, "pin-scale")}
+      ${TOGGLE_DOMAINS.has(d) ? `<label class="check"><input type="checkbox" data-f="pin-toggle" ${p.toggle ? "checked" : ""}>Antippen schaltet direkt an/aus</label>
+        <div class="hint" style="margin:-4px 0 8px 30px">Lange drücken öffnet weiterhin das Popup (z. B. für Helligkeit).</div>` : ""}
       <label class="check"><input type="checkbox" data-f="pin-power" ${p.power_off ? "checked" : ""}>Mit Power-Button ausschalten</label>
       <div class="sep"></div>
       <div class="fld"><label>Zusatzwerte im Popup</label>
