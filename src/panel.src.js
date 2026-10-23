@@ -599,6 +599,12 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;bac
 .modes button.sel{background:var(--btn-sel-bg);color:var(--btn-sel-fg)}
 .cam-box{margin-top:16px;aspect-ratio:16/9;border-radius:16px;background:#111;overflow:hidden;display:grid;place-items:center;color:#8a8580;font-size:calc(13px * var(--fs))}
 .cam-box img{width:100%;height:100%;object-fit:contain;display:block}
+.cam-box .cam-card{display:block;width:100%;height:100%}
+.cam-box .cam-card{--ha-card-border-radius:0;--ha-card-box-shadow:none;--ha-card-border-width:0}
+.cam-wait{color:#8a8580}
+.cam-foot{display:flex;align-items:center;gap:10px;margin-top:12px;font-size:calc(13px * var(--fs));color:var(--muted)}
+.cam-foot #cam-status{display:flex;align-items:center;gap:6px;flex:1}
+.cam-foot .sbtn{margin-left:auto}
 .ev-pop .bar{width:5px;align-self:stretch;border-radius:3px;background:var(--c);flex:none}
 .ev-row{display:flex;gap:14px;margin-top:18px;align-items:flex-start}
 .ev-row svg{color:var(--muted);margin-top:2px}
@@ -882,7 +888,7 @@ class HauspanelPanel extends HTMLElement {
   _watched() {
     const ids = new Set();
     const c = this.C; if (!c) return ids;
-    (c.floors || []).forEach((f) => (f.pins || []).forEach((p) => { ids.add(p.entity_id); (p.extras || []).forEach((x) => x && ids.add(x)); }));
+    (c.floors || []).forEach((f) => (f.pins || []).forEach((p) => { ids.add(p.entity_id); if (p.state_entity) ids.add(p.state_entity); (p.extras || []).forEach((x) => x && ids.add(x)); }));
     (c.waste || []).forEach((w) => w.entity_id && ids.add(w.entity_id));
     if (c.weather_entity) ids.add(c.weather_entity);
     ids.add("sun.sun");
@@ -1059,9 +1065,15 @@ class HauspanelPanel extends HTMLElement {
     }
     return fmtState(s);
   }
+  /* An/aus eines Pins – optional von einer anderen Entity übernommen (z. B. Kamera + „Camera enabled“) */
+  _pinOn(p, s) {
+    if (p.state_entity) return isActive(this._hass.states[p.state_entity]);
+    return pinActive(p, s);
+  }
+  _camOff(p) { return domainOf(p.entity_id) === "camera" && p.state_entity && !isActive(this._hass.states[p.state_entity]); }
   _pinInner(p, s) {
     const mode = p.display || "icon";
-    const icon = ic(p.icon || defaultIcon(s, p.entity_id), mode === "both" ? 15 : 18);
+    const icon = ic(this._camOff(p) && !p.icon ? "video-off" : p.icon || defaultIcon(s, p.entity_id), mode === "both" ? 15 : 18);
     if (mode === "icon") return icon;
     const v = `<span class="pv">${esc(this._pinValue(p, s))}</span>`;
     return mode === "both" ? icon + v : v;
@@ -1075,9 +1087,11 @@ class HauspanelPanel extends HTMLElement {
       el.classList.toggle("val", mode !== "icon");
       el.classList.toggle("both", mode === "both");
       if (mode !== "icon") { const pv = el.querySelector(".pv"), txt = this._pinValue(p, s); if (pv && pv.textContent !== txt) pv.textContent = txt; }
-      el.classList.toggle("on", pinActive(p, s));
-      el.classList.toggle("plain", !pinStatusful(p) && d !== "camera");
-      el.classList.toggle("cam", d === "camera");
+      const camOff = this._camOff(p);
+      if (d === "camera" && el.dataset.camoff !== String(camOff)) { el.dataset.camoff = String(camOff); el.innerHTML = this._pinInner(p, s); }
+      el.classList.toggle("on", d !== "camera" && this._pinOn(p, s));
+      el.classList.toggle("plain", !pinStatusful(p) && !p.state_entity && d !== "camera");
+      el.classList.toggle("cam", d === "camera" && !camOff);
       el.classList.toggle("unavail", !s || s.state === "unavailable");
     });
   }
@@ -1221,7 +1235,51 @@ class HauspanelPanel extends HTMLElement {
     this.$("#overlay").classList.add("show");
   }
   _closePop() { this._stopCamera(); this.$("#overlay").classList.remove("show"); this.popup = null; }
-  _stopCamera() { const img = this.$ && this.$("#cam-img"); if (img) img.src = ""; }
+  _stopCamera() {
+    const img = this.$ && this.$("#cam-img"); if (img) img.src = "";
+    if (this._camCard) { try { this._camCard.remove(); } catch (e) { /* egal */ } }
+    this._camCard = null; this._camFor = null; clearInterval(this._camSnapT);
+  }
+  _camStatus(p) {
+    const el = this.$("#cam-status"); if (!el) return;
+    if (!p.state_entity) { el.textContent = ""; return; }
+    const on = isActive(this._hass.states[p.state_entity]);
+    el.innerHTML = `<i class="dot" style="background:${on ? "#3E9B5C" : "var(--muted)"}"></i>${on ? "Kamera an" : "Kamera aus"}`;
+  }
+  /* HA-eigene Bildkarte im Live-Modus: wählt selbst WebRTC, HLS oder MJPEG – funktioniert auch mit Cloud-/Akkukameras.
+     Gibt es die Kartenhelfer nicht, wird ein regelmäßig aktualisiertes Standbild gezeigt. */
+  /* Kartenhelfer gibt es erst, wenn HA das Lovelace-Modul geladen hat. Ist Hauspanel die Startseite, ist das noch nicht passiert –
+     dann das Modul über HAs eigenen Panel-Lader nachladen (gleicher Weg, den HA beim Öffnen eines Dashboards nimmt). */
+  async _ensureCardHelpers() {
+    if (window.loadCardHelpers) return;
+    try {
+      await Promise.race([customElements.whenDefined("partial-panel-resolver"), new Promise((r) => setTimeout(r, 2000))]);
+      const ppr = document.createElement("partial-panel-resolver");
+      ppr.hass = { panels: [{ url_path: "tmp", component_name: "lovelace" }] };
+      ppr._updateRoutes();
+      await ppr.routerOptions.routes.tmp.load();
+      for (let i = 0; i < 20 && !window.loadCardHelpers; i++) await new Promise((r) => setTimeout(r, 100));
+    } catch (e) { /* bleibt beim Standbild */ }
+  }
+  async _mountCamera(id, a, name) {
+    const box = this.$("#cam-box"); if (!box) return;
+    const forId = this._camFor;
+    try {
+      await this._ensureCardHelpers();
+      if (!window.loadCardHelpers) throw new Error("keine Kartenhelfer");
+      const helpers = await window.loadCardHelpers();
+      if (this._camFor !== forId || !this.$("#cam-box")) return;
+      const card = await helpers.createCardElement({ type: "picture-entity", entity: id, camera_view: "live", show_name: false, show_state: false, tap_action: { action: "none" }, hold_action: { action: "none" } });
+      card.hass = this._hass;
+      card.classList.add("cam-card");
+      box.innerHTML = ""; box.appendChild(card);
+      this._camCard = card;
+    } catch (e) {
+      const snap = () => { const u = this._hass.states[id] && this._hass.states[id].attributes.entity_picture; return u ? u + (u.includes("?") ? "&" : "?") + "t=" + Date.now() : ""; };
+      box.innerHTML = `<img id="cam-img" alt="${esc(name)}" src="${esc(snap())}">`;
+      this._camSnapT = setInterval(() => { const img = this.$("#cam-img"); if (img) img.src = snap(); else clearInterval(this._camSnapT); }, 3000);
+    }
+  }
   _popHead(icon, cls, sub, title) {
     return `<div class="pop-h"><div class="pop-ico ${cls}">${ic(icon, 24)}</div><div style="min-width:0"><div class="pop-sub">${esc(sub)}</div>
       <div class="pop-title">${esc(title)}</div></div><button class="pop-x" data-a="pop-close" aria-label="Schließen">${ic("x", 20)}</button></div>`;
@@ -1283,9 +1341,15 @@ class HauspanelPanel extends HTMLElement {
     } else if (d === "scene" || d === "script") {
       h += `<div class="modes" style="margin-top:20px"><button data-a="svc" data-svc="turn_on" class="sel">Ausführen</button></div>`;
     } else if (d === "camera") {
-      const url = (a.entity_picture || "").replace("/api/camera_proxy/", "/api/camera_proxy_stream/");
-      h += `<div class="cam-box">${unavail || !url ? "Kamera nicht erreichbar" : `<img id="cam-img" alt="${esc(name)}" src="${esc(url)}">`}</div>`;
-      this._showPop(h, true); return;
+      // läuft schon -> nur hass weiterreichen, nicht neu aufbauen (sonst startet der Stream ständig neu)
+      if (this._camCard && this._camFor === p.id && this.$("#cam-box")) { this._camCard.hass = this._hass; this._camStatus(p); return; }
+      h += `<div class="cam-box" id="cam-box">${unavail ? "Kamera nicht erreichbar" : `<div class="cam-wait">Verbinde mit Kamera …</div>`}</div>
+        <div class="cam-foot"><span id="cam-status"></span><button class="sbtn" data-a="cam-more">${ic("maximize-2", 15)}In Home Assistant öffnen</button></div>`;
+      this._showPop(h, true);
+      this._camFor = p.id;
+      this._camStatus(p);
+      if (!unavail) this._mountCamera(id, a, name);
+      return;
     } else {
       h += `<div class="pop-state"><div><div class="big">${esc(fmtState(s))}</div><div class="s">${s.last_changed ? "seit " + hhmm(new Date(s.last_changed)) + " Uhr" : ""}</div></div></div>`;
     }
@@ -1398,6 +1462,13 @@ class HauspanelPanel extends HTMLElement {
     if (this.popup && ["toggle","temp","mode","svc","media"].includes(a)) return this._popAction(b);
     switch (a) {
       case "pop-close": return this._closePop();
+      case "cam-more": {
+        const f = this._floor(), p = f && (f.pins || []).find((x) => x.id === (this.popup && this.popup.pin));
+        if (!p) return;
+        this._closePop();
+        this.dispatchEvent(new CustomEvent("hass-more-info", { detail: { entityId: p.entity_id }, bubbles: true, composed: true }));
+        return;
+      }
       case "menu": return this.dispatchEvent(new Event("hass-toggle-menu", { bubbles: true, composed: true }));
       case "clock": this._themeOverride = this.getAttribute("data-theme") === "dark" ? "light" : "dark";
         clearTimeout(this._themeT); this._themeT = setTimeout(() => { this._themeOverride = null; this._applyTheme(); }, 5 * 60000);
@@ -1592,6 +1663,7 @@ class HauspanelPanel extends HTMLElement {
       case "pin-room": p.room = val || null; break;
       case "pin-power": p.power_off = val; break;
       case "pin-toggle": if (val) p.toggle = true; else delete p.toggle; break;
+      case "pin-state-entity": if (val && !this._hass.states[val]) { if (!isChange) return; } if (val) p.state_entity = val; else delete p.state_entity; this._renderPlan(); break;
       case "pin-extra": if (!isChange && !this._hass.states[val]) return; p.extras[Number(el.dataset.i)] = val; break;
       case "pin-entity": if (!this._hass.states[val]) return; p.entity_id = val; this._renderPlan(); break;
       case "room-name": r.name = val; this._renderPlan(); break;
@@ -1890,7 +1962,7 @@ class HauspanelPanel extends HTMLElement {
   }
   _datalist() {
     if (this.$("#dl-sensors")) return "";
-    const ids = Object.keys(this._hass.states).filter((id) => ["sensor","binary_sensor"].includes(domainOf(id))).sort();
+    const ids = Object.keys(this._hass.states).filter((id) => ["sensor","binary_sensor","switch","input_boolean"].includes(domainOf(id))).sort();
     return `<datalist id="dl-sensors">${ids.map((id) => `<option value="${esc(id)}">${esc(friendly(this._hass, id))}</option>`).join("")}</datalist>`;
   }
 
@@ -1946,6 +2018,9 @@ class HauspanelPanel extends HTMLElement {
       <div class="fld"><label>Icon</label><div class="icon-grid"><button class="${p.icon ? "" : "sel"}" data-a="pin-icon" data-icon="auto" title="Automatisch" style="font-size:11px;font-weight:700">Auto</button>
         ${PIN_ICONS.map((n) => `<button class="${p.icon === n ? "sel" : ""}" data-a="pin-icon" data-icon="${n}" title="${n}">${ic(n, 17)}</button>`).join("")}</div></div>
       ${this._statusField(p, d)}
+      <div class="fld"><label>Status von anderer Entity</label>
+        <input class="inp" list="dl-sensors" data-f="pin-state-entity" value="${esc(p.state_entity || "")}" placeholder="optional, z. B. binary_sensor.…_camera_enabled">
+        <div class="hint" style="margin-top:4px">${d === "camera" ? "Zeigt am Kamera-Pin, ob die Kamera an ist (sonst durchgestrichenes Symbol). Antippen öffnet weiterhin das Livebild." : "Der Pin wird „an“ gefärbt, wenn diese Entity an ist."}</div></div>
       ${scaleField(p, "pin-scale")}
       ${TOGGLE_DOMAINS.has(d) ? `<label class="check"><input type="checkbox" data-f="pin-toggle" ${p.toggle ? "checked" : ""}>Antippen schaltet direkt an/aus</label>
         <div class="hint" style="margin:-4px 0 8px 30px">Lange drücken öffnet weiterhin das Popup (z. B. für Helligkeit).</div>` : ""}
