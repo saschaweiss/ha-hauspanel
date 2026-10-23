@@ -1089,9 +1089,9 @@ class HauspanelPanel extends HTMLElement {
       if (mode !== "icon") { const pv = el.querySelector(".pv"), txt = this._pinValue(p, s); if (pv && pv.textContent !== txt) pv.textContent = txt; }
       const camOff = this._camOff(p);
       if (d === "camera" && el.dataset.camoff !== String(camOff)) { el.dataset.camoff = String(camOff); el.innerHTML = this._pinInner(p, s); }
-      el.classList.toggle("on", d !== "camera" && this._pinOn(p, s));
+      el.classList.toggle("on", (d !== "camera" || !!p.state_entity) && this._pinOn(p, s));
       el.classList.toggle("plain", !pinStatusful(p) && !p.state_entity && d !== "camera");
-      el.classList.toggle("cam", d === "camera" && !camOff);
+      el.classList.toggle("cam", d === "camera" && !p.state_entity);
       el.classList.toggle("unavail", !s || s.state === "unavailable");
     });
   }
@@ -1275,8 +1275,17 @@ class HauspanelPanel extends HTMLElement {
       box.innerHTML = ""; box.appendChild(card);
       this._camCard = card;
     } catch (e) {
+      this._mountSnapshot(id, name);
+    }
+  }
+  _mountSnapshot(id, name) {
+    const box = this.$("#cam-box"); if (!box) return;
+    {
       const snap = () => { const u = this._hass.states[id] && this._hass.states[id].attributes.entity_picture; return u ? u + (u.includes("?") ? "&" : "?") + "t=" + Date.now() : ""; };
       box.innerHTML = `<img id="cam-img" alt="${esc(name)}" src="${esc(snap())}">`;
+      const img0 = this.$("#cam-img");
+      if (img0) img0.onerror = () => { if (!img0.dataset.ok) box.innerHTML = `<div class="cam-wait">Die Kamera liefert gerade kein Bild an Home Assistant.</div>`; };
+      if (img0) img0.onload = () => { img0.dataset.ok = "1"; };
       this._camSnapT = setInterval(() => { const img = this.$("#cam-img"); if (img) img.src = snap(); else clearInterval(this._camSnapT); }, 3000);
     }
   }
@@ -1348,7 +1357,7 @@ class HauspanelPanel extends HTMLElement {
       this._showPop(h, true);
       this._camFor = p.id;
       this._camStatus(p);
-      if (!unavail) this._mountCamera(id, a, name);
+      if (!unavail) { if (p.cam_view === "snapshot") this._mountSnapshot(id, name); else this._mountCamera(id, a, name); }
       return;
     } else {
       h += `<div class="pop-state"><div><div class="big">${esc(fmtState(s))}</div><div class="s">${s.last_changed ? "seit " + hhmm(new Date(s.last_changed)) + " Uhr" : ""}</div></div></div>`;
@@ -1608,6 +1617,10 @@ class HauspanelPanel extends HTMLElement {
         this._markDirty(); this._renderPlan(); return this._renderInspector();
       }
       case "start-set": { this._setStart(b.dataset.v); return; }
+      case "pin-camview": {
+        const p = this._selPin(); if (b.dataset.v === "live") delete p.cam_view; else p.cam_view = b.dataset.v;
+        this._markDirty(); return this._renderInspector();
+      }
       case "pin-display": {
         const p = this._selPin(); p.display = b.dataset.v;
         this._markDirty(); this._renderPlan(); return this._renderInspector();
@@ -2018,9 +2031,12 @@ class HauspanelPanel extends HTMLElement {
       <div class="fld"><label>Icon</label><div class="icon-grid"><button class="${p.icon ? "" : "sel"}" data-a="pin-icon" data-icon="auto" title="Automatisch" style="font-size:11px;font-weight:700">Auto</button>
         ${PIN_ICONS.map((n) => `<button class="${p.icon === n ? "sel" : ""}" data-a="pin-icon" data-icon="${n}" title="${n}">${ic(n, 17)}</button>`).join("")}</div></div>
       ${this._statusField(p, d)}
+      ${d === "camera" ? `<div class="fld"><label>Ansicht im Popup</label><div class="chips" style="margin:0">
+        ${[["live", "Livebild"], ["snapshot", "Standbild (alle 3 s neu)"]].map(([k, l]) => `<button class="${(p.cam_view || "live") === k ? "sel" : ""}" data-a="pin-camview" data-v="${k}">${l}</button>`).join("")}</div>
+        <div class="hint" style="margin-top:6px">Akku-Kameras liefern oft kein Livebild an Home Assistant – dann Standbild wählen.</div></div>` : ""}
       <div class="fld"><label>Status von anderer Entity</label>
         <input class="inp" list="dl-sensors" data-f="pin-state-entity" value="${esc(p.state_entity || "")}" placeholder="optional, z. B. binary_sensor.…_camera_enabled">
-        <div class="hint" style="margin-top:4px">${d === "camera" ? "Zeigt am Kamera-Pin, ob die Kamera an ist (sonst durchgestrichenes Symbol). Antippen öffnet weiterhin das Livebild." : "Der Pin wird „an“ gefärbt, wenn diese Entity an ist."}</div></div>
+        <div class="hint" style="margin-top:4px">${d === "camera" ? "Kamera an = Pin in An-Farbe, aus = durchgestrichenes Symbol. Antippen öffnet weiterhin das Kamerabild." : "Der Pin wird „an“ gefärbt, wenn diese Entity an ist."}</div></div>
       ${scaleField(p, "pin-scale")}
       ${TOGGLE_DOMAINS.has(d) ? `<label class="check"><input type="checkbox" data-f="pin-toggle" ${p.toggle ? "checked" : ""}>Antippen schaltet direkt an/aus</label>
         <div class="hint" style="margin:-4px 0 8px 30px">Lange drücken öffnet weiterhin das Popup (z. B. für Helligkeit).</div>` : ""}
