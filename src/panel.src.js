@@ -106,6 +106,10 @@ const I18N_EN = {
   "„Wie Messwert“: immer in den Messwert-Farben, egal ob an oder aus.": "“As measured value”: always uses the measured-value colours, on or off.",
   "„Heizt“ nutzt hvac_action – rot nur, solange wirklich geheizt wird. „Heizmodus“ ist rot, solange das Thermostat nicht auf Aus steht.": "“Heating” uses hvac_action – highlighted only while actually heating. “Heat mode” is highlighted as long as the thermostat is not off.",
   "Messwert-Farben – dieses Gerät hat keinen An/Aus-Status.": "Measured-value colours – this device has no on/off state.",
+  "Mit Hintergrund": "With background", "Ohne Hintergrund": "No background", "Wenn aus": "When off",
+  "Ausgegraut": "Greyed out", "Durchgestrichen": "Struck through", "Beides": "Both",
+  "An = Symbol in der An-Farbe, Warnungen färben das Symbol.": "On = icon in the on colour; alerts colour the icon.",
+  "Nur Symbol bzw. Wert, ohne Kreis dahinter.": "Icon or value only, without the circle behind it.",
   "Ansicht im Popup": "Popup view", "Livebild": "Live view", "Standbild (alle 3 s neu)": "Snapshot (refreshes every 3 s)",
   "Akku-Kameras liefern oft kein Livebild an Home Assistant – dann Standbild wählen.": "Battery cameras often don't provide a live stream to Home Assistant – choose snapshot then.",
   "Status von anderer Entity": "State from another entity", "Entity wählen (optional)": "Choose entity (optional)", "Entity wählen": "Choose entity",
@@ -739,8 +743,19 @@ svg.fp{fill:var(--wall)}
 .pin.cam{background:var(--pin-cam-bg);color:var(--pin-cam-fg)}
 .pin.unavail{opacity:.4}
 .pin.alert{background:var(--alert);color:var(--alert-fg);opacity:1}
+.pin.bare,.pin.bare.on,.pin.bare.cam,.pin.bare.plain,.pin.bare.alert{background-color:transparent;box-shadow:none}
+.pin.bare{color:var(--pin-off-fg)}
+.pin.bare.plain{color:var(--pin-val-fg)}
+.pin.bare.on{color:var(--pin-on-bg)}
+.pin.bare.alert{color:var(--alert)}
+.pin.bare.inact.grey{color:var(--muted);opacity:.5}
+.pin.bare.inact.strike:not(.val){background-image:linear-gradient(to top right,transparent calc(50% - 1.2px),currentColor calc(50% - 1.2px),currentColor calc(50% + 1.2px),transparent calc(50% + 1.2px));
+  background-size:calc(var(--pin) * .62) calc(var(--pin) * .62);background-position:center;background-repeat:no-repeat}
+.pin.bare.inact.strike .pv{text-decoration:line-through;text-decoration-thickness:2px}
+.pin.bare.alert.inact,.pin.bare.alert.inact.grey{color:var(--alert);opacity:1}
 .pin.blink::before,.pin.blink::after{content:"";position:absolute;inset:0;border-radius:inherit;border:2px solid var(--alert);background:var(--alert);opacity:0;pointer-events:none;z-index:-1;
   animation:hp-pulsar var(--pulse, 1.6s) cubic-bezier(.2,.6,.35,1) infinite}
+.pin.bare.blink::before,.pin.bare.blink::after{background:transparent}
 .pin.blink::after{animation-delay:calc(var(--pulse, 1.6s) / 2)}
 @keyframes hp-pulsar{0%{transform:scale(1);opacity:.5}70%{opacity:.1}100%{transform:scale(1.65);opacity:0}}
 .alert-note{display:flex;align-items:center;gap:8px;margin-top:14px;padding:9px 12px;border-radius:12px;background:var(--tile);color:var(--alert);font-weight:600;font-size:calc(13px * var(--fs))}
@@ -1497,6 +1512,10 @@ class HauspanelPanel extends HTMLElement {
       el.classList.toggle("plain", !pinStatusful(p) && !p.state_entity && d !== "camera");
       el.classList.toggle("cam", d === "camera" && !p.state_entity);
       el.classList.toggle("unavail", !s || s.state === "unavailable");
+      const offS = p.off_style || "grey";
+      el.classList.toggle("bare", !!p.bare);
+      el.classList.toggle("inact", !!p.bare && (pinStatusful(p) || !!p.state_entity) && !el.classList.contains("on"));
+      el.classList.toggle("grey", offS !== "strike"); el.classList.toggle("strike", offS !== "grey");
       const al = this._pinAlert(p);
       el.classList.toggle("alert", !!al); el.classList.toggle("blink", !!(al && al.blink));
       if (al) { el.style.setProperty("--pulse", { slow: "2.6s", fast: "0.9s" }[al.speed] || "1.6s"); el.style.setProperty("--alert", al.color || "#E5391D"); el.style.setProperty("--alert-fg", contrastFg(al.color || "#E5391D", "#1E1C1B", "#FFFFFF")); }
@@ -2096,6 +2115,14 @@ class HauspanelPanel extends HTMLElement {
         this._markDirty(); this._renderPlan(); return this._renderInspector();
       }
       case "start-set": { this._setStart(b.dataset.v); return; }
+      case "pin-bare": {
+        const p = this._selPin(); if (b.dataset.v) p.bare = true; else { delete p.bare; delete p.off_style; }
+        this._markDirty(); this._updatePins(); return this._renderInspector();
+      }
+      case "pin-offstyle": {
+        const p = this._selPin(); if (b.dataset.v === "grey") delete p.off_style; else p.off_style = b.dataset.v;
+        this._markDirty(); this._updatePins(); return this._renderInspector();
+      }
       case "pin-camview": {
         const p = this._selPin(); if (b.dataset.v === "live") delete p.cam_view; else p.cam_view = b.dataset.v;
         this._markDirty(); return this._renderInspector();
@@ -2566,6 +2593,11 @@ class HauspanelPanel extends HTMLElement {
       <div class="fld"><label>Icon</label>${this._iconPicker(p)}</div>
       <div class="sep"></div>
       ${this._statusField(p, d)}
+      <div class="fld"><label>Hintergrund</label><div class="chips" style="margin:0">
+        ${[["", "Mit Hintergrund"], ["bare", "Ohne Hintergrund"]].map(([k, l]) => `<button class="${(p.bare ? "bare" : "") === k ? "sel" : ""}" data-a="pin-bare" data-v="${k}">${l}</button>`).join("")}</div>
+        ${p.bare ? (pinStatusful(p) || p.state_entity ? `<label style="margin-top:10px">Wenn aus</label><div class="chips" style="margin:0">
+          ${[["grey", "Ausgegraut"], ["strike", "Durchgestrichen"], ["both", "Beides"]].map(([k, l]) => `<button class="${(p.off_style || "grey") === k ? "sel" : ""}" data-a="pin-offstyle" data-v="${k}">${l}</button>`).join("")}</div>
+          <div class="hint" style="margin-top:6px">An = Symbol in der An-Farbe, Warnungen färben das Symbol.</div>` : `<div class="hint" style="margin-top:6px">Nur Symbol bzw. Wert, ohne Kreis dahinter.</div>`) : ""}</div>
       ${d === "camera" ? `<div class="fld"><label>Ansicht im Popup</label><div class="chips" style="margin:0">
         ${[["live", "Livebild"], ["snapshot", "Standbild (alle 3 s neu)"]].map(([k, l]) => `<button class="${(p.cam_view || "live") === k ? "sel" : ""}" data-a="pin-camview" data-v="${k}">${l}</button>`).join("")}</div>
         <div class="hint" style="margin-top:6px">Akku-Kameras liefern oft kein Livebild an Home Assistant – dann Standbild wählen.</div></div>` : ""}
