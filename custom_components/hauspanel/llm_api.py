@@ -44,7 +44,7 @@ ENTITY_ID_RE = re.compile(r"^[a-z0-9_]+\.[a-z0-9_]+$")
 PIN_KEYS = {"id", "entity_id", "x", "y", "scale", "toggle", "state_entity", "cam_view", "name", "room", "icon", "display", "status", "power_off", "extras"}
 ROOM_KEYS = {"id", "name", "x", "y", "scale"}
 FLOOR_KEYS = {"code", "name", "separated", "recolor", "css", "position"}
-SETTINGS_KEYS = {"theme", "css", "night", "calendars", "waste", "weather_entity", "default_floor", "cal_mode", "palette"}
+SETTINGS_KEYS = {"theme", "css", "night", "calendars", "waste", "weather_entity", "default_floor", "cal_mode", "palette", "header"}
 
 PROMPT = """Hauspanel ist ein Grundriss-Dashboard für Wandtablets in Home Assistant.
 Aufbau der Konfiguration:
@@ -615,7 +615,7 @@ class UpdateSettingsTool(_WriteTool):
     title = "Design & Einstellungen ändern"
     description = ("Ändert Design und allgemeine Einstellungen per JSON-Merge-Patch: Objekte werden gemischt, null löscht einen Wert "
                    "(= zurück zum Standard), Listen werden komplett ersetzt. Erlaubte Schlüssel: theme, css, night, calendars, waste, "
-                   "weather_entity, default_floor, palette (Liste gespeicherter Hex-Farben für den Farbwähler), cal_mode (\"week\" | \"weekend\" = am Wochenende ab heute | \"rolling\" = immer 7 Tage ab heute). Beispiel: {\"theme\": {\"light\": {\"accent\": \"#2F6DD0\"}, \"size\": {\"pin\": 40}}}. "
+                   "weather_entity, default_floor, palette (Liste gespeicherter Hex-Farben für den Farbwähler), header (bis zu 4 Werte in der Kopfzeile: [{entity_id, icon?}]), cal_mode (\"week\" | \"weekend\" = am Wochenende ab heute | \"rolling\" = immer 7 Tage ab heute). Beispiel: {\"theme\": {\"light\": {\"accent\": \"#2F6DD0\"}, \"size\": {\"pin\": 40}}}. "
                    "Farbschlüssel in theme.light/dark: accent, bg, card, tile, text, muted, dark, wall, floor, outside, pinOnBg, pinOnFg, "
                    "pinOffBg, pinOffFg, pinValBg, pinValFg, pinCamBg, pinCamFg, floorOnBg, floorOnFg, floorOffBg, floorOffFg, btnBg, btnFg, "
                    "btnSelBg, btnSelFg, powerBg, powerFg, toggleOn, toggleOff, clockBg, clockFg, weatherBg, weatherFg, soonBg, todayBg; "

@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.8.1]
+- Header values next to the clock (up to 4 entities, e.g. tablet battery); battery icon reflects level and charging, turns accent-coloured at 20 % or less; tap opens HA's details
+- Start page buttons show where Hauspanel is currently set as start page
+
 ## [0.8.0]
 - English user interface: follows the Home Assistant language (German for `de`, English otherwise), including dates, numbers and the CSS cheat sheet
 - Icon tooltips show English names in English mode
