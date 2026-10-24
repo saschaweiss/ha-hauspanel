@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.10.0]
+
+### Added
+- Per pin "No background": shows only the icon or value, without the circle. When on, the icon takes the on colour; when off it is greyed out, struck through, or both (selectable). Alerts colour the icon and pulse as a ring.
+- MCP: `bare` and `off_style` pin fields.
+
 ## [0.9.2]
 
 ### Changed
