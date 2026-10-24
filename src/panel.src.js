@@ -7,7 +7,26 @@ const ICONS = __ICONS__;
 
 // Referenzbreite/-höhe: darauf wird skaliert, der Rest des Bildschirms geht an den Grundriss
 const STAGE_W = 1280, STAGE_MIN_H = 800, MOBILE_W = 430;
-const PIN_ICONS = ["lightbulb","lamp-ceiling","lamp-floor","lamp-desk","plug","tv","speaker","fan","flame","thermometer","droplets","gauge","zap","cctv","blinds","door-open","lock","washing-machine","refrigerator","activity","sun","power"];
+/* Icon-Auswahl im Editor, nach Gruppen. Suchbegriffe (deutsch) stehen hinter dem Doppelpunkt. */
+const ICON_GROUPS = [
+  ["Licht", ["lightbulb:birne licht lampe", "lightbulb-off:birne aus", "lamp-ceiling:deckenlampe decke", "lamp-floor:stehlampe", "lamp-desk:schreibtischlampe", "lamp:tischlampe nachttisch",
+    "lamp-wall-up:wandlampe", "lamp-wall-down:wandlampe", "spotlight:strahler spot", "flashlight:taschenlampe", "sun-dim:dimmer", "sun:sonne hell"]],
+  ["Steckdosen & Strom", ["plug:steckdose stecker", "plug-zap:steckdose strom", "power:ein aus", "zap:strom blitz", "battery:akku batterie", "battery-charging:laden akku",
+    "battery-low:akku leer", "solar-panel:solar pv photovoltaik", "gauge:zähler verbrauch", "activity:aktivität messwert"]],
+  ["Heizen & Klima", ["flame:heizung feuer", "flame-kindling:kamin ofen", "heater:heizlüfter radiator", "thermometer:temperatur", "thermometer-sun:wärme", "snowflake:kühlen klima kalt",
+    "fan:ventilator lüfter", "air-vent:lüftung klimaanlage", "wind:wind luft", "droplet:wasser tropfen", "droplets:feuchte luftfeuchtigkeit", "waves:wasser pool"]],
+  ["Medien & Technik", ["tv:fernseher", "monitor:bildschirm pc", "laptop:laptop", "smartphone:handy", "tablet:tablet", "speaker:lautsprecher", "headphones:kopfhörer", "radio:radio",
+    "music:musik", "gamepad-2:konsole spiel", "printer:drucker", "router:router", "wifi:wlan", "server:server nas"]],
+  ["Sicherheit", ["cctv:überwachung kamera", "video:video kamera", "camera:kamera foto", "webcam:webcam", "lock:schloss zu", "key:schlüssel", "key-round:schlüssel",
+    "shield:alarm schutz", "shield-check:gesichert", "siren:sirene alarm", "bell:klingel", "bell-ring:klingel läuten", "fire-extinguisher:feuerlöscher rauch"]],
+  ["Haushalt", ["washing-machine:waschmaschine trockner", "refrigerator:kühlschrank", "microwave:mikrowelle", "cooking-pot:herd kochen", "coffee:kaffee", "wine:wein",
+    "utensils:essen küche", "trash-2:müll", "recycle:recycling", "shirt:kleidung", "package:paket"]],
+  ["Räume & Möbel", ["house:haus", "sofa:sofa wohnzimmer", "armchair:sessel", "bed:bett schlafzimmer", "bed-double:doppelbett", "bath:badewanne bad", "shower-head:dusche",
+    "toilet:toilette wc", "door-open:tür offen", "door-closed:tür zu", "blinds:rollladen jalousie", "fence:zaun", "warehouse:garage lager"]],
+  ["Draußen & Sonstiges", ["leaf:pflanze", "sprout:garten", "flower-2:blume", "trees:garten bäume", "cloud:wetter", "cloud-rain:regen", "car:auto", "car-front:auto garage",
+    "bike:fahrrad", "baby:baby", "dog:hund", "cat:katze", "paw-print:haustier", "alarm-clock:wecker", "clock:uhr", "timer:timer", "calendar:kalender", "mail:post briefkasten", "scale:waage"]],
+];
+const PIN_ICONS = ICON_GROUPS.flatMap((g) => g[1].map((x) => x.split(":")[0]));
 const PICK_DOMAINS = ["light","switch","climate","sensor","binary_sensor","camera","fan","cover","lock","media_player","input_boolean","scene","script"];
 const ACTIVE_STATES = new Set(["on","open","opening","closing","unlocked","playing","home"]);
 const POWER_OFF_DEFAULT = new Set(["light","switch","fan","media_player","input_boolean"]);
@@ -705,6 +724,7 @@ select.inp{padding-right:6px}
 .icon-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
 .icon-grid button{height:38px;border-radius:10px;background:var(--tile);display:grid;place-items:center}
 .icon-grid button.sel{background:var(--accent);color:#fff}
+.icon-group{font-size:11px;font-weight:700;color:var(--muted);margin:10px 0 5px}
 .list-item{background:var(--tile);border-radius:14px;padding:10px;margin-bottom:8px}
 .list-item .row + .row{margin-top:8px}
 input[type=color]{width:38px;height:38px;border:0;border-radius:11px;background:var(--tile);padding:4px;flex:none}
@@ -1714,6 +1734,14 @@ class HauspanelPanel extends HTMLElement {
     const p = this._selPin(), r = this._selRoom();
     switch (k) {
       case "search": this.filter.q = val; this._renderEntityList(); return;
+      case "icon-search": {
+        this._iconQ = val;
+        const wrap = el.parentElement, pp = this._selPin(); if (!wrap || !pp) return;
+        const tmp = document.createElement("div"); tmp.innerHTML = this._iconPicker(pp);
+        [...wrap.children].forEach((c) => { if (c !== el && c.tagName !== "LABEL") c.remove(); });
+        [...tmp.children].slice(1).forEach((c) => wrap.appendChild(c));
+        return;
+      }
       case "pin-name": p.name = val || null; break;
       case "pin-room": p.room = val || null; break;
       case "pin-power": p.power_off = val; break;
@@ -2070,8 +2098,7 @@ class HauspanelPanel extends HTMLElement {
         ${[["icon","Icon"],["value", d === "climate" ? "Ist-Temperatur" : "Wert"],["both","Icon + Wert"]].map(([k, l]) =>
           `<button class="${(p.display || "icon") === k ? "sel" : ""}" data-a="pin-display" data-v="${k}">${l}</button>`).join("")}</div>
         <div class="hint" style="margin-top:6px">Jetzt: ${esc(this._pinValue(p, s))}</div></div>
-      <div class="fld"><label>Icon</label><div class="icon-grid"><button class="${p.icon ? "" : "sel"}" data-a="pin-icon" data-icon="auto" title="Automatisch" style="font-size:11px;font-weight:700">Auto</button>
-        ${PIN_ICONS.map((n) => `<button class="${p.icon === n ? "sel" : ""}" data-a="pin-icon" data-icon="${n}" title="${n}">${ic(n, 17)}</button>`).join("")}</div></div>
+      <div class="fld"><label>Icon</label>${this._iconPicker(p)}</div>
       ${this._statusField(p, d)}
       ${d === "camera" ? `<div class="fld"><label>Ansicht im Popup</label><div class="chips" style="margin:0">
         ${[["live", "Livebild"], ["snapshot", "Standbild (alle 3 s neu)"]].map(([k, l]) => `<button class="${(p.cam_view || "live") === k ? "sel" : ""}" data-a="pin-camview" data-v="${k}">${l}</button>`).join("")}</div>
@@ -2093,6 +2120,16 @@ class HauspanelPanel extends HTMLElement {
       <button class="sbtn danger full" data-a="pin-del">${ic("trash-2", 16)}Vom Plan entfernen</button>`;
   }
 
+  _iconPicker(p) {
+    const q = (this._iconQ || "").trim().toLowerCase();
+    const groups = ICON_GROUPS.map(([g, items]) => [g, items.map((x) => x.split(":")).filter(([n, tags]) => !q || n.includes(q) || (tags || "").includes(q) || g.toLowerCase().includes(q))])
+      .filter(([, items]) => items.length);
+    return `<input class="inp" data-f="icon-search" placeholder="Icon suchen, z. B. heizung, tür, wlan …" value="${esc(this._iconQ || "")}" style="margin-bottom:8px">
+      <div class="icon-grid"><button class="${p.icon ? "" : "sel"}" data-a="pin-icon" data-icon="auto" title="Automatisch" style="font-size:11px;font-weight:700">Auto</button></div>
+      ${groups.map(([g, items]) => `<div class="icon-group">${esc(g)}</div><div class="icon-grid">${items.map(([n, tags]) =>
+        `<button class="${p.icon === n ? "sel" : ""}" data-a="pin-icon" data-icon="${n}" title="${esc((tags || n).split(" ")[0])}">${ic(n, 17)}</button>`).join("")}</div>`).join("")
+      || `<div class="hint">Kein Icon gefunden.</div>`}`;
+  }
   _statusField(p, d) {
     if (!STATUS_DOMAINS.has(d)) return `<div class="fld"><label>Farbe</label><div class="hint" style="margin:0">Messwert-Farben – dieses Gerät hat keinen An/Aus-Status.</div></div>`;
     const cur = p.status || "auto";

@@ -9,7 +9,7 @@ icons_dir = Path(sys.argv[1])
 src = (root / "src/panel.src.js").read_text()
 version = json.loads((root / "custom_components/hauspanel/manifest.json").read_text())["version"]
 
-names = {n for n in re.findall(r'"([a-z0-9-]+)"', src) if (icons_dir / f"{n}.svg").exists()}
+names = {n for n in re.findall(r'"([a-z0-9-]+)[":]', src) if (icons_dir / f"{n}.svg").exists()}
 icons = {}
 for n in sorted(names):
     s = (icons_dir / f"{n}.svg").read_text()
