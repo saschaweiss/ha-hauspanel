@@ -183,7 +183,7 @@ const I18N_EN = {
   "Das Layout wurde inzwischen woanders geändert (anderes Gerät oder Claude). Speichern würde das überschreiben – Bearbeiten abbrechen und neu öffnen.": "The layout was changed elsewhere in the meantime (another device or an AI assistant). Saving would overwrite it – cancel editing and reopen.",
   "kein Label": "no label", "Kopfzeile": "Header",
   "Warnungen": "Alerts", "Warnung": "Alert", "Warnung hinzufügen": "Add alert", "Dieses Gerät": "This device", "Zustand": "State", "Zahlenwert": "Numeric value",
-  "über": "above", "unter": "below", "ist": "is", "ist nicht": "is not", "für mind.": "for at least", "Minuten": "minutes", "Stunden": "hours", "Tage": "days", "Blinken": "Blink",
+  "über": "above", "unter": "below", "ist": "is", "ist nicht": "is not", "für mind.": "for at least", "Minuten": "minutes", "Stunden": "hours", "Tage": "days", "Blinken": "Blink", "Pulsieren": "Pulse", "langsam": "slow", "normal": "normal", "schnell": "fast",
   "Trifft gerade zu.": "Currently active.", "Attribut (optional, z. B. battery_level)": "Attribute (optional, e.g. battery_level)", "z. B. on, off oder Aus": "e.g. on, off",
   "Färbt den Pin (optional blinkend), solange eine Bedingung zutrifft – wie ein Auslöser in einer Automation. Die erste zutreffende Warnung gewinnt.": "Colours the pin (optionally blinking) while a condition is met – like an automation trigger. The first matching alert wins.",
   "Aktiv für dich und für alle Benutzer.": "Active for you and for all users.", "Aktiv für dich.": "Active for you.",
@@ -471,8 +471,8 @@ function mergeTheme(t) {
 }
 const contrastFg = (bg, text, card) => {
   const lum = (h) => { const [r, g, b] = hexRgb(h).map((c) => { c /= 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; }); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
-  const L = lum(bg), ratio = (a, b) => (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
-  return ratio(L, lum(text)) >= ratio(L, lum(card)) ? text : card;
+  const L = lum(bg), dark = lum(text) < lum(card) ? text : card, light = dark === text ? card : text;
+  return L > 0.45 ? dark : light;
 };
 const hexRgb = (h) => { const m = String(h).replace("#", ""); const n = parseInt(m.length === 3 ? m.split("").map((c) => c + c).join("") : m, 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
 const mixHex = (a, b, w) => { const x = hexRgb(a), y = hexRgb(b); return "#" + x.map((v, i) => Math.round(v * w + y[i] * (1 - w)).toString(16).padStart(2, "0")).join(""); };
@@ -739,12 +739,15 @@ svg.fp{fill:var(--wall)}
 .pin.cam{background:var(--pin-cam-bg);color:var(--pin-cam-fg)}
 .pin.unavail{opacity:.4}
 .pin.alert{background:var(--alert);color:var(--alert-fg);opacity:1}
-.pin.blink{animation:hp-blink 1.1s ease-in-out infinite}
-@keyframes hp-blink{0%,100%{box-shadow:0 0 0 0 var(--alert)}50%{box-shadow:0 0 0 calc(var(--pin) * .32) transparent;filter:brightness(1.25)}}
+.pin.blink::before,.pin.blink::after{content:"";position:absolute;inset:0;border-radius:inherit;border:2px solid var(--alert);background:var(--alert);opacity:0;pointer-events:none;z-index:-1;
+  animation:hp-pulsar var(--pulse, 1.6s) cubic-bezier(.2,.6,.35,1) infinite}
+.pin.blink::after{animation-delay:calc(var(--pulse, 1.6s) / 2)}
+@keyframes hp-pulsar{0%{transform:scale(1);opacity:.55}70%{opacity:.12}100%{transform:scale(2.4);opacity:0}}
 .alert-note{display:flex;align-items:center;gap:8px;margin-top:14px;padding:9px 12px;border-radius:12px;background:var(--tile);color:var(--alert);font-weight:600;font-size:calc(13px * var(--fs))}
 .alert-card{background:var(--tile);border-radius:14px;padding:10px;margin:8px 0}
 .alert-card .inp,.alert-card .chips button:not(.sel){background:var(--card)}
-.al-l{font-size:12.5px;color:var(--muted);white-space:nowrap}
+.al-l{font-size:12.5px;color:var(--muted);white-space:nowrap;flex:none}
+.alert-card .row > .inp{min-width:0;flex:1}
 .pin{-webkit-touch-callout:none}
 .pin.tapped{animation:tapped .35s ease-out}
 @keyframes tapped{0%{filter:brightness(1.35)}100%{filter:none}}
@@ -971,7 +974,7 @@ select.inp{padding-right:6px}
 .cgroup[open] summary::before{transform:rotate(90deg)}
 .cpop{background:var(--tile);border-radius:14px;padding:10px;margin:2px 0 10px}
 .cpop .inp{background:var(--card)}
-.cprev{width:32px;height:32px;border-radius:9px;flex:none;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)}
+.cprev{width:32px;height:32px;border-radius:9px;flex:none;cursor:pointer;border:0;padding:0;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)}
 .cp-hex{flex:1;min-width:0;font-family:ui-monospace,Menlo,monospace}
 .cp-hex.bad{box-shadow:0 0 0 2px var(--accent)}
 .cp-h{display:flex;justify-content:space-between;align-items:center;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin:10px 0 6px}
@@ -1496,7 +1499,7 @@ class HauspanelPanel extends HTMLElement {
       el.classList.toggle("unavail", !s || s.state === "unavailable");
       const al = this._pinAlert(p);
       el.classList.toggle("alert", !!al); el.classList.toggle("blink", !!(al && al.blink));
-      if (al) { el.style.setProperty("--alert", al.color || "#E5391D"); el.style.setProperty("--alert-fg", contrastFg(al.color || "#E5391D", "#1E1C1B", "#FFFFFF")); }
+      if (al) { el.style.setProperty("--pulse", { slow: "2.6s", fast: "0.9s" }[al.speed] || "1.6s"); el.style.setProperty("--alert", al.color || "#E5391D"); el.style.setProperty("--alert-fg", contrastFg(al.color || "#E5391D", "#1E1C1B", "#FFFFFF")); }
     });
   }
 
@@ -2194,11 +2197,12 @@ class HauspanelPanel extends HTMLElement {
       case "pin-room": p.room = val || null; break;
       case "pin-power": p.power_off = val; break;
       case "pin-toggle": if (val) p.toggle = true; else delete p.toggle; break;
-      case "al-attr": case "al-above": case "al-below": case "al-state": case "al-for": case "al-unit": case "al-not": case "al-color": case "al-blink": {
+      case "al-attr": case "al-above": case "al-below": case "al-state": case "al-for": case "al-unit": case "al-not": case "al-color": case "al-blink": case "al-speed": {
         const r = p.alerts[Number(el.dataset.i)], f2 = k.slice(3);
         if (f2 === "attr") { if (val) r.attribute = val.trim(); else delete r.attribute; }
         else if (f2 === "not") { if (val) r.not = true; else delete r.not; }
-        else if (f2 === "blink") r.blink = !!val;
+        else if (f2 === "blink") { r.blink = !!val; const sel = this.$(`[data-f="al-speed"][data-i="${el.dataset.i}"]`); if (sel) sel.disabled = !val; }
+        else if (f2 === "speed") { if (val) r.speed = val; else delete r.speed; }
         else r[f2] = val;
         this._alertSince = {}; this._updatePins();
         break;
@@ -2421,7 +2425,7 @@ class HauspanelPanel extends HTMLElement {
     const used = this._usedColors().filter((c) => !pal.includes(c));
     const sw = (c, own) => `<button class="sw${c === cur ? " cur" : ""}" data-a="cp-pick" data-c="${c}"${own ? ' data-own="1"' : ""} style="--c:${c}" title="${c}">${own && this._palEdit ? ic("x", 13) : ""}</button>`;
     const div = document.createElement("div"); div.className = "cpop";
-    div.innerHTML = `<div class="row" style="gap:8px"><span class="cprev" style="background:${cur}"></span>
+    div.innerHTML = `<div class="row" style="gap:8px"><button class="cprev" data-a="cp-sys" style="background:${cur}" title="Farbrad öffnen" aria-label="Farbrad öffnen"></button>
         <input class="inp cp-hex" value="${cur}" maxlength="7" spellcheck="false" autocomplete="off" aria-label="Hex-Code">
         <button class="sbtn" data-a="cp-sys" title="Farbrad öffnen">${ic("pipette", 16)}</button>
         <button class="sbtn" data-a="cp-close" aria-label="Schließen">${ic("x", 16)}</button></div>
@@ -2602,7 +2606,8 @@ class HauspanelPanel extends HTMLElement {
       <div class="row" style="gap:6px;margin-top:6px"><span class="al-l">für mind.</span><input class="inp" data-f="al-for" data-i="${i}" value="${esc(r.for || "")}" inputmode="numeric" placeholder="0" style="flex:0 0 70px">
         <select class="inp" data-f="al-unit" data-i="${i}" style="flex:1"><option value="m">Minuten</option><option value="h"${r.unit === "h" ? " selected" : ""}>Stunden</option><option value="d"${r.unit === "d" ? " selected" : ""}>Tage</option></select></div>
       <div class="row" style="gap:10px;margin-top:8px"><input type="color" data-f="al-color" data-i="${i}" value="${esc(r.color || "#E5391D")}">
-        <label class="check" style="margin:0;flex:1"><input type="checkbox" data-f="al-blink" data-i="${i}" ${r.blink ? "checked" : ""}>Blinken</label>
+        <label class="check" style="margin:0"><input type="checkbox" data-f="al-blink" data-i="${i}" ${r.blink ? "checked" : ""}>Pulsieren</label>
+        <select class="inp" data-f="al-speed" data-i="${i}" style="flex:1;min-width:0"${r.blink ? "" : " disabled"}><option value="slow"${r.speed === "slow" ? " selected" : ""}>langsam</option><option value=""${!r.speed ? " selected" : ""}>normal</option><option value="fast"${r.speed === "fast" ? " selected" : ""}>schnell</option></select>
         <button class="sbtn" data-a="alert-del" data-i="${i}" aria-label="Entfernen">${ic("trash-2", 16)}</button></div>
       ${this._pinAlert(p) === r ? `<div class="hint" style="margin:6px 0 0;color:var(--accent)">Trifft gerade zu.</div>` : ""}
     </div>`;
