@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.9.1]
+
+### Changed
+- Alert "blink" is now a pulsar effect: soft rings expanding from the pin. Speed is adjustable per alert (slow / normal / fast).
+- Text colour on coloured pins and highlights now follows the background brightness: strong colours like red get white text, light colours get dark text.
+
+### Fixed
+- Clicking the colour swatch next to the hex field now opens the colour wheel.
+- "above" / "below" / "for at least" labels in the alert card were squeezed by the input fields.
+
 ## [0.9.0]
 - Pin alerts, modelled on automation triggers: state (is / is not) or numeric value (above / below), optionally of another entity or an attribute, optionally "for at least" minutes/hours/days. The first matching alert colours the pin and can make it blink; the popup shows why
 
