@@ -3,7 +3,7 @@
 A floor-plan dashboard for Home Assistant, built for wall-mounted tablets (e.g. Fire HD 10 with Fully Kiosk Browser).
 Floors, plans and devices are set up right inside the panel: upload a floor plan, drag your entities onto it, done.
 
-> The user interface is currently German only.
+> The user interface is available in German and English and follows your Home Assistant language (German for `de`, English for everything else).
 
 ## Features
 
