@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.9.2]
+
+### Changed
+- Smaller, subtler alert pulse.
+- The colour popover closes when you click anywhere outside it.
+
 ## [0.9.1]
 
 ### Changed
