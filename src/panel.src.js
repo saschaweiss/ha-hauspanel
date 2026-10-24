@@ -56,7 +56,7 @@ const domainOf = (id) => String(id).split(".")[0];
 const scaleField = (o, f) => `<div class="fld"><div class="row" style="justify-content:space-between"><span class="lbl" style="margin:0">Größe</span>
   <span class="row" style="gap:6px"><b id="sv-${f}">${o.scale || 100} %</b>${o.scale && o.scale !== 100 ? `<button class="sx" data-a="scale-reset" data-k="${f}" title="Zurück auf 100 %">${ic("x", 13)}</button>` : ""}</span></div>
   <input type="range" min="50" max="200" step="5" value="${o.scale || 100}" data-f="${f}" style="--p:${((o.scale || 100) - 50) / 1.5}%">
-  <div class="hint" style="margin-top:4px">Nur dieses ${f === "room-scale" ? "Label" : "Gerät"}; die allgemeine Größe stellst du im Design-Tab ein.</div></div>`;
+  <div class="hint scale-hint" style="margin-top:4px">Nur dieses ${f === "room-scale" ? "Label" : "Gerät"}; die allgemeine Größe stellst du im Design-Tab ein.</div></div>`;
 /* "#abc", "abc", "#AABBCC" -> "#aabbcc"; ungültig -> null */
 const normHex = (v) => {
   let s = String(v || "").trim().replace(/^#/, "").toLowerCase();
@@ -678,7 +678,11 @@ input.hue::-webkit-slider-thumb,input.ct::-webkit-slider-thumb{background:#fff;b
 .insp-select .fld{margin-bottom:20px}
 .insp-select .sep{margin:6px 0 20px}
 .insp-select .fld:has(+ .sep){margin-bottom:14px}
-.insp-select .icon-group{margin-top:10px}
+.insp-select .icon-group{margin-top:2px}
+.insp-select .icon-group[open]{margin-top:10px}
+.insp-select .icon-group:not([open]) summary{padding:3px 2px}
+.insp-select .scale-hint{margin-top:0 !important}
+.insp-select .check:has(+ .hint){margin-bottom:0}
 .insp-select .check{margin-bottom:10px}
 .fld > label:not(.drop-zone),.lbl{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px}
 .inp{width:100%;height:38px;border-radius:11px;border:1.5px solid transparent;background:var(--tile);padding:0 12px;font-size:14px;outline:none}
@@ -735,6 +739,21 @@ select.inp{padding-right:6px}
 .icon-group summary::before{content:"›";display:inline-block;width:10px;transition:transform .15s;font-size:15px}
 .icon-group[open] summary::before{transform:rotate(90deg)}
 .icon-group summary span{margin-left:auto;font-weight:600;opacity:.7}
+.pick-field{display:flex;align-items:center;gap:6px;flex:1;min-width:0}
+.inp.pf{display:flex;align-items:center;gap:10px;text-align:left;cursor:pointer;flex:1;min-width:0}
+.inp.pf svg{color:var(--muted);flex:none}
+.pf-txt{display:flex;flex-direction:column;min-width:0;line-height:1.25}
+.pf-name{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pf-id{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pf-ph{color:var(--muted)}
+.pk-list{margin-top:12px;max-height:440px;overflow-y:auto;display:flex;flex-direction:column;gap:4px}
+.pk-item{display:flex;align-items:center;gap:12px;padding:8px 10px;border-radius:12px;text-align:left;width:100%}
+.pk-item:hover,.pk-item.sel{background:var(--tile)}
+.pk-ico{width:34px;height:34px;border-radius:10px;background:var(--tile);display:grid;place-items:center;flex:none}
+.pk-txt{display:flex;flex-direction:column;min-width:0;flex:1}
+.pk-txt b{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pk-txt small{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pk-st{font-size:12px;color:var(--muted);white-space:nowrap;max-width:90px;overflow:hidden;text-overflow:ellipsis}
 .icon-group .icon-grid{margin:2px 0 6px}
 .list-item{background:var(--tile);border-radius:14px;padding:10px;margin-bottom:8px}
 .list-item .row + .row{margin-top:8px}
@@ -1737,8 +1756,23 @@ class HauspanelPanel extends HTMLElement {
         if (b.dataset.list === "calendars") this._calSoon(); else this._renderCal();
         this._markDirty(); return this._renderInspector();
       }
-      case "extra-add": { const p = this._selPin(); p.extras = p.extras || []; if (p.extras.length < 4) p.extras.push(""); this._markDirty(); return this._renderInspector(); }
-      case "extra-del": { const p = this._selPin(); p.extras.splice(Number(b.dataset.i), 1); this._markDirty(); return this._renderInspector(); }
+      case "extra-del": { const p = this._selPin(); p.extras = (p.extras || []).filter((x) => x); p.extras.splice(Number(b.dataset.i), 1); this._markDirty(); return this._renderInspector(); }
+      case "pick-extra": {
+        const p = this._selPin(), i = b.dataset.i; p.extras = (p.extras || []).filter((x) => x);
+        return this._pickEntity("Zusatzwert", ["sensor", "binary_sensor"], i === "new" ? null : p.extras[Number(i)], (id) => {
+          if (i === "new") { if (!p.extras.includes(id)) p.extras.push(id); } else p.extras[Number(i)] = id;
+          this._markDirty(); this._renderInspector();
+        });
+      }
+      case "pick-state": {
+        const p = this._selPin();
+        return this._pickEntity("Status von", ["binary_sensor", "switch", "input_boolean", "light", "fan"], p.state_entity, (id) => {
+          p.state_entity = id; this._markDirty(); this._renderPlan(); this._renderInspector();
+        });
+      }
+      case "pick-clear": { const p = this._selPin(); delete p.state_entity; this._markDirty(); this._renderPlan(); return this._renderInspector(); }
+      case "pick-scope": { this._picker.all = b.dataset.v === "all"; return this._renderPicker(true); }
+      case "pick-entity": { const cb = this._picker && this._picker.cb; this._closePop(); this._picker = null; if (cb) cb(b.dataset.id); return; }
     }
   }
   _selPin() { const f = this._floor(); return f && this.sel && this.sel.type === "pin" ? (f.pins || []).find((p) => p.id === this.sel.id) : null; }
@@ -2142,24 +2176,59 @@ class HauspanelPanel extends HTMLElement {
         <div class="hint" style="margin-top:6px">Akku-Kameras liefern oft kein Livebild an Home Assistant – dann Standbild wählen.</div></div>` : ""}
       <div class="sep"></div>
       <div class="fld"><label>Status von anderer Entity</label>
-        <input class="inp" list="dl-sensors" data-f="pin-state-entity" value="${esc(p.state_entity || "")}" placeholder="optional, z. B. binary_sensor.…_camera_enabled">
+        ${this._pickField(p.state_entity, "pick-state", "Entity wählen (optional)")}
         <div class="hint" style="margin-top:4px">${d === "camera" ? "Kamera an = Pin in An-Farbe, aus = durchgestrichenes Symbol. Antippen öffnet weiterhin das Kamerabild." : "Der Pin wird „an“ gefärbt, wenn diese Entity an ist."}</div></div>
       <div class="sep"></div>
       ${scaleField(p, "pin-scale")}
       <div class="sep"></div>
       ${TOGGLE_DOMAINS.has(d) ? `<label class="check"><input type="checkbox" data-f="pin-toggle" ${p.toggle ? "checked" : ""}>Antippen schaltet direkt an/aus</label>
-        <div class="hint" style="margin:-4px 0 8px 30px">Lange drücken öffnet weiterhin das Popup (z. B. für Helligkeit).</div>` : ""}
+        <div class="hint" style="margin:2px 0 10px 30px">Lange drücken öffnet weiterhin das Popup (z. B. für Helligkeit).</div>` : ""}
       <label class="check"><input type="checkbox" data-f="pin-power" ${p.power_off ? "checked" : ""}>Mit Power-Button ausschalten</label>
       <div class="sep"></div>
       <div class="fld"><label>Zusatzwerte im Popup</label>
         <div class="hint">z. B. Leistung und Verbrauch bei einer Steckdose oder Luftfeuchte bei einem Thermometer.</div>
-        ${(p.extras || []).map((x, i) => `<div class="row" style="margin-bottom:8px"><input class="inp" list="dl-sensors" data-f="pin-extra" data-i="${i}" value="${esc(x)}" placeholder="sensor.…">
+        ${(p.extras || []).filter((x) => x).map((x, i) => `<div class="row" style="margin-bottom:8px">${this._pickField(x, "pick-extra", "Entity wählen", i)}
           <button class="sbtn" data-a="extra-del" data-i="${i}" aria-label="Entfernen">${ic("x", 16)}</button></div>`).join("")}
-        ${(p.extras || []).length < 4 ? `<button class="sbtn" data-a="extra-add">${ic("plus", 16)}Wert hinzufügen</button>` : ""}${this._datalist()}</div>
+        ${(p.extras || []).filter((x) => x).length < 4 ? `<button class="sbtn" data-a="pick-extra" data-i="new">${ic("plus", 16)}Wert hinzufügen</button>` : ""}</div>
       <div class="sep"></div>
       <button class="sbtn danger full" data-a="pin-del">${ic("trash-2", 16)}Vom Plan entfernen</button>`;
   }
 
+  /* Feld, das wie ein Eingabefeld aussieht und die Entity-Suche öffnet */
+  _pickField(id, action, placeholder, idx) {
+    const s = id && this._hass.states[id];
+    const inner = id ? `<span class="pf-name">${esc(s ? friendly(this._hass, id) : id)}</span><span class="pf-id">${esc(id)}${s ? "" : " · fehlt"}</span>` : `<span class="pf-ph">${esc(placeholder)}</span>`;
+    return `<div class="pick-field"><button class="inp pf" data-a="${action}"${idx != null ? ` data-i="${idx}"` : ""}>${ic("search", 15)}<span class="pf-txt">${inner}</span></button>
+      ${id && action === "pick-state" ? `<button class="sx" data-a="pick-clear" aria-label="Entfernen">${ic("x", 13)}</button>` : ""}</div>`;
+  }
+  /* Entity-Suche als Popup. prefer: Domains, die zuerst gezeigt werden (Rest über „Alle“) */
+  _pickEntity(title, prefer, current, cb) {
+    this._picker = { title, prefer, current, cb, all: false, q: "" };
+    this.popup = { type: "picker" };
+    this._renderPicker(true);
+  }
+  _renderPicker(first) {
+    const pk = this._picker; if (!pk) return;
+    const q = pk.q.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    const ids = Object.keys(this._hass.states).filter((id) => (pk.all || !pk.prefer || pk.prefer.includes(domainOf(id))))
+      .filter((id) => { const hay = (id + " " + friendly(this._hass, id)).toLowerCase(); return q.every((w) => hay.includes(w)); })
+      .sort((a, b) => friendly(this._hass, a).localeCompare(friendly(this._hass, b), "de"));
+    const list = ids.slice(0, 150).map((id) => { const s = this._hass.states[id];
+      return `<button class="pk-item${id === pk.current ? " sel" : ""}" data-a="pick-entity" data-id="${esc(id)}"><span class="pk-ico">${ic(defaultIcon(s, id), 17)}</span>
+        <span class="pk-txt"><b>${esc(friendly(this._hass, id))}</b><small>${esc(id)}</small></span><span class="pk-st">${esc(fmtState(s))}</span></button>`; }).join("")
+      + (ids.length > 150 ? `<div class="hint">${ids.length - 150} weitere – Suche eingrenzen.</div>` : "") + (!ids.length ? `<div class="hint">Nichts gefunden.</div>` : "");
+    if (!first && this.$("#pk-list")) { this.$("#pk-list").innerHTML = list; return; }
+    this._showPop(`<div class="pop-h"><div class="pop-ico">${ic("search", 22)}</div><div style="min-width:0"><div class="pop-sub">Entity wählen</div><div class="pop-title">${esc(pk.title)}</div></div>
+        <button class="pop-x" data-a="pop-close" aria-label="Schließen">${ic("x", 20)}</button></div>
+      <input class="inp" id="pk-q" placeholder="Name oder entity_id …" autocomplete="off" style="margin-top:16px">
+      ${pk.prefer ? `<div class="chips" style="margin:10px 0 0"><button class="${pk.all ? "" : "sel"}" data-a="pick-scope" data-v="pref">Passende</button><button class="${pk.all ? "sel" : ""}" data-a="pick-scope" data-v="all">Alle</button></div>` : ""}
+      <div class="pk-list" id="pk-list">${list}</div>`);
+    const inp = this.$("#pk-q");
+    inp.value = pk.q;
+    inp.addEventListener("input", (e) => { e.stopPropagation(); pk.q = inp.value; this._renderPicker(false); });
+    inp.addEventListener("change", (e) => e.stopPropagation());
+    if (matchMedia("(pointer: fine)").matches) inp.focus();
+  }
   _iconPicker(p) {
     const q = (this._iconQ || "").trim().toLowerCase();
     const groups = ICON_GROUPS.map(([g, items]) => [g, items.map((x) => x.split(":")).filter(([n, tags]) => !q || n.includes(q) || (tags || "").includes(q) || g.toLowerCase().includes(q))])
