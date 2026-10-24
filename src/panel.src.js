@@ -724,7 +724,13 @@ select.inp{padding-right:6px}
 .icon-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
 .icon-grid button{height:38px;border-radius:10px;background:var(--tile);display:grid;place-items:center}
 .icon-grid button.sel{background:var(--accent);color:#fff}
-.icon-group{font-size:11px;font-weight:700;color:var(--muted);margin:10px 0 5px}
+.icon-group{margin-top:6px;border-radius:10px}
+.icon-group summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--muted);padding:6px 2px}
+.icon-group summary::-webkit-details-marker{display:none}
+.icon-group summary::before{content:"›";display:inline-block;width:10px;transition:transform .15s;font-size:15px}
+.icon-group[open] summary::before{transform:rotate(90deg)}
+.icon-group summary span{margin-left:auto;font-weight:600;opacity:.7}
+.icon-group .icon-grid{margin:2px 0 6px}
 .list-item{background:var(--tile);border-radius:14px;padding:10px;margin-bottom:8px}
 .list-item .row + .row{margin-top:8px}
 input[type=color]{width:38px;height:38px;border:0;border-radius:11px;background:var(--tile);padding:4px;flex:none}
@@ -858,7 +864,7 @@ class HauspanelPanel extends HTMLElement {
       this._scale = 1;
       st.style.width = ""; st.style.height = ""; st.style.transform = "";
       st.style.zoom = z; st.style.setProperty("--z", z);
-      this._layoutPlan(); this._fitWaste();
+      this._layoutPlan(); this._fitWaste(); this._fitCal();
       return;
     }
     st.style.zoom = ""; st.style.removeProperty("--z");
@@ -871,6 +877,7 @@ class HauspanelPanel extends HTMLElement {
     st.style.transform = `scale(${s})`;
     this._layoutPlan();
     this._fitWaste();
+    this._fitCal();
   }
 
   _onConfig(msg) {
@@ -1244,7 +1251,6 @@ class HauspanelPanel extends HTMLElement {
       <div class="cal-nav"><button data-wk="-1" aria-label="7 Tage zurück">${ic("chevron-left", 18)}</button>${this.weekOffset ? `<button data-wk="0" aria-label="Diese Woche">${ic("circle-dot", 16)}</button>` : ""}<button data-wk="1" aria-label="7 Tage weiter">${ic("chevron-right", 18)}</button></div>
       <div class="legend">${cals.map((c) => `<span><i class="dot" style="background:${esc(c.color)}"></i>${esc(c.name || friendly(this._hass, c.entity_id))}</span>`).join("")}</div></div>`;
     const waste = this._wasteList();
-    const MAX = this._mobile ? 99 : 3;
     for (let i = 0; i < 7; i++) {
       const day = addDays(mon, i), dayEnd = addDays(day, 1);
       const items = [];
@@ -1254,11 +1260,31 @@ class HauspanelPanel extends HTMLElement {
         if (e.allDay) items.push(`<button class="chip" data-ev="${idx}"><i class="dot" style="background:${esc(e.cal.color)}"></i>${esc(e.summary)}</button>`);
         else items.push(`<button class="ev" data-ev="${idx}" style="--c:${esc(e.cal.color)}"><div class="t">${e.start >= day ? hhmm(e.start) : "Fortsetzung"}</div><div class="n">${esc(e.summary)}</div></button>`);
       });
-      let body = items.length > MAX ? items.slice(0, MAX - 1).join("") + `<button class="more" data-day="${i}">+${items.length - MAX + 1} weitere</button>` : items.join("");
+      const body = items.join("") + `<button class="more" data-day="${i}" hidden></button>`;
       const wkStart = i > 0 && day.getDay() === 1; // neue Woche beginnt mitten in der Leiste -> markieren
       h += `<div class="day${sameDay(day, today) ? " today" : ""}${wkStart ? " wk-start" : ""}${items.length ? "" : " none"}"><div class="day-h">${DAYS[day.getDay()]}<b>${day.getDate()}.</b>${wkStart ? `<span class="wk-tag">KW ${kw(day)}</span>` : ""}</div><div class="day-b">${body}</div></div>`;
     }
     el.innerHTML = h;
+    this._fitCal();
+  }
+  /* Pro Tag so viele Einträge zeigen, wie hineinpassen – erst dann „+N weitere“ */
+  _fitCal() {
+    requestAnimationFrame(() => {
+      const el = this.$("#cal"); if (!el) return;
+      el.querySelectorAll(".day").forEach((day) => {
+        const items = [...day.querySelectorAll(".day-b > :not(.more)")], more = day.querySelector(".more");
+        items.forEach((x) => { x.style.display = ""; });
+        if (!more) return;
+        more.hidden = true;
+        if (this._mobile || !items.length) return;
+        const limit = day.getBoundingClientRect().bottom - 4;
+        if (items[items.length - 1].getBoundingClientRect().bottom <= limit) return;
+        more.hidden = false;
+        let shown = items.length;
+        do { shown--; items[shown].style.display = "none"; more.textContent = `+${items.length - shown} weitere`; }
+        while (shown > 0 && more.getBoundingClientRect().bottom > limit);
+      });
+    });
   }
 
   /* ---------- Popups ---------- */
@@ -1503,6 +1529,9 @@ class HauspanelPanel extends HTMLElement {
     }
     const cpb = t.closest("[data-a^='cp-']");
     if (cpb) return this._colorPopAction(cpb);
+    const isum = t.closest(".icon-group summary");
+    if (isum) { const d = isum.parentElement; this._iconOpen = this._iconOpen || new Set();
+      if (d.open) this._iconOpen.delete(d.dataset.igroup); else this._iconOpen.add(d.dataset.igroup); return; }
     const sum = t.closest(".cgroup summary");
     if (sum) { const d = sum.parentElement; this._openGroups = this._openGroups || new Set();
       if (d.dataset.group) { if (d.open) this._openGroups.delete(d.dataset.group); else this._openGroups.add(d.dataset.group); } return; }
@@ -1801,7 +1830,7 @@ class HauspanelPanel extends HTMLElement {
           this.$("#tv-" + el.dataset.k).textContent = el.dataset.k === "cal" && val < 60 ? "aus" : val + " " + spec[4];
           el.style.setProperty("--p", ((val - spec[2]) / (spec[3] - spec[2])) * 100 + "%");
         }
-        this._applyThemeVars(); this._layoutPlan(); this._fitWaste();
+        this._applyThemeVars(); this._layoutPlan(); this._fitWaste(); this._fitCal();
         break;
       }
       case "default-floor": this.draft.default_floor = val; break;
@@ -2126,8 +2155,9 @@ class HauspanelPanel extends HTMLElement {
       .filter(([, items]) => items.length);
     return `<input class="inp" data-f="icon-search" placeholder="Icon suchen, z. B. heizung, tür, wlan …" value="${esc(this._iconQ || "")}" style="margin-bottom:8px">
       <div class="icon-grid"><button class="${p.icon ? "" : "sel"}" data-a="pin-icon" data-icon="auto" title="Automatisch" style="font-size:11px;font-weight:700">Auto</button></div>
-      ${groups.map(([g, items]) => `<div class="icon-group">${esc(g)}</div><div class="icon-grid">${items.map(([n, tags]) =>
-        `<button class="${p.icon === n ? "sel" : ""}" data-a="pin-icon" data-icon="${n}" title="${esc((tags || n).split(" ")[0])}">${ic(n, 17)}</button>`).join("")}</div>`).join("")
+      ${groups.map(([g, items]) => { const open = q || (this._iconOpen && this._iconOpen.has(g)) || items.some(([n]) => n === p.icon);
+        return `<details class="icon-group"${open ? " open" : ""} data-igroup="${esc(g)}"><summary>${esc(g)}<span>${items.length}</span></summary><div class="icon-grid">${items.map(([n, tags]) =>
+        `<button class="${p.icon === n ? "sel" : ""}" data-a="pin-icon" data-icon="${n}" title="${esc((tags || n).split(" ")[0])}">${ic(n, 17)}</button>`).join("")}</div></details>`; }).join("")
       || `<div class="hint">Kein Icon gefunden.</div>`}`;
   }
   _statusField(p, d) {
