@@ -182,6 +182,10 @@ const I18N_EN = {
   "Hauspanel ist jetzt Startseite für alle": "Hauspanel is now the start page for everyone", "Hauspanel ist jetzt deine Startseite": "Hauspanel is now your start page",
   "Das Layout wurde inzwischen woanders geändert (anderes Gerät oder Claude). Speichern würde das überschreiben – Bearbeiten abbrechen und neu öffnen.": "The layout was changed elsewhere in the meantime (another device or an AI assistant). Saving would overwrite it – cancel editing and reopen.",
   "kein Label": "no label", "Kopfzeile": "Header",
+  "Warnungen": "Alerts", "Warnung": "Alert", "Warnung hinzufügen": "Add alert", "Dieses Gerät": "This device", "Zustand": "State", "Zahlenwert": "Numeric value",
+  "über": "above", "unter": "below", "ist": "is", "ist nicht": "is not", "für mind.": "for at least", "Minuten": "minutes", "Stunden": "hours", "Tage": "days", "Blinken": "Blink",
+  "Trifft gerade zu.": "Currently active.", "Attribut (optional, z. B. battery_level)": "Attribute (optional, e.g. battery_level)", "z. B. on, off oder Aus": "e.g. on, off",
+  "Färbt den Pin (optional blinkend), solange eine Bedingung zutrifft – wie ein Auslöser in einer Automation. Die erste zutreffende Warnung gewinnt.": "Colours the pin (optionally blinking) while a condition is met – like an automation trigger. The first matching alert wins.",
   "Aktiv für dich und für alle Benutzer.": "Active for you and for all users.", "Aktiv für dich.": "Active for you.",
   "Aktiv für alle Benutzer (sofern im Profil nichts Eigenes gewählt ist).": "Active for all users (unless they chose something else in their profile).",
   "Hauspanel ist gerade nicht als Startseite eingetragen.": "Hauspanel is currently not set as the start page.",
@@ -734,6 +738,13 @@ svg.fp{fill:var(--wall)}
 .pin.on{background:var(--pin-on-bg);color:var(--pin-on-fg);box-shadow:var(--sh-pin-on)}
 .pin.cam{background:var(--pin-cam-bg);color:var(--pin-cam-fg)}
 .pin.unavail{opacity:.4}
+.pin.alert{background:var(--alert);color:var(--alert-fg);opacity:1}
+.pin.blink{animation:hp-blink 1.1s ease-in-out infinite}
+@keyframes hp-blink{0%,100%{box-shadow:0 0 0 0 var(--alert)}50%{box-shadow:0 0 0 calc(var(--pin) * .32) transparent;filter:brightness(1.25)}}
+.alert-note{display:flex;align-items:center;gap:8px;margin-top:14px;padding:9px 12px;border-radius:12px;background:var(--tile);color:var(--alert);font-weight:600;font-size:calc(13px * var(--fs))}
+.alert-card{background:var(--tile);border-radius:14px;padding:10px;margin:8px 0}
+.alert-card .inp,.alert-card .chips button:not(.sel){background:var(--card)}
+.al-l{font-size:12.5px;color:var(--muted);white-space:nowrap}
 .pin{-webkit-touch-callout:none}
 .pin.tapped{animation:tapped .35s ease-out}
 @keyframes tapped{0%{filter:brightness(1.35)}100%{filter:none}}
@@ -1089,7 +1100,7 @@ class HauspanelPanel extends HTMLElement {
     } catch (err) {
       this.$("#plan").innerHTML = `<div class="empty"><div><b>Keine Verbindung zum Backend</b>${esc(err.message || err.code || err)}</div></div>`;
     }
-    this._timers.push(setInterval(() => { this._tick(); this._idleReset(); }, 15000));
+    this._timers.push(setInterval(() => { this._tick(); this._idleReset(); if (this.viewing) this._updatePins(); }, 15000));
     this._scheduleClock();
     this._timers.push(setInterval(() => this._fetchEvents(), 10 * 60000));
     this._ready = true;
@@ -1209,7 +1220,7 @@ class HauspanelPanel extends HTMLElement {
   _watched() {
     const ids = new Set();
     const c = this.C; if (!c) return ids;
-    (c.floors || []).forEach((f) => (f.pins || []).forEach((p) => { ids.add(p.entity_id); if (p.state_entity) ids.add(p.state_entity); (p.extras || []).forEach((x) => x && ids.add(x)); }));
+    (c.floors || []).forEach((f) => (f.pins || []).forEach((p) => { ids.add(p.entity_id); if (p.state_entity) ids.add(p.state_entity); (p.alerts || []).forEach((r) => r.entity_id && ids.add(r.entity_id)); (p.extras || []).forEach((x) => x && ids.add(x)); }));
     (c.waste || []).forEach((w) => w.entity_id && ids.add(w.entity_id));
     (c.header || []).forEach((x) => { if (x.entity_id) { ids.add(x.entity_id); this._chargeIds(x.entity_id).forEach((y) => ids.add(y)); } });
     if (c.weather_entity) ids.add(c.weather_entity);
@@ -1416,6 +1427,50 @@ class HauspanelPanel extends HTMLElement {
     if (p.state_entity) return isActive(this._hass.states[p.state_entity]);
     return pinActive(p, s);
   }
+  /* Warnungen wie Auslöser in HA-Automationen: Zustand (ist / ist nicht) oder Zahlenwert (über / unter), optional „für mindestens“.
+     Die erste zutreffende Regel färbt den Pin (optional blinkend). */
+  _alertCond(r, p) {
+    const id = r.entity_id || p.entity_id, s = this._hass.states[id]; if (!s) return false;
+    const raw = r.attribute ? s.attributes[r.attribute] : s.state;
+    if (raw == null) return false;
+    if (r.kind === "numeric") {
+      const n = Number(String(raw).replace(",", ".")); if (raw === "" || isNaN(n)) return false;
+      const ab = r.above === "" || r.above == null ? null : Number(String(r.above).replace(",", "."));
+      const be = r.below === "" || r.below == null ? null : Number(String(r.below).replace(",", "."));
+      if (ab == null && be == null) return false;
+      return (ab == null || n > ab) && (be == null || n < be);
+    }
+    const vals = String(r.state || "").split(",").map((x) => x.trim().toLowerCase()).filter(Boolean);
+    if (!vals.length) return false;
+    const cand = [String(raw).toLowerCase()]; if (!r.attribute) { cand.push(fmtState(s).toLowerCase()); cand.push(trText(fmtState(s)).toLowerCase()); }
+    const hit = vals.some((v) => cand.includes(v));
+    return r.not ? !hit : hit;
+  }
+  _pinAlert(p) {
+    const rules = p.alerts || []; if (!rules.length) return null;
+    this._alertSince = this._alertSince || {};
+    let found = null;
+    rules.forEach((r, i) => {
+      const key = p.id + ":" + i, ok = this._alertCond(r, p);
+      if (!ok) { delete this._alertSince[key]; return; }
+      if (!this._alertSince[key]) {
+        const s = this._hass.states[r.entity_id || p.entity_id];
+        this._alertSince[key] = (s && Date.parse(r.attribute ? s.last_updated : s.last_changed)) || Date.now();
+      }
+      const mins = Number(r.for || 0) * (r.unit === "h" ? 60 : r.unit === "d" ? 1440 : 1);
+      if (!found && Date.now() - this._alertSince[key] >= mins * 60000) found = r;
+    });
+    return found;
+  }
+  _alertText(r, p) {
+    const id = r.entity_id || p.entity_id, nm = (r.entity_id ? friendly(this._hass, id) : "") + (r.attribute ? ` (${r.attribute})` : "");
+    const de = LANG === "de";
+    let c = r.kind === "numeric"
+      ? [r.above !== "" && r.above != null ? `${de ? "über" : "above"} ${r.above}` : "", r.below !== "" && r.below != null ? `${de ? "unter" : "below"} ${r.below}` : ""].filter(Boolean).join(de ? " und " : " and ")
+      : `${r.not ? (de ? "nicht " : "not ") : ""}${r.state}`;
+    const f = Number(r.for || 0) ? ` ${de ? "seit" : "for"} ${r.for} ${r.unit === "h" ? (de ? "Std." : "h") : r.unit === "d" ? (de ? "Tg." : "d") : "min"}` : "";
+    return `${nm ? nm + ": " : ""}${c}${f}`;
+  }
   _camOff(p) { return domainOf(p.entity_id) === "camera" && p.state_entity && !isActive(this._hass.states[p.state_entity]); }
   _pinInner(p, s) {
     const mode = p.display || "icon";
@@ -1439,6 +1494,9 @@ class HauspanelPanel extends HTMLElement {
       el.classList.toggle("plain", !pinStatusful(p) && !p.state_entity && d !== "camera");
       el.classList.toggle("cam", d === "camera" && !p.state_entity);
       el.classList.toggle("unavail", !s || s.state === "unavailable");
+      const al = this._pinAlert(p);
+      el.classList.toggle("alert", !!al); el.classList.toggle("blink", !!(al && al.blink));
+      if (al) { el.style.setProperty("--alert", al.color || "#E5391D"); el.style.setProperty("--alert-fg", contrastFg(al.color || "#E5391D", "#1E1C1B", "#FFFFFF")); }
     });
   }
 
@@ -1699,6 +1757,8 @@ class HauspanelPanel extends HTMLElement {
     if (!s) return this._showPop(this._popHead(icon, "", sub, name) + `<div class="panel">Entity <b>${esc(id)}</b> gibt es in Home Assistant nicht (mehr).</div>`);
     const a = s.attributes, unavail = s.state === "unavailable";
     let h = this._popHead(icon, d === "camera" ? "cam" : on ? "on" : "", sub, name);
+    const alr = this._pinAlert(p);
+    if (alr) h += `<div class="alert-note" style="--alert:${esc(alr.color || "#E5391D")}">${ic("triangle-alert", 16)}<span>${esc(this._alertText(alr, p))}</span></div>`;
     const toggle = (label, sublabel) => `<div class="pop-state"><div><div class="big">${esc(label)}</div><div class="s">${esc(sublabel)}</div></div>
       ${unavail ? "" : `<button class="toggle${on ? " on" : ""}" data-a="toggle" aria-label="Schalten"></button>`}</div>`;
     if (d === "light") {
@@ -2082,6 +2142,14 @@ class HauspanelPanel extends HTMLElement {
         if (!this.draft.header.length) delete this.draft.header;
         this._markDirty(); this._renderTop(); return this._renderInspector();
       }
+      case "alert-add": { const p = this._selPin(); p.alerts = p.alerts || []; p.alerts.push({ kind: "state", state: "", color: "#E5391D", blink: false }); this._markDirty(); return this._renderInspector(); }
+      case "alert-del": { const p = this._selPin(); p.alerts.splice(Number(b.dataset.i), 1); if (!p.alerts.length) delete p.alerts; this._alertSince = {}; this._markDirty(); this._renderPlan(); return this._renderInspector(); }
+      case "al-kind": { const p = this._selPin(), r = p.alerts[Number(b.dataset.i)]; r.kind = b.dataset.v; this._alertSince = {}; this._markDirty(); this._updatePins(); return this._renderInspector(); }
+      case "alert-ent-clear": { const p = this._selPin(); delete p.alerts[Number(b.dataset.i)].entity_id; this._alertSince = {}; this._markDirty(); this._updatePins(); return this._renderInspector(); }
+      case "pick-alert": {
+        const p = this._selPin(), r = p.alerts[Number(b.dataset.i)];
+        return this._pickEntity("Warnung", null, r.entity_id, (id) => { r.entity_id = id; this._alertSince = {}; this._markDirty(); this._updatePins(); this._renderInspector(); });
+      }
       case "pick-clear": { const p = this._selPin(); delete p.state_entity; this._markDirty(); this._renderPlan(); return this._renderInspector(); }
       case "pick-scope": { this._picker.all = b.dataset.v === "all"; return this._renderPicker(true); }
       case "pick-entity": { const cb = this._picker && this._picker.cb; this._closePop(); this._picker = null; if (cb) cb(b.dataset.id); return; }
@@ -2126,6 +2194,15 @@ class HauspanelPanel extends HTMLElement {
       case "pin-room": p.room = val || null; break;
       case "pin-power": p.power_off = val; break;
       case "pin-toggle": if (val) p.toggle = true; else delete p.toggle; break;
+      case "al-attr": case "al-above": case "al-below": case "al-state": case "al-for": case "al-unit": case "al-not": case "al-color": case "al-blink": {
+        const r = p.alerts[Number(el.dataset.i)], f2 = k.slice(3);
+        if (f2 === "attr") { if (val) r.attribute = val.trim(); else delete r.attribute; }
+        else if (f2 === "not") { if (val) r.not = true; else delete r.not; }
+        else if (f2 === "blink") r.blink = !!val;
+        else r[f2] = val;
+        this._alertSince = {}; this._updatePins();
+        break;
+      }
       case "pin-state-entity": if (val && !this._hass.states[val]) { if (!isChange) return; } if (val) p.state_entity = val; else delete p.state_entity; this._renderPlan(); break;
       case "pin-extra": if (!isChange && !this._hass.states[val]) return; p.extras[Number(el.dataset.i)] = val; break;
       case "pin-entity": if (!this._hass.states[val]) return; p.entity_id = val; this._renderPlan(); break;
@@ -2498,6 +2575,11 @@ class HauspanelPanel extends HTMLElement {
         <div class="hint" style="margin:2px 0 10px 30px">Lange drücken öffnet weiterhin das Popup (z. B. für Helligkeit).</div>` : ""}
       <label class="check"><input type="checkbox" data-f="pin-power" ${p.power_off ? "checked" : ""}>Mit Power-Button ausschalten</label>
       <div class="sep"></div>
+      <div class="fld"><label>Warnungen</label>
+        <div class="hint">Färbt den Pin (optional blinkend), solange eine Bedingung zutrifft – wie ein Auslöser in einer Automation. Die erste zutreffende Warnung gewinnt.</div>
+        ${(p.alerts || []).map((r, i) => this._alertCard(r, i, p)).join("")}
+        <button class="sbtn" data-a="alert-add">${ic("plus", 16)}Warnung hinzufügen</button></div>
+      <div class="sep"></div>
       <div class="fld"><label>Zusatzwerte im Popup</label>
         <div class="hint">z. B. Leistung und Verbrauch bei einer Steckdose oder Luftfeuchte bei einem Thermometer.</div>
         ${(p.extras || []).filter((x) => x).map((x, i) => `<div class="row" style="margin-bottom:8px">${this._pickField(x, "pick-extra", "Entity wählen", i)}
@@ -2507,6 +2589,24 @@ class HauspanelPanel extends HTMLElement {
       <button class="sbtn danger full" data-a="pin-del">${ic("trash-2", 16)}Vom Plan entfernen</button>`;
   }
 
+  _alertCard(r, i, p) {
+    const num = r.kind === "numeric";
+    return `<div class="alert-card">
+      <div class="row" style="gap:6px">${this._pickField(r.entity_id, "pick-alert", "Dieses Gerät", i)}${r.entity_id ? `<button class="sx" data-a="alert-ent-clear" data-i="${i}" title="Dieses Gerät">${ic("x", 13)}</button>` : ""}</div>
+      <input class="inp" data-f="al-attr" data-i="${i}" value="${esc(r.attribute || "")}" placeholder="Attribut (optional, z. B. battery_level)" style="margin-top:6px">
+      <div class="chips" style="margin:8px 0 6px"><button class="${num ? "" : "sel"}" data-a="al-kind" data-i="${i}" data-v="state">Zustand</button><button class="${num ? "sel" : ""}" data-a="al-kind" data-i="${i}" data-v="numeric">Zahlenwert</button></div>
+      ${num ? `<div class="row" style="gap:6px"><span class="al-l">über</span><input class="inp" data-f="al-above" data-i="${i}" value="${esc(r.above ?? "")}" inputmode="decimal" placeholder="–">
+          <span class="al-l">unter</span><input class="inp" data-f="al-below" data-i="${i}" value="${esc(r.below ?? "")}" inputmode="decimal" placeholder="–"></div>`
+        : `<div class="row" style="gap:6px"><select class="inp" data-f="al-not" data-i="${i}" style="flex:0 0 110px"><option value="">ist</option><option value="1"${r.not ? " selected" : ""}>ist nicht</option></select>
+          <input class="inp" data-f="al-state" data-i="${i}" value="${esc(r.state || "")}" placeholder="z. B. on, off oder Aus"></div>`}
+      <div class="row" style="gap:6px;margin-top:6px"><span class="al-l">für mind.</span><input class="inp" data-f="al-for" data-i="${i}" value="${esc(r.for || "")}" inputmode="numeric" placeholder="0" style="flex:0 0 70px">
+        <select class="inp" data-f="al-unit" data-i="${i}" style="flex:1"><option value="m">Minuten</option><option value="h"${r.unit === "h" ? " selected" : ""}>Stunden</option><option value="d"${r.unit === "d" ? " selected" : ""}>Tage</option></select></div>
+      <div class="row" style="gap:10px;margin-top:8px"><input type="color" data-f="al-color" data-i="${i}" value="${esc(r.color || "#E5391D")}">
+        <label class="check" style="margin:0;flex:1"><input type="checkbox" data-f="al-blink" data-i="${i}" ${r.blink ? "checked" : ""}>Blinken</label>
+        <button class="sbtn" data-a="alert-del" data-i="${i}" aria-label="Entfernen">${ic("trash-2", 16)}</button></div>
+      ${this._pinAlert(p) === r ? `<div class="hint" style="margin:6px 0 0;color:var(--accent)">Trifft gerade zu.</div>` : ""}
+    </div>`;
+  }
   /* Feld, das wie ein Eingabefeld aussieht und die Entity-Suche öffnet */
   _pickField(id, action, placeholder, idx) {
     const s = id && this._hass.states[id];

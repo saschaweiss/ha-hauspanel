@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.9.0]
+- Pin alerts, modelled on automation triggers: state (is / is not) or numeric value (above / below), optionally of another entity or an attribute, optionally "for at least" minutes/hours/days. The first matching alert colours the pin and can make it blink; the popup shows why
+
 ## [0.8.1]
 - Header values next to the clock (up to 4 entities, e.g. tablet battery); battery icon reflects level and charging, turns accent-coloured at 20 % or less; tap opens HA's details
 - Start page buttons show where Hauspanel is currently set as start page
