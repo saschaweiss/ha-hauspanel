@@ -47,6 +47,199 @@ const STATE_LABEL = {on:"An",off:"Aus",open:"Offen",closed:"Geschlossen",opening
   playing:"Wiedergabe",paused:"Pausiert",idle:"Bereit",standby:"Standby",unavailable:"Nicht erreichbar",
   unknown:"Unbekannt",home:"Zuhause",not_home:"Abwesend",streaming:"Live",recording:"Aufnahme",...HVAC_LABEL};
 
+/* ---------- Sprache ----------
+   Die Oberfläche ist auf Deutsch geschrieben. Bei nicht-deutscher HA-Sprache übersetzt eine Schicht
+   alle angezeigten Texte (Textknoten, placeholder/title/aria-label) über dieses Wörterbuch ins Englische.
+   Nutzerinhalte (Raum-, Etagen-, Entity-Namen, Termine) bleiben unberührt, weil sie nicht im Wörterbuch stehen. */
+let LANG = "de";
+const I18N_EN = {
+  // Kopfzeile, Navigation, allgemein
+  "Zuhause": "Home", "Bearbeiten": "Edit", "Speichern": "Save", "Abbrechen": "Cancel", "Änderungen verwerfen?": "Discard changes?",
+  "Hauspanel einrichten": "Set up Hauspanel", "Alles gespeichert": "All saved", "Ungespeicherte Änderungen": "Unsaved changes",
+  "Hell/Dunkel": "Light/dark", "Vorschau": "Preview", "Zurück zum Editor": "Back to editor", "Menü": "Menu", "Schließen": "Close",
+  "Lade Hauspanel …": "Loading Hauspanel …", "Keine Verbindung zum Backend": "No connection to the backend", "Willkommen": "Welcome",
+  "Noch kein Grundriss": "No floor plan yet",
+  "Im Tab „Etage“ ein SVG hochladen. Geräte kannst du trotzdem schon platzieren.": "Upload a plan in the “Floor” tab. You can already place devices.",
+  "Ein Admin kann im Editor ein SVG hochladen.": "An admin can upload a floor plan in the editor.",
+  "Alles aus": "All off", "Alle": "All", "Hinzufügen": "Add", "Entfernen": "Remove", "Fertig": "Done", "Weiter": "Next", "Weitere": "More",
+  "Nach oben": "Move up", "Nach unten": "Move down", "Einklappen": "Collapse", "Auf Standard zurücksetzen": "Reset to default",
+  "Zurück auf automatisch": "Back to automatic", "Zurück auf 100 %": "Back to 100 %", "Nichts gefunden.": "Nothing found.",
+  // Wetter
+  "Wetter": "Weather", "Klar": "Clear", "Bewölkt": "Cloudy", "Unwetter": "Severe weather", "Nebel": "Fog", "Hagel": "Hail", "Gewitter": "Thunderstorm",
+  "Leicht bewölkt": "Partly cloudy", "Starkregen": "Heavy rain", "Regen": "Rain", "Schnee": "Snow", "Schneeregen": "Sleet", "Sonnig": "Sunny", "Windig": "Windy",
+  "Keine Wetter-Entity gewählt. Im Editor unter „Allgemein“ einstellen.": "No weather entity selected. Set one in the editor under “General”.",
+  // Müll
+  "Müllabfuhr": "Waste collection", "Heute": "Today", "Morgen": "Tomorrow", "heute": "today", "morgen": "tomorrow",
+  "Noch keine Müll-Sensoren eingestellt.": "No waste sensors configured yet.",
+  "Keine kommenden Termine erkannt. Im Editor unter „Allgemein“ steht bei jedem Sensor, was gelesen wurde.": "No upcoming pickups detected. The editor shows what was read for each sensor under “General”.",
+  "Entity nicht gefunden": "Entity not found",
+  // Kalender
+  "Termine": "Events", "Diese Woche": "This week", "7 Tage weiter": "7 days forward", "7 Tage zurück": "7 days back", "Alle Termine": "All events",
+  "Ganztägig": "All day", "Fortsetzung": "Continued", "Notizen": "Notes", "Ort": "Location",
+  // Zustände
+  "An": "On", "Aus": "Off", "Offen": "Open", "Geschlossen": "Closed", "Öffnet": "Opening", "Schließt": "Closing", "Verriegelt": "Locked", "Entriegelt": "Unlocked",
+  "Verriegelt…": "Locking…", "Entriegelt…": "Unlocking…", "Blockiert": "Jammed", "Wiedergabe": "Playing", "Pausiert": "Paused", "Bereit": "Idle", "Standby": "Standby",
+  "Nicht erreichbar": "Unavailable", "Unbekannt": "Unknown", "Abwesend": "Away", "Live": "Live", "Aufnahme": "Recording", "Bewegung": "Motion", "Ruhig": "Clear",
+  "Nicht gefunden": "Not found", "Heizen": "Heat", "Kühlen": "Cool", "Heizen/Kühlen": "Heat/cool", "Auto": "Auto", "Entfeuchten": "Dry", "Lüften": "Fan only",
+  "heizt gerade": "heating", "kühlt gerade": "cooling",
+  // Popups
+  "Schalten": "Toggle", "Tippen zum Einschalten": "Tap to turn on", "Eingeschaltet": "On", "Ausgeschaltet": "Off", "Verbraucht Strom": "Drawing power",
+  "Helligkeit": "Brightness", "Farbe": "Colour", "Farbton": "Hue", "Weißton": "White", "Farbtemperatur": "Colour temperature", "Warmweiß": "Warm white", "Kaltweiß": "Cool white",
+  "Modus": "Mode", "Kälter": "Cooler", "Wärmer": "Warmer", "Öffnen": "Open", "Stopp": "Stop", "Verriegeln": "Lock", "Entriegeln": "Unlock", "Ausführen": "Run",
+  "Abspielen": "Play", "Pause": "Pause", "In Home Assistant öffnen": "Open in Home Assistant", "Verbinde mit Kamera …": "Connecting to camera …",
+  "Kamera nicht erreichbar": "Camera unavailable", "Kamera an": "Camera on", "Kamera aus": "Camera off",
+  "Die Kamera liefert gerade kein Bild an Home Assistant.": "The camera is not delivering an image to Home Assistant right now.",
+  // Editor-Tabs
+  "Geräte": "Devices", "Auswahl": "Selection", "Etage": "Floor", "Allgemein": "General", "Design": "Design",
+  // Geräte-Tab
+  "Suchen (Name oder entity_id)": "Search (name or entity_id)", "Licht": "Lights", "Schalter": "Switches", "Heizung": "Climate", "Sensoren": "Sensors", "Kameras": "Cameras",
+  "Am Griff": "Drag by the handle", "auf den Grundriss ziehen oder mit + in die Mitte setzen.": "onto the plan, or use + to drop it in the middle.",
+  "Lege zuerst links eine Etage an.": "Add a floor on the left first.", "Lege zuerst eine Etage an": "Add a floor first",
+  // Auswahl-Tab
+  "Tippe auf dem Plan ein Gerät oder Raum-Label an, um es zu bearbeiten.": "Tap a device or room label on the plan to edit it.",
+  "Entity": "Entity", "Diese Entity gibt es nicht.": "This entity does not exist.", "Anzeigename": "Display name", "Raum": "Room",
+  "Anzeige auf dem Plan": "Display on plan", "Icon": "Icon", "Wert": "Value", "Icon + Wert": "Icon + value", "Ist-Temperatur": "Current temperature",
+  "Icon suchen, z. B. heizung, tür, wlan …": "Search icons, e.g. heating, door, wifi …", "Kein Icon gefunden.": "No icon found.", "Automatisch": "Automatic",
+  "Steckdosen & Strom": "Plugs & power", "Heizen & Klima": "Heating & climate", "Medien & Technik": "Media & tech", "Sicherheit": "Security",
+  "Haushalt": "Household", "Räume & Möbel": "Rooms & furniture", "Draußen & Sonstiges": "Outdoor & misc",
+  "Status (an/aus)": "State (on/off)", "Wie Messwert": "As measured value", "An, wenn sie heizt": "On while heating", "An, wenn Heizmodus aktiv": "On while heat mode is on",
+  "„Wie Messwert“: immer in den Messwert-Farben, egal ob an oder aus.": "“As measured value”: always uses the measured-value colours, on or off.",
+  "„Heizt“ nutzt hvac_action – rot nur, solange wirklich geheizt wird. „Heizmodus“ ist rot, solange das Thermostat nicht auf Aus steht.": "“Heating” uses hvac_action – highlighted only while actually heating. “Heat mode” is highlighted as long as the thermostat is not off.",
+  "Messwert-Farben – dieses Gerät hat keinen An/Aus-Status.": "Measured-value colours – this device has no on/off state.",
+  "Ansicht im Popup": "Popup view", "Livebild": "Live view", "Standbild (alle 3 s neu)": "Snapshot (refreshes every 3 s)",
+  "Akku-Kameras liefern oft kein Livebild an Home Assistant – dann Standbild wählen.": "Battery cameras often don't provide a live stream to Home Assistant – choose snapshot then.",
+  "Status von anderer Entity": "State from another entity", "Entity wählen (optional)": "Choose entity (optional)", "Entity wählen": "Choose entity",
+  "Der Pin wird „an“ gefärbt, wenn diese Entity an ist.": "The pin is coloured “on” while this entity is on.",
+  "Kamera an = Pin in An-Farbe, aus = durchgestrichenes Symbol. Antippen öffnet weiterhin das Kamerabild.": "Camera on = pin in the on colour, off = crossed-out symbol. Tapping still opens the camera view.",
+  "Größe": "Size", "Nur dieses Gerät; die allgemeine Größe stellst du im Design-Tab ein.": "This device only; the general size is set in the Design tab.",
+  "Nur dieses Label; die allgemeine Größe stellst du im Design-Tab ein.": "This label only; the general size is set in the Design tab.",
+  "Antippen schaltet direkt an/aus": "Tap toggles on/off directly", "Lange drücken öffnet weiterhin das Popup (z. B. für Helligkeit).": "Long-press still opens the popup (e.g. for brightness).",
+  "Mit Power-Button ausschalten": "Switch off with the power button", "Zusatzwerte im Popup": "Extra values in popup",
+  "z. B. Leistung und Verbrauch bei einer Steckdose oder Luftfeuchte bei einem Thermometer.": "e.g. power and energy of a plug or humidity of a thermometer.",
+  "Wert hinzufügen": "Add value", "Vom Plan entfernen": "Remove from plan", "Raumname": "Room name", "Label entfernen": "Remove label",
+  "Label auf dem Plan an die richtige Stelle ziehen. Geräte ohne festen Raum bekommen automatisch das nächstgelegene Label.": "Drag the label to the right spot on the plan. Devices without a fixed room get the nearest label automatically.",
+  "Passende": "Matching", "Name oder entity_id …": "Name or entity_id …", "Status von": "State from", "Zusatzwert": "Extra value", "fehlt": "missing",
+  // Etage-Tab
+  "Noch keine Etage. Links auf „+ Etage“ tippen.": "No floor yet. Tap “+ Floor” on the left.", "Kürzel": "Code", "Name": "Name", "Neue Etage": "New floor",
+  "Grundriss": "Floor plan", "Grundriss hochladen": "Upload floor plan", "Anderen Grundriss wählen": "Choose another plan", "Grundriss entfernen": "Remove floor plan",
+  "SVG (max. 2 MB) oder JPG/PNG/WebP – Bilder werden auf 2400 px verkleinert": "SVG (max. 2 MB) or JPG/PNG/WebP – images are scaled to 2400 px",
+  "Farben an Design & Nachtmodus anpassen": "Adapt colours to design & night mode", "Im Nachtmodus invertieren": "Invert in night mode",
+  "Dunkle Flächen werden zu Wänden, helle zu Boden, Grautöne zu Außenbereich/Türen. Aus = Original-Farben.": "Dark areas become walls, light ones floor, greys outdoor/doors. Off = original colours.",
+  "Pixelbilder lassen sich nicht auf Wand-/Bodenfarben umfärben. Invertieren macht aus einem hellen Plan nachts einen dunklen.": "Raster images can't be recoloured to wall/floor colours. Inverting turns a light plan dark at night.",
+  "Trennlinie über dieser Etage (z. B. Keller)": "Divider above this floor (e.g. basement)", "Etage löschen": "Delete floor", "Raum-Label": "Room label",
+  "+ Etage": "+ Floor", "Etage": "Floor",
+  // Allgemein-Tab
+  "Startetage": "Start floor", "Das Tablet springt nach 2 Minuten ohne Bedienung hierher zurück und schließt offene Popups.": "After 2 minutes without interaction the tablet returns here and closes open popups.",
+  "– kein Wetter –": "– no weather –", "Kalender": "Calendars", "Kalender wählen": "Choose calendar", "Anzeigename": "Display name",
+  "Google-Kalender über die Google-Calendar-Integration in HA einbinden – hier erscheinen sie dann.": "Add Google calendars via HA's Google Calendar integration – they will show up here.",
+  "Kalenderleiste zeigt": "Calendar bar shows", "Kalenderwoche (Mo–So)": "Calendar week (Mon–Sun)", "Kalenderwoche – am Wochenende ab heute": "Calendar week – from today on weekends",
+  "Immer die nächsten 7 Tage ab heute": "Always the next 7 days from today",
+  "„Am Wochenende ab heute“: Samstag und Sonntag zeigen schon die kommende Woche mit. Wo eine neue Woche beginnt, steht die KW am Tag.": "“From today on weekends”: Saturday and Sunday already include the coming week. Where a new week starts, the week number is shown on that day.",
+  "Sensor mit Datum (z. B. 2026-10-16 oder 16.10.2026) oder Anzahl Tage als Zustand. Attribut daysTo wird auch erkannt.": "Sensor with a date (e.g. 2026-10-16) or a number of days as state. The daysTo attribute is detected as well.",
+  "Nachtmodus": "Night mode", "Nach Uhrzeit": "By time", "Nach Sonnenstand (sun.sun)": "By sun position (sun.sun)", "Von": "From", "Bis": "To",
+  "Tipp: Auf dem Tablet schaltet ein Tap auf die Uhr für 5 Minuten zwischen Hell und Dunkel um.": "Tip: on the tablet, tapping the clock toggles light/dark for 5 minutes.",
+  "Als Startseite": "Start page", "Für mich": "For me", "Für alle Benutzer": "For all users",
+  "HA bietet im Profil nur Dashboards zur Auswahl an. Diese Knöpfe tragen das Hauspanel direkt als Startseite ein – ohne Umweg, der Menüeintrag bleibt dabei aktiv markiert.": "HA's profile only lists dashboards. These buttons set Hauspanel as the start page directly – the sidebar entry stays highlighted.",
+  "„Für alle“ gilt für jeden, der im Profil nichts Eigenes gewählt hat.": "“For all users” applies to everyone who hasn't chosen something else in their profile.",
+  // Design-Tab
+  "Farben": "Colours", "Hell": "Light", "Grundfarben": "Base colours", "Akzent (aktiv, Buttons)": "Accent (active, buttons)", "Hintergrund": "Background",
+  "Karten": "Cards", "Kacheln in Karten": "Tiles in cards", "Text": "Text", "Text gedämpft": "Muted text", "Dunkle Karten (Uhr, Wetter)": "Dark cards (clock, weather)",
+  "Wände": "Walls", "Boden": "Floor", "Außenbereich": "Outdoor", "Geräte-Pins": "Device pins",
+  "Eingeschaltet = Licht an, Steckdose an, Heizung heizt gerade. Messwert = Sensoren und Heizungen, die gerade nicht heizen.": "On = light on, plug on, heating active. Measured value = sensors and climate devices that aren't heating.",
+  "Eingeschaltet – Hintergrund": "On – background", "Eingeschaltet – Icon/Schrift": "On – icon/text", "Ausgeschaltet – Hintergrund": "Off – background",
+  "Ausgeschaltet – Icon/Schrift": "Off – icon/text", "Messwert – Hintergrund": "Measured value – background", "Messwert – Schrift": "Measured value – text",
+  "Kamera – Hintergrund": "Camera – background", "Kamera – Icon": "Camera – icon", "Etagen-Buttons": "Floor buttons", "Aktiv – Hintergrund": "Active – background",
+  "Aktiv – Schrift": "Active – text", "Inaktiv – Hintergrund": "Inactive – background", "Inaktiv – Schrift": "Inactive – text", "Buttons": "Buttons",
+  "Allgemein = Kalender-Pfeile, Schließen, Plus/Minus. Ausgewählt = z. B. der aktive Heizmodus im Popup.": "General = calendar arrows, close, plus/minus. Selected = e.g. the active heat mode in a popup.",
+  "Allgemein – Hintergrund": "General – background", "Allgemein – Icon/Schrift": "General – icon/text", "Ausgewählt – Hintergrund": "Selected – background",
+  "Ausgewählt – Schrift": "Selected – text", "Power-Button – Hintergrund": "Power button – background", "Power-Button – Icon": "Power button – icon",
+  "Schalter im Popup – an": "Popup switch – on", "Schalter im Popup – aus": "Popup switch – off", "Uhr & Wetter": "Clock & weather", "Uhr – Hintergrund": "Clock – background",
+  "Uhr – Schrift": "Clock – text", "Wetter – Hintergrund": "Weather – background", "Wetter – Schrift": "Weather – text", "Hervorhebungen": "Highlights",
+  "Müll heute/morgen – Hintergrund": "Waste today/tomorrow – background", "Müll heute/morgen – Schrift": "Waste today/tomorrow – text",
+  "Kalender heute – Hintergrund": "Calendar today – background", "Kalender heute – Schrift": "Calendar today – text", "Schatten": "Shadows",
+  "Deckkraft 0 % = kein Schatten.": "Opacity 0 % = no shadow.", "Pins (aus / Messwert)": "Pins (off / measured value)", "Pins eingeschaltet": "Pins on",
+  "Etagen-Button aktiv": "Active floor button", "Karten & Kopfzeile": "Cards & header", "Deckkraft": "Opacity", "Weichheit": "Blur", "Versatz": "Offset",
+  "eigen": "custom", "auto": "auto", "Layout": "Layout", "Der Grundriss füllt immer den Platz dazwischen. Kalenderleiste ganz nach links = ausgeblendet.": "The floor plan always fills the space in between. Calendar height all the way left = hidden.",
+  "Breite Etagen-Spalte": "Floor column width", "Breite rechte Spalte (Wetter, Müll)": "Right column width (weather, waste)", "Höhe Kalenderleiste": "Calendar height",
+  "Größen & Abstände": "Sizes & spacing", "Schriftgröße": "Font size", "Ecken-Rundung": "Corner radius", "Abstand zwischen Karten": "Gap between cards", "Rand außen": "Outer margin",
+  "Innenabstand der Karten": "Card padding", "Größe der Geräte-Pins": "Device pin size", "Schrift in Pins (Werte)": "Pin text (values)", "Schrift Raum-Labels": "Room label text",
+  "Pins und Raum-Labels wachsen zusätzlich mit dem Grundriss mit, damit sie auf jedem Bildschirm an derselben Stelle sitzen.": "Pins and room labels also scale with the floor plan so they sit in the same spot on every screen.",
+  "Eigenes CSS": "Custom CSS", "CSS bearbeiten": "Edit CSS", "Ganze Seite": "Whole page", "Spickzettel": "Cheat sheet", "Eingebautes CSS": "Built-in CSS",
+  "Wirkt sofort · gespeichert wird mit „Speichern“ · Fenster am Kopf verschieben": "Applies instantly · saved with “Save” · drag the window by its header",
+  "Selektoren und Variablen, die du überschreiben kannst.": "Selectors and variables you can override.",
+  "Nur zum Nachschlagen/Kopieren – Änderungen gehören in „Ganze Seite“ oder die Etage.": "For reference/copying only – changes go into “Whole page” or the floor.",
+  "Nachtmodus": "Night mode", "aus": "off",
+  // Farbwähler
+  "Hex-Code": "Hex code", "Farbrad öffnen": "Open colour wheel", "Palette": "Palette", "Bearbeiten": "Edit", "Schon benutzt": "Already used",
+  "Aktuelle Farbe in die Palette": "Add current colour to palette",
+  "Mit + legst du die aktuelle Farbe in deine Palette. Sie wird mit dem Layout gespeichert.": "Use + to add the current colour to your palette. It is saved with the layout.",
+  // Meldungen
+  "Gespeichert – alle Tablets aktualisieren sich": "Saved – all tablets update now", "Bild geladen – jetzt Geräte draufziehen": "Image loaded – now drag devices onto it",
+  "Grundriss geladen – jetzt Geräte draufziehen": "Floor plan loaded – now drag devices onto it", "Bild ist größer als 25 MB": "Image is larger than 25 MB",
+  "Bild konnte nicht gelesen werden": "Image could not be read", "SVG ist größer als 2 MB": "SVG is larger than 2 MB", "Datei konnte nicht als SVG gelesen werden": "File could not be read as SVG",
+  "Das Layout wurde gerade woanders geändert – zum Übernehmen Bearbeiten abbrechen": "The layout was just changed elsewhere – cancel editing to load it",
+  "Altes Startseiten-Dashboard entfernt – Hauspanel ist direkt als Startseite eingetragen": "Old start dashboard removed – Hauspanel is set as start page directly",
+  "Hauspanel ist jetzt Startseite für alle": "Hauspanel is now the start page for everyone", "Hauspanel ist jetzt deine Startseite": "Hauspanel is now your start page",
+  "Das Layout wurde inzwischen woanders geändert (anderes Gerät oder Claude). Speichern würde das überschreiben – Bearbeiten abbrechen und neu öffnen.": "The layout was changed elsewhere in the meantime (another device or an AI assistant). Saving would overwrite it – cancel editing and reopen.",
+  "kein Label": "no label",
+};
+const I18N_RX = [
+  [/^(Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday), (\d{1,2})\. ([A-Z][a-z]+)( \d{4})?$/, (m) => `${m[1]}, ${m[3]} ${m[2]}${m[4] ? "," + m[4] : ""}`],
+  [/^(\d+) Geräte? im (.+) ausgeschaltet$/, (m) => `${m[1]} device${m[1] === "1" ? "" : "s"} in ${m[2]} switched off`],
+  [/^Im (.+) ist schon alles aus$/, (m) => `Everything in ${m[1]} is already off`],
+  [/^in (\d+) Tagen$/, (m) => `in ${m[1]} days`],
+  [/^\+(\d+) weitere$/, (m) => `+${m[1]} more`],
+  [/^(\d+) weitere – Suche eingrenzen\.$/, (m) => `${m[1]} more – refine your search.`],
+  [/^KW (\d+)(?: \/ (\d+))?$/, (m) => `CW ${m[1]}${m[2] ? " / " + m[2] : ""}`],
+  [/^(\d\d:\d\d) – (\d\d:\d\d) Uhr$/, (m) => `${m[1]} – ${m[2]}`],
+  [/^seit (\d\d:\d\d) Uhr$/, (m) => `since ${m[1]}`],
+  [/^Jetzt: (.*)$/, (m) => `Now: ${trText(m[1])}`],
+  [/^Ist (.+) · (.+)$/, (m) => `Current ${m[1]} · ${trText(m[2])}`],
+  [/^Automatisch \((.*)\)$/, (m) => `Automatic (${trText(m[1])})`],
+  [/^Helligkeit (\d+) %$/, (m) => `Brightness ${m[1]} %`],
+  [/^Position (\d+) %$/, (m) => `Position ${m[1]} %`],
+  [/^Kalender · (.+)$/, (m) => `Calendar · ${m[1]}`],
+  [/^Ganztägig bis (.+)$/, (m) => `All day until ${m[1]}`],
+  [/^(.+) · schon platziert$/, (m) => `${m[1]} · already placed`],
+  [/^Nur ([A-Za-z0-9ÄÖÜäöü]{1,4})$/, (m) => `Only ${m[1]}`],
+  [/^Ganze Seite: (\d+) Zeilen(?: · (.+): (\d+) Zeilen)?\. Wirkt live, auch in der Vorschau\.$/, (m) => `Whole page: ${m[1]} lines${m[2] ? ` · ${m[2]}: ${m[3]} lines` : ""}. Applies live, also in preview.`],
+  [/^✓ (.+?) · (.*)$/, (m) => `✓ ${trText(m[1])} · ${trText(m[2])}`],
+  [/^Zustand: „(.*)“$/, (m) => `state: “${m[1]}”`],
+  [/^Kein Termin erkannt · (.*)$/, (m) => `No date detected · ${trText(m[1])}`],
+  [/^Speichern fehlgeschlagen: (.*)$/, (m) => `Saving failed: ${trText(m[1])}`],
+  [/^Anlegen fehlgeschlagen: (.*)$/, (m) => `Creating failed: ${trText(m[1])}`],
+  [/^Ging nicht: (.*)$/, (m) => `Failed: ${m[1]}`],
+  [/^(Hauspanel ist jetzt (?:Startseite für alle|deine Startseite)) – altes Weiterleitungs-Dashboard entfernt$/, (m) => `${trText(m[1])} – old redirect dashboard removed`],
+  [/^Entity (.+) gibt es in Home Assistant nicht \(mehr\)\.$/, (m) => `Entity ${m[1]} does not exist in Home Assistant (anymore).`],
+];
+function trText(s) {
+  if (LANG === "de" || !s) return s;
+  const t = s.trim(); if (!t) return s;
+  let r = I18N_EN[t];
+  if (r == null) for (const [re, fn] of I18N_RX) { const m = t.match(re); if (m) { r = fn ? fn(m) : null; break; } }
+  return r == null ? s : s.replace(t, r);
+}
+const TR_ATTRS = ["placeholder", "title", "aria-label"];
+function trTree(node) {
+  if (LANG === "de" || !node) return;
+  if (node.nodeType === 3) { const v = trText(node.nodeValue); if (v !== node.nodeValue) node.nodeValue = v; return; }
+  if (node.nodeType !== 1 && node.nodeType !== 11) return;
+  if (node.nodeType === 1) {
+    if (node.tagName === "STYLE" || node.tagName === "SCRIPT" || node.tagName === "TEXTAREA" || node.tagName === "svg") return;
+    for (const a of TR_ATTRS) { const v = node.getAttribute(a); if (v) { const nv = trText(v); if (nv !== v) node.setAttribute(a, nv); } }
+  }
+  for (const c of node.childNodes) trTree(c);
+}
+const DAYS_EN = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"], DAYS_LONG_EN = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+const MONTHS_EN = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+function setLang(lang) {
+  const l = String(lang || "en").toLowerCase().startsWith("de") ? "de" : "en";
+  if (l === LANG) return false;
+  LANG = l;
+  if (l === "en") { DAYS.splice(0, 7, ...DAYS_EN); DAYS_LONG.splice(0, 7, ...DAYS_LONG_EN); MONTHS.splice(0, 12, ...MONTHS_EN); }
+  return true;
+}
+
 /* ---------- Hilfsfunktionen ---------- */
 const ic = (name, size = 20, sw = 2) =>
   `<svg class="i" width="${size}" height="${size}" viewBox="0 0 24 24" style="stroke-width:${sw}">${ICONS[name] || ICONS["circle-dot"]}</svg>`;
@@ -79,7 +272,7 @@ const calStart = (mode, offset) => {
 const fmtShort = (d) => pad(d.getDate()) + "." + pad(d.getMonth() + 1) + ".";
 const hhmm = (d) => pad(d.getHours()) + ":" + pad(d.getMinutes());
 const isoLocal = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:00`;
-const fmtNum = (v, dec = 1) => Number(v).toLocaleString("de-DE", { maximumFractionDigits: dec });
+const fmtNum = (v, dec = 1) => Number(v).toLocaleString(LANG === "de" ? "de-DE" : "en-US", { maximumFractionDigits: dec });
 function kw(d) {
   const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
   const n = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - n);
@@ -297,6 +490,48 @@ function themeCss(theme) {
 }
 
 /* ---------- Eigenes CSS: Spickzettel im CSS-Fenster ---------- */
+const CSS_HELP_EN = `/* Custom CSS overrides the built-in styles and survives updates.
+   If specificity isn't enough, use !important.
+   Emergency: open the panel with ?nocss -> custom CSS is ignored. */
+
+/* Variables (best place to start) */
+:host {
+  --accent: #E5391D;  --bg: #EEECEA;  --card: #fff;  --tile: #F4F2F0;
+  --text: #1E1C1B;  --muted: #8A8580;  --dark: #1F1D1C;
+  --wall: #2E2C2B;  --floor: #fff;  --outside: #EDEBE9;  --door: #B3AEA9;
+  --radius: 22px;  --gap: 12px;  --m: 18px;  --pad: 16px;  --cal-h: 198px;
+  --pin: 36px;  --pin-fs: 14px;  --label-fs: 11px;  --fs: 1;
+  /* --k = scaling of pins/labels with the floor plan (calculated) */
+}
+:host([data-theme="dark"]) { }      /* night mode only */
+:host([data-floor="OG"]) { }         /* only while floor OG is open */
+:host(.edit) { }                     /* editor only */
+
+/* Areas */
+#top  #home  #date  #clock           /* header */
+#floors  .floor-btn  .floor-btn.active
+#plan-card  #plan-title  #all-off  #plan
+#weather  .w-temp  .w-cond  .w-day
+#waste  .bin  .bin.soon  .bin-ico
+#cal  .day  .day.today  .ev  .chip  .legend
+
+/* Floor plan */
+.fp .f-wall  .fp .f-floor  .fp .f-out  .fp .f-door   /* areas */
+.room-label  .room-label[data-room-name="Kitchen"]
+
+/* Device pins */
+.pin  .pin.on  .pin.val  .pin.unavail
+.pin[data-domain="light"]  .pin[data-entity="light.kitchen"]
+
+/* Popups */
+.pop  .pop[data-domain="climate"]  .pop-title  .toggle  .panel
+
+/* Examples */
+.pin.on { animation: glow 2s infinite alternate; }
+@keyframes glow { to { box-shadow: 0 0 18px var(--accent); } }
+#date { font-weight: 800; }
+.pin[data-domain="climate"].on { background: #F59E0B; }
+`;
 const CSS_HELP = `/* Eigenes CSS überschreibt das eingebaute – es bleibt bei Updates erhalten.
    Reicht die Spezifität nicht, hilft !important.
    Notfall: Panel mit ?nocss aufrufen -> eigenes CSS wird ignoriert. */
@@ -780,6 +1015,7 @@ class HauspanelPanel extends HTMLElement {
   set hass(hass) {
     const first = !this._hass;
     this._hass = hass;
+    if (setLang((hass.locale && hass.locale.language) || hass.language) && this._ready) { this._renderAll(); this._renderCal(); }
     if (first && this.isConnected) this._init();
     else if (this._ready) this._onHass();
   }
@@ -820,6 +1056,16 @@ class HauspanelPanel extends HTMLElement {
       </div>
       <div id="ghost"></div><div id="scratch"></div>`;
     this.$ = (s) => this.shadowRoot.querySelector(s);
+    // Übersetzungsschicht: jeder neu gerenderte Text läuft einmal durchs Wörterbuch (nur bei nicht-deutscher Sprache)
+    this._trObs = new MutationObserver((muts) => {
+      if (LANG === "de") return;
+      for (const m of muts) {
+        if (m.type === "childList") m.addedNodes.forEach((n) => trTree(n));
+        else if (m.type === "characterData") trTree(m.target);
+        else if (m.type === "attributes") { const v = m.target.getAttribute(m.attributeName); const nv = v && trText(v); if (nv && nv !== v) m.target.setAttribute(m.attributeName, nv); }
+      }
+    });
+    this._trObs.observe(this.shadowRoot, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: TR_ATTRS });
     this._bindEvents();
     this._ro = new ResizeObserver(() => this._fit());
     this._ro.observe(this);
@@ -1009,7 +1255,9 @@ class HauspanelPanel extends HTMLElement {
   _tick() {
     const n = new Date();
     const t = this.$("#time"); if (t) t.textContent = hhmm(n);
-    const d = this.$("#date-txt"); if (d) d.textContent = this._mobile ? `${DAYS_LONG[n.getDay()]}, ${n.getDate()}. ${MONTHS[n.getMonth()]}` : `${DAYS_LONG[n.getDay()]}, ${n.getDate()}. ${MONTHS[n.getMonth()]} ${n.getFullYear()}`;
+    const d = this.$("#date-txt");
+    if (d && LANG !== "de") d.textContent = n.toLocaleDateString("en-US", this._mobile ? { weekday: "long", month: "long", day: "numeric" } : { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+    else if (d) d.textContent = this._mobile ? `${DAYS_LONG[n.getDay()]}, ${n.getDate()}. ${MONTHS[n.getMonth()]}` : `${DAYS_LONG[n.getDay()]}, ${n.getDate()}. ${MONTHS[n.getMonth()]} ${n.getFullYear()}`;
     this._applyTheme();
     if (!this._day || !sameDay(this._day, n)) {
       const first = !this._day; this._day = n;
@@ -2237,7 +2485,7 @@ class HauspanelPanel extends HTMLElement {
       <div class="icon-grid"><button class="${p.icon ? "" : "sel"}" data-a="pin-icon" data-icon="auto" title="Automatisch" style="font-size:11px;font-weight:700">Auto</button></div>
       ${groups.map(([g, items]) => { const open = q || (this._iconOpen && this._iconOpen.has(g)) || items.some(([n]) => n === p.icon);
         return `<details class="icon-group"${open ? " open" : ""} data-igroup="${esc(g)}"><summary>${esc(g)}<span>${items.length}</span></summary><div class="icon-grid">${items.map(([n, tags]) =>
-        `<button class="${p.icon === n ? "sel" : ""}" data-a="pin-icon" data-icon="${n}" title="${esc((tags || n).split(" ")[0])}">${ic(n, 17)}</button>`).join("")}</div></details>`; }).join("")
+        `<button class="${p.icon === n ? "sel" : ""}" data-a="pin-icon" data-icon="${n}" title="${esc(LANG === "de" ? (tags || n).split(" ")[0] : n.replace(/-/g, " "))}">${ic(n, 17)}</button>`).join("")}</div></details>`; }).join("")
       || `<div class="hint">Kein Icon gefunden.</div>`}`;
   }
   _statusField(p, d) {
@@ -2352,7 +2600,7 @@ class HauspanelPanel extends HTMLElement {
     let body;
     if (cur === "global") body = `<textarea data-f="css-global" spellcheck="false" placeholder="/* z. B. */\n#date { font-weight: 800; }">${esc(this.draft.css || "")}</textarea>`;
     else if (cur === "floor") body = `<textarea data-f="css-floor" spellcheck="false" placeholder="/* gilt nur, solange ${esc(f.code)} offen ist */\n.pin.on { background: #2F6DD0; }">${esc(f.css || "")}</textarea>`;
-    else body = `<pre>${esc(cur === "help" ? CSS_HELP : CSS.trim())}</pre>`;
+    else body = `<pre>${esc(cur === "help" ? (LANG === "de" ? CSS_HELP : CSS_HELP_EN) : CSS.trim())}</pre>`;
     w.innerHTML = `<div class="cw-head" data-drag="css">${ic("code", 16)}<b>Eigenes CSS</b>
         <button class="sbtn" data-a="css-min">${this._cssMin ? "Aufklappen" : "Einklappen"}</button>
         <button class="sbtn" data-a="css-close" aria-label="Schließen">${ic("x", 16)}</button></div>

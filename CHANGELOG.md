@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.8.0]
+- English user interface: follows the Home Assistant language (German for `de`, English otherwise), including dates, numbers and the CSS cheat sheet
+- Icon tooltips show English names in English mode
+
 ## [0.7.7]
 - Entity search popup for "State from another entity" and the extra popup values (search by name or entity ID, "matching" or "all" entities)
 - Tighter spacing in the selection tab (collapsed icon groups, size hint, checkbox hints)

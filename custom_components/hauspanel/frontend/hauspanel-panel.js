@@ -2,7 +2,7 @@
  * Ein Web-Component-Modul ohne Build-Abhängigkeiten.
  * Icons: Lucide (ISC-Lizenz). Schrift: Inter (OFL).
  */
-const HP_VERSION = "0.7.7";
+const HP_VERSION = "0.8.0";
 const ICONS = {"activity":"<path d=\"M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2\" />","air-vent":"<path d=\"M18 17.5a2.5 2.5 0 1 1-4 2.03V12\" /> <path d=\"M6 12H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2\" /> <path d=\"M6 8h12\" /> <path d=\"M6.6 15.572A2 2 0 1 0 10 17v-5\" />","alarm-clock":"<circle cx=\"12\" cy=\"13\" r=\"8\" /> <path d=\"M12 9v4l2 2\" /> <path d=\"M5 3 2 6\" /> <path d=\"m22 6-3-3\" /> <path d=\"M6.38 18.7 4 21\" /> <path d=\"M17.64 18.67 20 21\" />","armchair":"<path d=\"M19 9V6a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v3\" /> <path d=\"M3 16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v1.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V11a2 2 0 0 0-4 0z\" /> <path d=\"M5 18v2\" /> <path d=\"M19 18v2\" />","arrow-down":"<path d=\"M12 5v14\" /> <path d=\"m19 12-7 7-7-7\" />","arrow-up":"<path d=\"m5 12 7-7 7 7\" /> <path d=\"M12 19V5\" />","baby":"<path d=\"M10 16c.5.3 1.2.5 2 .5s1.5-.2 2-.5\" /> <path d=\"M15 12h.01\" /> <path d=\"M19.38 6.813A9 9 0 0 1 20.8 10.2a2 2 0 0 1 0 3.6 9 9 0 0 1-17.6 0 2 2 0 0 1 0-3.6A9 9 0 0 1 12 3c2 0 3.5 1.1 3.5 2.5s-.9 2.5-2 2.5c-.8 0-1.5-.4-1.5-1\" /> <path d=\"M9 12h.01\" />","bath":"<path d=\"M10 4 8 6\" /> <path d=\"M17 19v2\" /> <path d=\"M2 12h20\" /> <path d=\"M7 19v2\" /> <path d=\"M9 5 7.621 3.621A2.121 2.121 0 0 0 4 5v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5\" />","battery":"<path d=\"M 22 14 L 22 10\" /> <rect x=\"2\" y=\"6\" width=\"16\" height=\"12\" rx=\"2\" />","battery-charging":"<path d=\"m11 7-3 5h4l-3 5\" /> <path d=\"M14.856 6H16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.935\" /> <path d=\"M22 14v-4\" /> <path d=\"M5.14 18H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h2.936\" />","battery-low":"<path d=\"M22 14v-4\" /> <path d=\"M6 14v-4\" /> <rect x=\"2\" y=\"6\" width=\"16\" height=\"12\" rx=\"2\" />","bed":"<path d=\"M2 4v16\" /> <path d=\"M2 8h18a2 2 0 0 1 2 2v10\" /> <path d=\"M2 17h20\" /> <path d=\"M6 8v9\" />","bed-double":"<path d=\"M2 20v-8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v8\" /> <path d=\"M4 10V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4\" /> <path d=\"M12 4v6\" /> <path d=\"M2 18h20\" />","bell":"<path d=\"M10.268 21a2 2 0 0 0 3.464 0\" /> <path d=\"M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326\" />","bell-ring":"<path d=\"M10.268 21a2 2 0 0 0 3.464 0\" /> <path d=\"M22 8c0-2.3-.8-4.3-2-6\" /> <path d=\"M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326\" /> <path d=\"M4 2C2.8 3.7 2 5.7 2 8\" />","bike":"<circle cx=\"18.5\" cy=\"17.5\" r=\"3.5\" /> <circle cx=\"5.5\" cy=\"17.5\" r=\"3.5\" /> <circle cx=\"15\" cy=\"5\" r=\"1\" /> <path d=\"M12 17.5V14l-3-3 4-3 2 3h2\" />","blinds":"<path d=\"M3 3h18\" /> <path d=\"M20 7H8\" /> <path d=\"M20 11H8\" /> <path d=\"M10 19h10\" /> <path d=\"M8 15h12\" /> <path d=\"M4 3v14\" /> <circle cx=\"4\" cy=\"19\" r=\"2\" />","calendar":"<path d=\"M8 2v3\" /> <path d=\"M16 2v3\" /> <rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\" /> <path d=\"M3 9h18\" />","calendars":"<path d=\"M12 2v2\" /> <path d=\"M15.726 21.01A2 2 0 0 1 14 22H4a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2\" /> <path d=\"M18 2v2\" /> <path d=\"M2 13h2\" /> <path d=\"M8 8h14\" /> <rect x=\"8\" y=\"3\" width=\"14\" height=\"14\" rx=\"2\" />","camera":"<path d=\"M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z\" /> <circle cx=\"12\" cy=\"13\" r=\"3\" />","car":"<path d=\"M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2\" /> <circle cx=\"7\" cy=\"17\" r=\"2\" /> <path d=\"M9 17h6\" /> <circle cx=\"17\" cy=\"17\" r=\"2\" />","car-front":"<path d=\"m21 8-2 2-1.5-3.7A2 2 0 0 0 15.646 5H8.4a2 2 0 0 0-1.903 1.257L5 10 3 8\" /> <path d=\"M7 14h.01\" /> <path d=\"M17 14h.01\" /> <rect width=\"18\" height=\"8\" x=\"3\" y=\"10\" rx=\"2\" /> <path d=\"M5 18v2\" /> <path d=\"M19 18v2\" />","cat":"<path d=\"M12 5c.67 0 1.35.09 2 .26 1.78-2 5.03-2.84 6.42-2.26 1.4.58-.42 7-.42 7 .57 1.07 1 2.24 1 3.44C21 17.9 16.97 21 12 21s-9-3-9-7.56c0-1.25.5-2.4 1-3.44 0 0-1.89-6.42-.5-7 1.39-.58 4.72.23 6.5 2.23A9.04 9.04 0 0 1 12 5Z\" /> <path d=\"M8 14v.5\" /> <path d=\"M16 14v.5\" /> <path d=\"M11.25 16.25h1.5L12 17l-.75-.75Z\" />","cctv":"<path d=\"M16.75 12h3.632a1 1 0 0 1 .894 1.447l-2.034 4.069a1 1 0 0 1-1.708.134l-2.124-2.97\" /> <path d=\"M17.106 9.053a1 1 0 0 1 .447 1.341l-3.106 6.211a1 1 0 0 1-1.342.447L3.61 12.3a2.92 2.92 0 0 1-1.3-3.91L3.69 5.6a2.92 2.92 0 0 1 3.92-1.3z\" /> <path d=\"M2 19h3.76a2 2 0 0 0 1.8-1.1L9 15\" /> <path d=\"M2 21v-4\" /> <path d=\"M7 9h.01\" />","check":"<path d=\"M20 6 9 17l-5-5\" />","chevron-left":"<path d=\"m15 18-6-6 6-6\" />","chevron-right":"<path d=\"m9 18 6-6-6-6\" />","circle":"<circle cx=\"12\" cy=\"12\" r=\"10\" />","circle-dot":"<circle cx=\"12\" cy=\"12\" r=\"1\" /> <circle cx=\"12\" cy=\"12\" r=\"10\" />","clock":"<circle cx=\"12\" cy=\"12\" r=\"10\" /> <path d=\"M12 6v6l4 2\" />","cloud":"<path d=\"M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z\" />","cloud-fog":"<path d=\"M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242\" /> <path d=\"M16 17H7\" /> <path d=\"M17 21H9\" />","cloud-hail":"<path d=\"M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242\" /> <path d=\"M16 14v2\" /> <path d=\"M8 14v2\" /> <path d=\"M16 20h.01\" /> <path d=\"M8 20h.01\" /> <path d=\"M12 16v2\" /> <path d=\"M12 22h.01\" />","cloud-lightning":"<path d=\"M6 16.326A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 .5 8.973\" /> <path d=\"m13 12-3 5h4l-3 5\" />","cloud-rain":"<path d=\"M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242\" /> <path d=\"M16 14v6\" /> <path d=\"M8 14v6\" /> <path d=\"M12 16v6\" />","cloud-rain-wind":"<path d=\"M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242\" /> <path d=\"m9.2 22 3-7\" /> <path d=\"m9 13-3 7\" /> <path d=\"m17 13-3 7\" />","cloud-snow":"<path d=\"M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242\" /> <path d=\"M8 15h.01\" /> <path d=\"M8 19h.01\" /> <path d=\"M12 17h.01\" /> <path d=\"M12 21h.01\" /> <path d=\"M16 15h.01\" /> <path d=\"M16 19h.01\" />","cloud-sun":"<path d=\"M12 2v2\" /> <path d=\"m4.93 4.93 1.41 1.41\" /> <path d=\"M20 12h2\" /> <path d=\"m19.07 4.93-1.41 1.41\" /> <path d=\"M15.947 12.65a4 4 0 0 0-5.925-4.128\" /> <path d=\"M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6Z\" />","code":"<path d=\"m16 18 6-6-6-6\" /> <path d=\"m8 6-6 6 6 6\" />","coffee":"<path d=\"M10 2v2\" /> <path d=\"M14 2v2\" /> <path d=\"M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1\" /> <path d=\"M6 2v2\" />","cooking-pot":"<path d=\"M2 12h20\" /> <path d=\"M20 12v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8\" /> <path d=\"m4 8 16-4\" /> <path d=\"m8.86 6.78-.45-1.81a2 2 0 0 1 1.45-2.43l1.94-.48a2 2 0 0 1 2.43 1.46l.45 1.8\" />","dog":"<path d=\"M11.25 16.25h1.5L12 17z\" /> <path d=\"M16 14v.5\" /> <path d=\"M4.42 11.247A13.152 13.152 0 0 0 4 14.556C4 18.728 7.582 21 12 21s8-2.272 8-6.444a11.702 11.702 0 0 0-.493-3.309\" /> <path d=\"M8 14v.5\" /> <path d=\"M8.5 8.5c-.384 1.05-1.083 2.028-2.344 2.5-1.931.722-3.576-.297-3.656-1-.113-.994 1.177-6.53 4-7 1.923-.321 3.651.845 3.651 2.235A7.497 7.497 0 0 1 14 5.277c0-1.39 1.844-2.598 3.767-2.277 2.823.47 4.113 6.006 4 7-.08.703-1.725 1.722-3.656 1-1.261-.472-1.855-1.45-2.239-2.5\" />","door-closed":"<path d=\"M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16\" /> <path d=\"M2 21h20\" /> <path d=\"M9 12h.01\" />","door-open":"<path d=\"M10 21H2\" /> <path d=\"M10 3H7a2 2 0 00-2 2v16\" /> <path d=\"M14 12h.01\" /> <path d=\"M19 21V5a2 2 0 00-1.675-1.974l-6.163-1.013A1 1 0 0010 3v18a1 1 0 001.124.992z\" /> <path d=\"M22 21h-3\" />","dot":"<circle cx=\"12\" cy=\"12\" r=\"1\" />","droplet":"<path d=\"M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z\" />","droplets":"<path d=\"M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z\" /> <path d=\"M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97\" />","edit":"<path d=\"M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7\" /> <path d=\"M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z\" />","ellipse":"<ellipse cx=\"12\" cy=\"12\" rx=\"10\" ry=\"6\" />","eye":"<path d=\"M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0\" /> <circle cx=\"12\" cy=\"12\" r=\"3\" />","fan":"<path d=\"M10.827 16.379a6.082 6.082 0 0 1-8.618-7.002l5.412 1.45a6.082 6.082 0 0 1 7.002-8.618l-1.45 5.412a6.082 6.082 0 0 1 8.618 7.002l-5.412-1.45a6.082 6.082 0 0 1-7.002 8.618l1.45-5.412Z\" /> <path d=\"M12 12v.01\" />","fence":"<path d=\"M4 3 2 5v15c0 .6.4 1 1 1h2c.6 0 1-.4 1-1V5Z\" /> <path d=\"M6 8h4\" /> <path d=\"M6 18h4\" /> <path d=\"m12 3-2 2v15c0 .6.4 1 1 1h2c.6 0 1-.4 1-1V5Z\" /> <path d=\"M14 8h4\" /> <path d=\"M14 18h4\" /> <path d=\"m20 3-2 2v15c0 .6.4 1 1 1h2c.6 0 1-.4 1-1V5Z\" />","file":"<path d=\"M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z\" /> <path d=\"M14 2v5a1 1 0 0 0 1 1h5\" />","fire-extinguisher":"<path d=\"M15 6.5V3a1 1 0 0 0-1-1h-2a1 1 0 0 0-1 1v3.5\" /> <path d=\"M9 18h8\" /> <path d=\"M18 3h-3\" /> <path d=\"M11 3a6 6 0 0 0-6 6v11\" /> <path d=\"M5 13h4\" /> <path d=\"M17 10a4 4 0 0 0-8 0v10a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2Z\" />","flame":"<path d=\"M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4\" />","flame-kindling":"<path d=\"M12 2c1 3 2.5 3.5 3.5 4.5A5 5 0 0 1 17 10a5 5 0 1 1-10 0c0-.3 0-.6.1-.9a2 2 0 1 0 3.3-2C8 4.5 11 2 12 2Z\" /> <path d=\"m5 22 14-4\" /> <path d=\"m5 18 14 4\" />","flashlight":"<path d=\"M12 13v1\" /> <path d=\"M17 2a1 1 0 0 1 1 1v4a3 3 0 0 1-.6 1.8l-.6.8A4 4 0 0 0 16 12v8a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2v-8a4 4 0 0 0-.8-2.4l-.6-.8A3 3 0 0 1 6 7V3a1 1 0 0 1 1-1z\" /> <path d=\"M6 6h12\" />","flower-2":"<path d=\"M12 5a3 3 0 1 1 3 3m-3-3a3 3 0 1 0-3 3m3-3v1M9 8a3 3 0 1 0 3 3M9 8h1m5 0a3 3 0 1 1-3 3m3-3h-1m-2 3v-1\" /> <circle cx=\"12\" cy=\"8\" r=\"2\" /> <path d=\"M12 10v12\" /> <path d=\"M12 22c4.2 0 7-1.667 7-5-4.2 0-7 1.667-7 5Z\" /> <path d=\"M12 22c-4.2 0-7-1.667-7-5 4.2 0 7 1.667 7 5Z\" />","gamepad-2":"<line x1=\"6\" x2=\"10\" y1=\"11\" y2=\"11\" /> <line x1=\"8\" x2=\"8\" y1=\"9\" y2=\"13\" /> <line x1=\"15\" x2=\"15.01\" y1=\"12\" y2=\"12\" /> <line x1=\"18\" x2=\"18.01\" y1=\"10\" y2=\"10\" /> <path d=\"M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z\" />","gauge":"<path d=\"m12 14 4-4\" /> <path d=\"M3.34 19a10 10 0 1 1 17.32 0\" />","ghost":"<path d=\"M15 10v1\" /> <path d=\"M7.528 20.472a1.6 1.6 0 012.277 0l1.057 1.056a1.6 1.6 0 002.276 0l1.057-1.056a1.6 1.6 0 012.277 0l1.114 1.114a1.4 1.4 0 002.414-1V10a8 8 0 00-16 0v10.586a1.4 1.4 0 002.414 1z\" /> <path d=\"M9 10v1\" />","grid":"<rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\" /> <path d=\"M3 9h18\" /> <path d=\"M3 15h18\" /> <path d=\"M9 3v18\" /> <path d=\"M15 3v18\" />","grip":"<circle cx=\"12\" cy=\"5\" r=\"1\" /> <circle cx=\"19\" cy=\"5\" r=\"1\" /> <circle cx=\"5\" cy=\"5\" r=\"1\" /> <circle cx=\"12\" cy=\"12\" r=\"1\" /> <circle cx=\"19\" cy=\"12\" r=\"1\" /> <circle cx=\"5\" cy=\"12\" r=\"1\" /> <circle cx=\"12\" cy=\"19\" r=\"1\" /> <circle cx=\"19\" cy=\"19\" r=\"1\" /> <circle cx=\"5\" cy=\"19\" r=\"1\" />","grip-vertical":"<circle cx=\"9\" cy=\"12\" r=\"1\" /> <circle cx=\"9\" cy=\"5\" r=\"1\" /> <circle cx=\"9\" cy=\"19\" r=\"1\" /> <circle cx=\"15\" cy=\"12\" r=\"1\" /> <circle cx=\"15\" cy=\"5\" r=\"1\" /> <circle cx=\"15\" cy=\"19\" r=\"1\" />","headphones":"<path d=\"M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3\" />","heater":"<path d=\"M11 8c2-3-2-3 0-6\" /> <path d=\"M15.5 8c2-3-2-3 0-6\" /> <path d=\"M6 10h.01\" /> <path d=\"M6 14h.01\" /> <path d=\"M10 16v-4\" /> <path d=\"M14 16v-4\" /> <path d=\"M18 16v-4\" /> <path d=\"M20 6a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h3\" /> <path d=\"M5 20v2\" /> <path d=\"M19 20v2\" />","home":"<path d=\"M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8\" /> <path d=\"M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\" />","house":"<path d=\"M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8\" /> <path d=\"M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\" />","key":"<path d=\"m2 21 9.6-9.6\" /> <path d=\"m7.5 15.5 2.3 2.3a1 1 0 0 1 0 1.4l-2.1 2.1a1 1 0 0 1-1.4 0L4 19\" /> <circle cx=\"15.5\" cy=\"7.5\" r=\"5.5\" />","key-round":"<path d=\"M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z\" /> <circle cx=\"16.5\" cy=\"7.5\" r=\".5\" fill=\"currentColor\" />","lamp":"<path d=\"M12 12v6\" /> <path d=\"M4.077 10.615A1 1 0 0 0 5 12h14a1 1 0 0 0 .923-1.385l-3.077-7.384A2 2 0 0 0 15 2H9a2 2 0 0 0-1.846 1.23Z\" /> <path d=\"M8 20a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1z\" />","lamp-ceiling":"<path d=\"M12 2v5\" /> <path d=\"M14.829 15.998a3 3 0 1 1-5.658 0\" /> <path d=\"M20.92 14.606A1 1 0 0 1 20 16H4a1 1 0 0 1-.92-1.394l3-7A1 1 0 0 1 7 7h10a1 1 0 0 1 .92.606z\" />","lamp-desk":"<path d=\"M10.293 2.293a1 1 0 0 1 1.414 0l2.5 2.5 5.994 1.227a1 1 0 0 1 .506 1.687l-7 7a1 1 0 0 1-1.687-.506l-1.227-5.994-2.5-2.5a1 1 0 0 1 0-1.414z\" /> <path d=\"m14.207 4.793-3.414 3.414\" /> <path d=\"M3 20a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z\" /> <path d=\"m9.086 6.5-4.793 4.793a1 1 0 0 0-.18 1.17L7 18\" />","lamp-floor":"<path d=\"M12 10v12\" /> <path d=\"M17.929 7.629A1 1 0 0 1 17 9H7a1 1 0 0 1-.928-1.371l2-5A1 1 0 0 1 9 2h6a1 1 0 0 1 .928.629z\" /> <path d=\"M9 22h6\" />","lamp-wall-down":"<path d=\"M19.929 18.629A1 1 0 0 1 19 20H9a1 1 0 0 1-.928-1.371l2-5A1 1 0 0 1 11 13h6a1 1 0 0 1 .928.629z\" /> <path d=\"M6 3a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z\" /> <path d=\"M8 6h4a2 2 0 0 1 2 2v5\" />","lamp-wall-up":"<path d=\"M19.929 9.629A1 1 0 0 1 19 11H9a1 1 0 0 1-.928-1.371l2-5A1 1 0 0 1 11 4h6a1 1 0 0 1 .928.629z\" /> <path d=\"M6 15a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2H5a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1z\" /> <path d=\"M8 18h4a2 2 0 0 0 2-2v-5\" />","laptop":"<path d=\"M18 5a2 2 0 0 1 2 2v8.526a2 2 0 0 0 .212.897l1.068 2.127a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45l1.068-2.127A2 2 0 0 0 4 15.526V7a2 2 0 0 1 2-2z\" /> <path d=\"M20.054 15.987H3.946\" />","leaf":"<path d=\"M11 20a10 10 0 0010-10 25.9 25.9 0 00-1.04-7.281 1 1 0 00-1.755-.325C15.833 5.5 13 5.5 9.8 6.1A7 7 0 0011 20\" /> <path d=\"M2 21a5 5 0 012.911-4.544C7.613 15.212 8.351 15.24 11 13\" />","lightbulb":"<path d=\"M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5\" /> <path d=\"M9 18h6\" /> <path d=\"M10 22h4\" />","lightbulb-off":"<path d=\"M16.8 11.2c.8-.9 1.2-2 1.2-3.2a6 6 0 0 0-9.3-5\" /> <path d=\"m2 2 20 20\" /> <path d=\"M6.3 6.3a4.67 4.67 0 0 0 1.2 5.2c.7.7 1.3 1.5 1.5 2.5\" /> <path d=\"M9 18h6\" /> <path d=\"M10 22h4\" />","list":"<path d=\"M3 5h.01\" /> <path d=\"M3 12h.01\" /> <path d=\"M3 19h.01\" /> <path d=\"M8 5h13\" /> <path d=\"M8 12h13\" /> <path d=\"M8 19h13\" />","lock":"<rect width=\"18\" height=\"11\" x=\"3\" y=\"11\" rx=\"2\" ry=\"2\" /> <path d=\"M7 11V7a5 5 0 0 1 10 0v4\" />","mail":"<path d=\"m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7\" /> <rect x=\"2\" y=\"4\" width=\"20\" height=\"16\" rx=\"2\" />","map-pin":"<path d=\"M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0\" /> <circle cx=\"12\" cy=\"10\" r=\"3\" />","maximize-2":"<path d=\"M15 3h6v6\" /> <path d=\"m21 3-7 7\" /> <path d=\"m3 21 7-7\" /> <path d=\"M9 21H3v-6\" />","menu":"<path d=\"M4 5h16\" /> <path d=\"M4 12h16\" /> <path d=\"M4 19h16\" />","microwave":"<rect width=\"20\" height=\"15\" x=\"2\" y=\"4\" rx=\"2\" /> <rect width=\"8\" height=\"7\" x=\"6\" y=\"8\" rx=\"1\" /> <path d=\"M18 8v7\" /> <path d=\"M6 19v2\" /> <path d=\"M18 19v2\" />","minus":"<path d=\"M5 12h14\" />","monitor":"<rect width=\"20\" height=\"14\" x=\"2\" y=\"3\" rx=\"2\" /> <line x1=\"8\" x2=\"16\" y1=\"21\" y2=\"21\" /> <line x1=\"12\" x2=\"12\" y1=\"17\" y2=\"21\" />","moon":"<path d=\"M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401\" />","music":"<path d=\"M9 18V5l12-2v13\" /> <circle cx=\"6\" cy=\"18\" r=\"3\" /> <circle cx=\"18\" cy=\"16\" r=\"3\" />","package":"<path d=\"M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z\" /> <path d=\"M12 22V12\" /> <polyline points=\"3.29 7 12 12 20.71 7\" /> <path d=\"m7.5 4.27 9 5.15\" />","paw-print":"<circle cx=\"11\" cy=\"4\" r=\"2\" /> <circle cx=\"18\" cy=\"8\" r=\"2\" /> <circle cx=\"20\" cy=\"16\" r=\"2\" /> <path d=\"M9 10a5 5 0 0 1 5 5v3.5a3.5 3.5 0 0 1-6.84 1.045Q6.52 17.48 4.46 16.84A3.5 3.5 0 0 1 5.5 10Z\" />","pencil":"<path d=\"M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z\" /> <path d=\"m15 5 4 4\" />","pill":"<path d=\"m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z\" /> <path d=\"m8.5 8.5 7 7\" />","pin":"<path d=\"M12 17v5\" /> <path d=\"M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z\" />","pipette":"<path d=\"m12 9-8.414 8.414A2 2 0 0 0 3 18.828v1.344a2 2 0 0 1-.586 1.414A2 2 0 0 1 3.828 21h1.344a2 2 0 0 0 1.414-.586L15 12\" /> <path d=\"m18 9 .4.4a1 1 0 1 1-3 3l-3.8-3.8a1 1 0 1 1 3-3l.4.4 3.4-3.4a1 1 0 1 1 3 3z\" /> <path d=\"m2 22 .414-.414\" />","play":"<path d=\"M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z\" />","plug":"<path d=\"M12 22v-5\" /> <path d=\"M15 8V2\" /> <path d=\"M17 8a1 1 0 0 1 1 1v4a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1z\" /> <path d=\"M9 8V2\" />","plug-zap":"<path d=\"M6.3 20.3a2.4 2.4 0 0 0 3.4 0L12 18l-6-6-2.3 2.3a2.4 2.4 0 0 0 0 3.4Z\" /> <path d=\"m2 22 3-3\" /> <path d=\"M7.5 13.5 10 11\" /> <path d=\"M10.5 16.5 13 14\" /> <path d=\"m18 3-4 4h6l-4 4\" />","plus":"<path d=\"M5 12h14\" /> <path d=\"M12 5v14\" />","power":"<path d=\"M12 2v10\" /> <path d=\"M18.4 6.6a9 9 0 1 1-12.77.04\" />","printer":"<path d=\"M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2\" /> <path d=\"M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6\" /> <rect x=\"6\" y=\"14\" width=\"12\" height=\"8\" rx=\"1\" />","radio":"<path d=\"M16.247 7.761a6 6 0 0 1 0 8.478\" /> <path d=\"M19.075 4.933a10 10 0 0 1 0 14.134\" /> <path d=\"M4.925 19.067a10 10 0 0 1 0-14.134\" /> <path d=\"M7.753 16.239a6 6 0 0 1 0-8.478\" /> <circle cx=\"12\" cy=\"12\" r=\"2\" />","radius":"<path d=\"M20.34 17.52a10 10 0 1 0-2.82 2.82\" /> <circle cx=\"19\" cy=\"19\" r=\"2\" /> <path d=\"m13.41 13.41 4.18 4.18\" /> <circle cx=\"12\" cy=\"12\" r=\"2\" />","recycle":"<path d=\"M7 19H4.815a1.83 1.83 0 0 1-1.57-.881 1.785 1.785 0 0 1-.004-1.784L7.196 9.5\" /> <path d=\"M11 19h8.203a1.83 1.83 0 0 0 1.556-.89 1.784 1.784 0 0 0 0-1.775l-1.226-2.12\" /> <path d=\"m14 16-3 3 3 3\" /> <path d=\"M8.293 13.596 7.196 9.5 3.1 10.598\" /> <path d=\"m9.344 5.811 1.093-1.892A1.83 1.83 0 0 1 11.985 3a1.784 1.784 0 0 1 1.546.888l3.943 6.843\" /> <path d=\"m13.378 9.633 4.096 1.098 1.097-4.096\" />","refrigerator":"<path d=\"M5 6a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6Z\" /> <path d=\"M5 10h14\" /> <path d=\"M15 7v6\" />","router":"<rect width=\"20\" height=\"8\" x=\"2\" y=\"14\" rx=\"2\" /> <path d=\"M6.01 18H6\" /> <path d=\"M10.01 18H10\" /> <path d=\"M15 10v4\" /> <path d=\"M17.84 7.17a4 4 0 0 0-5.66 0\" /> <path d=\"M20.66 4.34a8 8 0 0 0-11.31 0\" />","scale":"<path d=\"M12 3v18\" /> <path d=\"m19 8 3 8a5 5 0 0 1-6 0zV7\" /> <path d=\"M3 7h1a17 17 0 0 0 8-2 17 17 0 0 0 8 2h1\" /> <path d=\"m5 8 3 8a5 5 0 0 1-6 0zV7\" /> <path d=\"M7 21h10\" />","search":"<path d=\"m21 21-4.34-4.34\" /> <circle cx=\"11\" cy=\"11\" r=\"8\" />","server":"<rect width=\"20\" height=\"8\" x=\"2\" y=\"2\" rx=\"2\" ry=\"2\" /> <rect width=\"20\" height=\"8\" x=\"2\" y=\"14\" rx=\"2\" ry=\"2\" /> <line x1=\"6\" x2=\"6.01\" y1=\"6\" y2=\"6\" /> <line x1=\"6\" x2=\"6.01\" y1=\"18\" y2=\"18\" />","shield":"<path d=\"M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z\" />","shield-check":"<path d=\"M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z\" /> <path d=\"m9 12 2 2 4-4\" />","shirt":"<path d=\"M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z\" />","shower-head":"<path d=\"m4 4 2.5 2.5\" /> <path d=\"M13.5 6.5a4.95 4.95 0 0 0-7 7\" /> <path d=\"M15 5 5 15\" /> <path d=\"M14 17v.01\" /> <path d=\"M10 16v.01\" /> <path d=\"M13 13v.01\" /> <path d=\"M16 10v.01\" /> <path d=\"M11 20v.01\" /> <path d=\"M17 14v.01\" /> <path d=\"M20 11v.01\" />","siren":"<path d=\"M7 18v-6a5 5 0 1 1 10 0v6\" /> <path d=\"M5 21a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-1a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2z\" /> <path d=\"M21 12h1\" /> <path d=\"M18.5 4.5 18 5\" /> <path d=\"M2 12h1\" /> <path d=\"M12 2v1\" /> <path d=\"m4.929 4.929.707.707\" /> <path d=\"M12 12v6\" />","smartphone":"<rect width=\"14\" height=\"20\" x=\"5\" y=\"2\" rx=\"2\" ry=\"2\" /> <path d=\"M12 18h.01\" />","snowflake":"<path d=\"m10 20-1.25-2.5L6 18\" /> <path d=\"M10 4 8.75 6.5 6 6\" /> <path d=\"m14 20 1.25-2.5L18 18\" /> <path d=\"m14 4 1.25 2.5L18 6\" /> <path d=\"m17 21-3-6h-4\" /> <path d=\"m17 3-3 6 1.5 3\" /> <path d=\"M2 12h6.5L10 9\" /> <path d=\"m20 10-1.5 2 1.5 2\" /> <path d=\"M22 12h-6.5L14 15\" /> <path d=\"m4 10 1.5 2L4 14\" /> <path d=\"m7 21 3-6-1.5-3\" /> <path d=\"m7 3 3 6h4\" />","sofa":"<path d=\"M20 9V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v3\" /> <path d=\"M2 16a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v1.5a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5V11a2 2 0 0 0-4 0z\" /> <path d=\"M4 18v2\" /> <path d=\"M20 18v2\" /> <path d=\"M12 4v9\" />","solar-panel":"<path d=\"M11 2h2\" /> <path d=\"m14.28 14-4.56 8\" /> <path d=\"m21 22-1.558-4H4.558\" /> <path d=\"M3 10v2\" /> <path d=\"M6.245 15.04A2 2 0 0 1 8 14h12a1 1 0 0 1 .864 1.505l-3.11 5.457A2 2 0 0 1 16 22H4a1 1 0 0 1-.863-1.506z\" /> <path d=\"M7 2a4 4 0 0 1-4 4\" /> <path d=\"m8.66 7.66 1.41 1.41\" />","speaker":"<rect width=\"16\" height=\"20\" x=\"4\" y=\"2\" rx=\"2\" /> <path d=\"M12 6h.01\" /> <circle cx=\"12\" cy=\"14\" r=\"4\" /> <path d=\"M12 14h.01\" />","spotlight":"<path d=\"M15.295 19.562 16 22\" /> <path d=\"m17 16 3.758 2.098\" /> <path d=\"m19 12.5 3.026-.598\" /> <path d=\"M7.61 6.3a3 3 0 0 0-3.92 1.3l-1.38 2.79a3 3 0 0 0 1.3 3.91l6.89 3.597a1 1 0 0 0 1.342-.447l3.106-6.211a1 1 0 0 0-.447-1.341z\" /> <path d=\"M8 9V2\" />","sprout":"<path d=\"M14 9.536V7a4 4 0 0 1 4-4h1.5a.5.5 0 0 1 .5.5V5a4 4 0 0 1-4 4 4 4 0 0 0-4 4c0 2 1 3 1 5a5 5 0 0 1-1 3\" /> <path d=\"M4 9a5 5 0 0 1 8 4 5 5 0 0 1-8-4\" /> <path d=\"M5 21h14\" />","sun":"<circle cx=\"12\" cy=\"12\" r=\"4\" /> <path d=\"M12 2v2\" /> <path d=\"M12 20v2\" /> <path d=\"m4.93 4.93 1.41 1.41\" /> <path d=\"m17.66 17.66 1.41 1.41\" /> <path d=\"M2 12h2\" /> <path d=\"M20 12h2\" /> <path d=\"m6.34 17.66-1.41 1.41\" /> <path d=\"m19.07 4.93-1.41 1.41\" />","sun-dim":"<circle cx=\"12\" cy=\"12\" r=\"4\" /> <path d=\"M12 4h.01\" /> <path d=\"M20 12h.01\" /> <path d=\"M12 20h.01\" /> <path d=\"M4 12h.01\" /> <path d=\"M17.657 6.343h.01\" /> <path d=\"M17.657 17.657h.01\" /> <path d=\"M6.343 17.657h.01\" /> <path d=\"M6.343 6.343h.01\" />","tablet":"<rect width=\"16\" height=\"20\" x=\"4\" y=\"2\" rx=\"2\" ry=\"2\" /> <line x1=\"12\" x2=\"12.01\" y1=\"18\" y2=\"18\" />","tag":"<path d=\"M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z\" /> <circle cx=\"7.5\" cy=\"7.5\" r=\".5\" fill=\"currentColor\" />","text":"<path d=\"M21 5H3\" /> <path d=\"M15 12H3\" /> <path d=\"M17 19H3\" />","thermometer":"<path d=\"M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z\" />","thermometer-sun":"<path d=\"M12 2v2\" /> <path d=\"M12 8a4 4 0 0 0-1.645 7.647\" /> <path d=\"M2 12h2\" /> <path d=\"M20 14.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0z\" /> <path d=\"m4.93 4.93 1.41 1.41\" /> <path d=\"m6.34 17.66-1.41 1.41\" />","timer":"<line x1=\"10\" x2=\"14\" y1=\"2\" y2=\"2\" /> <line x1=\"12\" x2=\"15\" y1=\"14\" y2=\"11\" /> <circle cx=\"12\" cy=\"14\" r=\"8\" />","toggle-left":"<circle cx=\"9\" cy=\"12\" r=\"3\" /> <rect width=\"20\" height=\"14\" x=\"2\" y=\"5\" rx=\"7\" />","toilet":"<path d=\"M7 12h13a1 1 0 0 1 1 1 5 5 0 0 1-5 5h-.598a.5.5 0 0 0-.424.765l1.544 2.47a.5.5 0 0 1-.424.765H5.402a.5.5 0 0 1-.424-.765L7 18\" /> <path d=\"M8 18a5 5 0 0 1-5-5V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8\" />","trash-2":"<path d=\"M10 11v6\" /> <path d=\"M14 11v6\" /> <path d=\"M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6\" /> <path d=\"M3 6h18\" /> <path d=\"M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2\" />","trees":"<path d=\"M10 10v.2A3 3 0 0 1 8.9 16H5a3 3 0 0 1-1-5.8V10a3 3 0 0 1 6 0Z\" /> <path d=\"M7 16v6\" /> <path d=\"M13 19v3\" /> <path d=\"M12 19h8.3a1 1 0 0 0 .7-1.7L18 14h.3a1 1 0 0 0 .7-1.7L16 9h.2a1 1 0 0 0 .8-1.7L13 3l-1.4 1.5\" />","triangle-alert":"<path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3\" /> <path d=\"M12 9v4\" /> <path d=\"M12 17h.01\" />","tv":"<path d=\"m17 2-5 5-5-5\" /> <rect width=\"20\" height=\"15\" x=\"2\" y=\"7\" rx=\"2\" />","unlock":"<rect width=\"18\" height=\"11\" x=\"3\" y=\"11\" rx=\"2\" ry=\"2\" /> <path d=\"M7 11V7a5 5 0 0 1 9.9-1\" />","upload":"<path d=\"M12 3v12\" /> <path d=\"m17 8-5-5-5 5\" /> <path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\" />","user":"<path d=\"M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2\" /> <circle cx=\"12\" cy=\"7\" r=\"4\" />","users":"<path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\" /> <path d=\"M16 3.128a4 4 0 0 1 0 7.744\" /> <path d=\"M22 21v-2a4 4 0 0 0-3-3.87\" /> <circle cx=\"9\" cy=\"7\" r=\"4\" />","utensils":"<path d=\"M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2\" /> <path d=\"M7 2v20\" /> <path d=\"M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7\" />","video":"<path d=\"m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5\" /> <rect x=\"2\" y=\"6\" width=\"14\" height=\"12\" rx=\"2\" />","video-off":"<path d=\"M10.66 6H14a2 2 0 0 1 2 2v2.5l5.248-3.062A.5.5 0 0 1 22 7.87v8.196\" /> <path d=\"M16 16a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h2\" /> <path d=\"m2 2 20 20\" />","view":"<path d=\"M21 17v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2\" /> <path d=\"M21 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2\" /> <circle cx=\"12\" cy=\"12\" r=\"1\" /> <path d=\"M18.944 12.33a1 1 0 0 0 0-.66 7.5 7.5 0 0 0-13.888 0 1 1 0 0 0 0 .66 7.5 7.5 0 0 0 13.888 0\" />","warehouse":"<path d=\"M18 21V10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v11\" /> <path d=\"M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 1.132-1.803l7.95-3.974a2 2 0 0 1 1.837 0l7.948 3.974A2 2 0 0 1 22 8z\" /> <path d=\"M6 13h12\" /> <path d=\"M6 17h12\" />","washing-machine":"<path d=\"M3 6h3\" /> <path d=\"M17 6h.01\" /> <rect width=\"18\" height=\"20\" x=\"3\" y=\"2\" rx=\"2\" /> <circle cx=\"12\" cy=\"13\" r=\"5\" /> <path d=\"M12 18a2.5 2.5 0 0 0 0-5 2.5 2.5 0 0 1 0-5\" />","waves":"<path d=\"M2 12q2.5 2 5 0t5 0 5 0 5 0\" /> <path d=\"M2 19q2.5 2 5 0t5 0 5 0 5 0\" /> <path d=\"M2 5q2.5 2 5 0t5 0 5 0 5 0\" />","webcam":"<circle cx=\"12\" cy=\"10\" r=\"8\" /> <circle cx=\"12\" cy=\"10\" r=\"3\" /> <path d=\"M7 22h10\" /> <path d=\"M12 22v-4\" />","wifi":"<path d=\"M12 20h.01\" /> <path d=\"M2 8.82a15 15 0 0 1 20 0\" /> <path d=\"M5 12.859a10 10 0 0 1 14 0\" /> <path d=\"M8.5 16.429a5 5 0 0 1 7 0\" />","wind":"<path d=\"M12.8 19.6A2 2 0 1 0 14 16H2\" /> <path d=\"M17.5 8a2.5 2.5 0 1 1 2 4H2\" /> <path d=\"M9.8 4.4A2 2 0 1 1 11 8H2\" />","wine":"<path d=\"M8 22h8\" /> <path d=\"M7 10h10\" /> <path d=\"M12 15v7\" /> <path d=\"M12 15a5 5 0 0 0 5-5c0-2-.5-4-2-8H9c-1.5 4-2 6-2 8a5 5 0 0 0 5 5Z\" />","x":"<path d=\"M18 6 6 18\" /> <path d=\"m6 6 12 12\" />","zap":"<path d=\"M15.914 4a1.5 1.5 0 00-2.474-1.561l-9 9A1.5 1.5 0 005.5 14h4.002a.5.5 0 01.471.666L8.086 20a1.5 1.5 0 002.475 1.56l9-9A1.5 1.5 0 0018.5 10h-3.997a.5.5 0 01-.472-.667z\" />"};
 
 // Referenzbreite/-höhe: darauf wird skaliert, der Rest des Bildschirms geht an den Grundriss
@@ -47,6 +47,199 @@ const STATE_LABEL = {on:"An",off:"Aus",open:"Offen",closed:"Geschlossen",opening
   playing:"Wiedergabe",paused:"Pausiert",idle:"Bereit",standby:"Standby",unavailable:"Nicht erreichbar",
   unknown:"Unbekannt",home:"Zuhause",not_home:"Abwesend",streaming:"Live",recording:"Aufnahme",...HVAC_LABEL};
 
+/* ---------- Sprache ----------
+   Die Oberfläche ist auf Deutsch geschrieben. Bei nicht-deutscher HA-Sprache übersetzt eine Schicht
+   alle angezeigten Texte (Textknoten, placeholder/title/aria-label) über dieses Wörterbuch ins Englische.
+   Nutzerinhalte (Raum-, Etagen-, Entity-Namen, Termine) bleiben unberührt, weil sie nicht im Wörterbuch stehen. */
+let LANG = "de";
+const I18N_EN = {
+  // Kopfzeile, Navigation, allgemein
+  "Zuhause": "Home", "Bearbeiten": "Edit", "Speichern": "Save", "Abbrechen": "Cancel", "Änderungen verwerfen?": "Discard changes?",
+  "Hauspanel einrichten": "Set up Hauspanel", "Alles gespeichert": "All saved", "Ungespeicherte Änderungen": "Unsaved changes",
+  "Hell/Dunkel": "Light/dark", "Vorschau": "Preview", "Zurück zum Editor": "Back to editor", "Menü": "Menu", "Schließen": "Close",
+  "Lade Hauspanel …": "Loading Hauspanel …", "Keine Verbindung zum Backend": "No connection to the backend", "Willkommen": "Welcome",
+  "Noch kein Grundriss": "No floor plan yet",
+  "Im Tab „Etage“ ein SVG hochladen. Geräte kannst du trotzdem schon platzieren.": "Upload a plan in the “Floor” tab. You can already place devices.",
+  "Ein Admin kann im Editor ein SVG hochladen.": "An admin can upload a floor plan in the editor.",
+  "Alles aus": "All off", "Alle": "All", "Hinzufügen": "Add", "Entfernen": "Remove", "Fertig": "Done", "Weiter": "Next", "Weitere": "More",
+  "Nach oben": "Move up", "Nach unten": "Move down", "Einklappen": "Collapse", "Auf Standard zurücksetzen": "Reset to default",
+  "Zurück auf automatisch": "Back to automatic", "Zurück auf 100 %": "Back to 100 %", "Nichts gefunden.": "Nothing found.",
+  // Wetter
+  "Wetter": "Weather", "Klar": "Clear", "Bewölkt": "Cloudy", "Unwetter": "Severe weather", "Nebel": "Fog", "Hagel": "Hail", "Gewitter": "Thunderstorm",
+  "Leicht bewölkt": "Partly cloudy", "Starkregen": "Heavy rain", "Regen": "Rain", "Schnee": "Snow", "Schneeregen": "Sleet", "Sonnig": "Sunny", "Windig": "Windy",
+  "Keine Wetter-Entity gewählt. Im Editor unter „Allgemein“ einstellen.": "No weather entity selected. Set one in the editor under “General”.",
+  // Müll
+  "Müllabfuhr": "Waste collection", "Heute": "Today", "Morgen": "Tomorrow", "heute": "today", "morgen": "tomorrow",
+  "Noch keine Müll-Sensoren eingestellt.": "No waste sensors configured yet.",
+  "Keine kommenden Termine erkannt. Im Editor unter „Allgemein“ steht bei jedem Sensor, was gelesen wurde.": "No upcoming pickups detected. The editor shows what was read for each sensor under “General”.",
+  "Entity nicht gefunden": "Entity not found",
+  // Kalender
+  "Termine": "Events", "Diese Woche": "This week", "7 Tage weiter": "7 days forward", "7 Tage zurück": "7 days back", "Alle Termine": "All events",
+  "Ganztägig": "All day", "Fortsetzung": "Continued", "Notizen": "Notes", "Ort": "Location",
+  // Zustände
+  "An": "On", "Aus": "Off", "Offen": "Open", "Geschlossen": "Closed", "Öffnet": "Opening", "Schließt": "Closing", "Verriegelt": "Locked", "Entriegelt": "Unlocked",
+  "Verriegelt…": "Locking…", "Entriegelt…": "Unlocking…", "Blockiert": "Jammed", "Wiedergabe": "Playing", "Pausiert": "Paused", "Bereit": "Idle", "Standby": "Standby",
+  "Nicht erreichbar": "Unavailable", "Unbekannt": "Unknown", "Abwesend": "Away", "Live": "Live", "Aufnahme": "Recording", "Bewegung": "Motion", "Ruhig": "Clear",
+  "Nicht gefunden": "Not found", "Heizen": "Heat", "Kühlen": "Cool", "Heizen/Kühlen": "Heat/cool", "Auto": "Auto", "Entfeuchten": "Dry", "Lüften": "Fan only",
+  "heizt gerade": "heating", "kühlt gerade": "cooling",
+  // Popups
+  "Schalten": "Toggle", "Tippen zum Einschalten": "Tap to turn on", "Eingeschaltet": "On", "Ausgeschaltet": "Off", "Verbraucht Strom": "Drawing power",
+  "Helligkeit": "Brightness", "Farbe": "Colour", "Farbton": "Hue", "Weißton": "White", "Farbtemperatur": "Colour temperature", "Warmweiß": "Warm white", "Kaltweiß": "Cool white",
+  "Modus": "Mode", "Kälter": "Cooler", "Wärmer": "Warmer", "Öffnen": "Open", "Stopp": "Stop", "Verriegeln": "Lock", "Entriegeln": "Unlock", "Ausführen": "Run",
+  "Abspielen": "Play", "Pause": "Pause", "In Home Assistant öffnen": "Open in Home Assistant", "Verbinde mit Kamera …": "Connecting to camera …",
+  "Kamera nicht erreichbar": "Camera unavailable", "Kamera an": "Camera on", "Kamera aus": "Camera off",
+  "Die Kamera liefert gerade kein Bild an Home Assistant.": "The camera is not delivering an image to Home Assistant right now.",
+  // Editor-Tabs
+  "Geräte": "Devices", "Auswahl": "Selection", "Etage": "Floor", "Allgemein": "General", "Design": "Design",
+  // Geräte-Tab
+  "Suchen (Name oder entity_id)": "Search (name or entity_id)", "Licht": "Lights", "Schalter": "Switches", "Heizung": "Climate", "Sensoren": "Sensors", "Kameras": "Cameras",
+  "Am Griff": "Drag by the handle", "auf den Grundriss ziehen oder mit + in die Mitte setzen.": "onto the plan, or use + to drop it in the middle.",
+  "Lege zuerst links eine Etage an.": "Add a floor on the left first.", "Lege zuerst eine Etage an": "Add a floor first",
+  // Auswahl-Tab
+  "Tippe auf dem Plan ein Gerät oder Raum-Label an, um es zu bearbeiten.": "Tap a device or room label on the plan to edit it.",
+  "Entity": "Entity", "Diese Entity gibt es nicht.": "This entity does not exist.", "Anzeigename": "Display name", "Raum": "Room",
+  "Anzeige auf dem Plan": "Display on plan", "Icon": "Icon", "Wert": "Value", "Icon + Wert": "Icon + value", "Ist-Temperatur": "Current temperature",
+  "Icon suchen, z. B. heizung, tür, wlan …": "Search icons, e.g. heating, door, wifi …", "Kein Icon gefunden.": "No icon found.", "Automatisch": "Automatic",
+  "Steckdosen & Strom": "Plugs & power", "Heizen & Klima": "Heating & climate", "Medien & Technik": "Media & tech", "Sicherheit": "Security",
+  "Haushalt": "Household", "Räume & Möbel": "Rooms & furniture", "Draußen & Sonstiges": "Outdoor & misc",
+  "Status (an/aus)": "State (on/off)", "Wie Messwert": "As measured value", "An, wenn sie heizt": "On while heating", "An, wenn Heizmodus aktiv": "On while heat mode is on",
+  "„Wie Messwert“: immer in den Messwert-Farben, egal ob an oder aus.": "“As measured value”: always uses the measured-value colours, on or off.",
+  "„Heizt“ nutzt hvac_action – rot nur, solange wirklich geheizt wird. „Heizmodus“ ist rot, solange das Thermostat nicht auf Aus steht.": "“Heating” uses hvac_action – highlighted only while actually heating. “Heat mode” is highlighted as long as the thermostat is not off.",
+  "Messwert-Farben – dieses Gerät hat keinen An/Aus-Status.": "Measured-value colours – this device has no on/off state.",
+  "Ansicht im Popup": "Popup view", "Livebild": "Live view", "Standbild (alle 3 s neu)": "Snapshot (refreshes every 3 s)",
+  "Akku-Kameras liefern oft kein Livebild an Home Assistant – dann Standbild wählen.": "Battery cameras often don't provide a live stream to Home Assistant – choose snapshot then.",
+  "Status von anderer Entity": "State from another entity", "Entity wählen (optional)": "Choose entity (optional)", "Entity wählen": "Choose entity",
+  "Der Pin wird „an“ gefärbt, wenn diese Entity an ist.": "The pin is coloured “on” while this entity is on.",
+  "Kamera an = Pin in An-Farbe, aus = durchgestrichenes Symbol. Antippen öffnet weiterhin das Kamerabild.": "Camera on = pin in the on colour, off = crossed-out symbol. Tapping still opens the camera view.",
+  "Größe": "Size", "Nur dieses Gerät; die allgemeine Größe stellst du im Design-Tab ein.": "This device only; the general size is set in the Design tab.",
+  "Nur dieses Label; die allgemeine Größe stellst du im Design-Tab ein.": "This label only; the general size is set in the Design tab.",
+  "Antippen schaltet direkt an/aus": "Tap toggles on/off directly", "Lange drücken öffnet weiterhin das Popup (z. B. für Helligkeit).": "Long-press still opens the popup (e.g. for brightness).",
+  "Mit Power-Button ausschalten": "Switch off with the power button", "Zusatzwerte im Popup": "Extra values in popup",
+  "z. B. Leistung und Verbrauch bei einer Steckdose oder Luftfeuchte bei einem Thermometer.": "e.g. power and energy of a plug or humidity of a thermometer.",
+  "Wert hinzufügen": "Add value", "Vom Plan entfernen": "Remove from plan", "Raumname": "Room name", "Label entfernen": "Remove label",
+  "Label auf dem Plan an die richtige Stelle ziehen. Geräte ohne festen Raum bekommen automatisch das nächstgelegene Label.": "Drag the label to the right spot on the plan. Devices without a fixed room get the nearest label automatically.",
+  "Passende": "Matching", "Name oder entity_id …": "Name or entity_id …", "Status von": "State from", "Zusatzwert": "Extra value", "fehlt": "missing",
+  // Etage-Tab
+  "Noch keine Etage. Links auf „+ Etage“ tippen.": "No floor yet. Tap “+ Floor” on the left.", "Kürzel": "Code", "Name": "Name", "Neue Etage": "New floor",
+  "Grundriss": "Floor plan", "Grundriss hochladen": "Upload floor plan", "Anderen Grundriss wählen": "Choose another plan", "Grundriss entfernen": "Remove floor plan",
+  "SVG (max. 2 MB) oder JPG/PNG/WebP – Bilder werden auf 2400 px verkleinert": "SVG (max. 2 MB) or JPG/PNG/WebP – images are scaled to 2400 px",
+  "Farben an Design & Nachtmodus anpassen": "Adapt colours to design & night mode", "Im Nachtmodus invertieren": "Invert in night mode",
+  "Dunkle Flächen werden zu Wänden, helle zu Boden, Grautöne zu Außenbereich/Türen. Aus = Original-Farben.": "Dark areas become walls, light ones floor, greys outdoor/doors. Off = original colours.",
+  "Pixelbilder lassen sich nicht auf Wand-/Bodenfarben umfärben. Invertieren macht aus einem hellen Plan nachts einen dunklen.": "Raster images can't be recoloured to wall/floor colours. Inverting turns a light plan dark at night.",
+  "Trennlinie über dieser Etage (z. B. Keller)": "Divider above this floor (e.g. basement)", "Etage löschen": "Delete floor", "Raum-Label": "Room label",
+  "+ Etage": "+ Floor", "Etage": "Floor",
+  // Allgemein-Tab
+  "Startetage": "Start floor", "Das Tablet springt nach 2 Minuten ohne Bedienung hierher zurück und schließt offene Popups.": "After 2 minutes without interaction the tablet returns here and closes open popups.",
+  "– kein Wetter –": "– no weather –", "Kalender": "Calendars", "Kalender wählen": "Choose calendar", "Anzeigename": "Display name",
+  "Google-Kalender über die Google-Calendar-Integration in HA einbinden – hier erscheinen sie dann.": "Add Google calendars via HA's Google Calendar integration – they will show up here.",
+  "Kalenderleiste zeigt": "Calendar bar shows", "Kalenderwoche (Mo–So)": "Calendar week (Mon–Sun)", "Kalenderwoche – am Wochenende ab heute": "Calendar week – from today on weekends",
+  "Immer die nächsten 7 Tage ab heute": "Always the next 7 days from today",
+  "„Am Wochenende ab heute“: Samstag und Sonntag zeigen schon die kommende Woche mit. Wo eine neue Woche beginnt, steht die KW am Tag.": "“From today on weekends”: Saturday and Sunday already include the coming week. Where a new week starts, the week number is shown on that day.",
+  "Sensor mit Datum (z. B. 2026-10-16 oder 16.10.2026) oder Anzahl Tage als Zustand. Attribut daysTo wird auch erkannt.": "Sensor with a date (e.g. 2026-10-16) or a number of days as state. The daysTo attribute is detected as well.",
+  "Nachtmodus": "Night mode", "Nach Uhrzeit": "By time", "Nach Sonnenstand (sun.sun)": "By sun position (sun.sun)", "Von": "From", "Bis": "To",
+  "Tipp: Auf dem Tablet schaltet ein Tap auf die Uhr für 5 Minuten zwischen Hell und Dunkel um.": "Tip: on the tablet, tapping the clock toggles light/dark for 5 minutes.",
+  "Als Startseite": "Start page", "Für mich": "For me", "Für alle Benutzer": "For all users",
+  "HA bietet im Profil nur Dashboards zur Auswahl an. Diese Knöpfe tragen das Hauspanel direkt als Startseite ein – ohne Umweg, der Menüeintrag bleibt dabei aktiv markiert.": "HA's profile only lists dashboards. These buttons set Hauspanel as the start page directly – the sidebar entry stays highlighted.",
+  "„Für alle“ gilt für jeden, der im Profil nichts Eigenes gewählt hat.": "“For all users” applies to everyone who hasn't chosen something else in their profile.",
+  // Design-Tab
+  "Farben": "Colours", "Hell": "Light", "Grundfarben": "Base colours", "Akzent (aktiv, Buttons)": "Accent (active, buttons)", "Hintergrund": "Background",
+  "Karten": "Cards", "Kacheln in Karten": "Tiles in cards", "Text": "Text", "Text gedämpft": "Muted text", "Dunkle Karten (Uhr, Wetter)": "Dark cards (clock, weather)",
+  "Wände": "Walls", "Boden": "Floor", "Außenbereich": "Outdoor", "Geräte-Pins": "Device pins",
+  "Eingeschaltet = Licht an, Steckdose an, Heizung heizt gerade. Messwert = Sensoren und Heizungen, die gerade nicht heizen.": "On = light on, plug on, heating active. Measured value = sensors and climate devices that aren't heating.",
+  "Eingeschaltet – Hintergrund": "On – background", "Eingeschaltet – Icon/Schrift": "On – icon/text", "Ausgeschaltet – Hintergrund": "Off – background",
+  "Ausgeschaltet – Icon/Schrift": "Off – icon/text", "Messwert – Hintergrund": "Measured value – background", "Messwert – Schrift": "Measured value – text",
+  "Kamera – Hintergrund": "Camera – background", "Kamera – Icon": "Camera – icon", "Etagen-Buttons": "Floor buttons", "Aktiv – Hintergrund": "Active – background",
+  "Aktiv – Schrift": "Active – text", "Inaktiv – Hintergrund": "Inactive – background", "Inaktiv – Schrift": "Inactive – text", "Buttons": "Buttons",
+  "Allgemein = Kalender-Pfeile, Schließen, Plus/Minus. Ausgewählt = z. B. der aktive Heizmodus im Popup.": "General = calendar arrows, close, plus/minus. Selected = e.g. the active heat mode in a popup.",
+  "Allgemein – Hintergrund": "General – background", "Allgemein – Icon/Schrift": "General – icon/text", "Ausgewählt – Hintergrund": "Selected – background",
+  "Ausgewählt – Schrift": "Selected – text", "Power-Button – Hintergrund": "Power button – background", "Power-Button – Icon": "Power button – icon",
+  "Schalter im Popup – an": "Popup switch – on", "Schalter im Popup – aus": "Popup switch – off", "Uhr & Wetter": "Clock & weather", "Uhr – Hintergrund": "Clock – background",
+  "Uhr – Schrift": "Clock – text", "Wetter – Hintergrund": "Weather – background", "Wetter – Schrift": "Weather – text", "Hervorhebungen": "Highlights",
+  "Müll heute/morgen – Hintergrund": "Waste today/tomorrow – background", "Müll heute/morgen – Schrift": "Waste today/tomorrow – text",
+  "Kalender heute – Hintergrund": "Calendar today – background", "Kalender heute – Schrift": "Calendar today – text", "Schatten": "Shadows",
+  "Deckkraft 0 % = kein Schatten.": "Opacity 0 % = no shadow.", "Pins (aus / Messwert)": "Pins (off / measured value)", "Pins eingeschaltet": "Pins on",
+  "Etagen-Button aktiv": "Active floor button", "Karten & Kopfzeile": "Cards & header", "Deckkraft": "Opacity", "Weichheit": "Blur", "Versatz": "Offset",
+  "eigen": "custom", "auto": "auto", "Layout": "Layout", "Der Grundriss füllt immer den Platz dazwischen. Kalenderleiste ganz nach links = ausgeblendet.": "The floor plan always fills the space in between. Calendar height all the way left = hidden.",
+  "Breite Etagen-Spalte": "Floor column width", "Breite rechte Spalte (Wetter, Müll)": "Right column width (weather, waste)", "Höhe Kalenderleiste": "Calendar height",
+  "Größen & Abstände": "Sizes & spacing", "Schriftgröße": "Font size", "Ecken-Rundung": "Corner radius", "Abstand zwischen Karten": "Gap between cards", "Rand außen": "Outer margin",
+  "Innenabstand der Karten": "Card padding", "Größe der Geräte-Pins": "Device pin size", "Schrift in Pins (Werte)": "Pin text (values)", "Schrift Raum-Labels": "Room label text",
+  "Pins und Raum-Labels wachsen zusätzlich mit dem Grundriss mit, damit sie auf jedem Bildschirm an derselben Stelle sitzen.": "Pins and room labels also scale with the floor plan so they sit in the same spot on every screen.",
+  "Eigenes CSS": "Custom CSS", "CSS bearbeiten": "Edit CSS", "Ganze Seite": "Whole page", "Spickzettel": "Cheat sheet", "Eingebautes CSS": "Built-in CSS",
+  "Wirkt sofort · gespeichert wird mit „Speichern“ · Fenster am Kopf verschieben": "Applies instantly · saved with “Save” · drag the window by its header",
+  "Selektoren und Variablen, die du überschreiben kannst.": "Selectors and variables you can override.",
+  "Nur zum Nachschlagen/Kopieren – Änderungen gehören in „Ganze Seite“ oder die Etage.": "For reference/copying only – changes go into “Whole page” or the floor.",
+  "Nachtmodus": "Night mode", "aus": "off",
+  // Farbwähler
+  "Hex-Code": "Hex code", "Farbrad öffnen": "Open colour wheel", "Palette": "Palette", "Bearbeiten": "Edit", "Schon benutzt": "Already used",
+  "Aktuelle Farbe in die Palette": "Add current colour to palette",
+  "Mit + legst du die aktuelle Farbe in deine Palette. Sie wird mit dem Layout gespeichert.": "Use + to add the current colour to your palette. It is saved with the layout.",
+  // Meldungen
+  "Gespeichert – alle Tablets aktualisieren sich": "Saved – all tablets update now", "Bild geladen – jetzt Geräte draufziehen": "Image loaded – now drag devices onto it",
+  "Grundriss geladen – jetzt Geräte draufziehen": "Floor plan loaded – now drag devices onto it", "Bild ist größer als 25 MB": "Image is larger than 25 MB",
+  "Bild konnte nicht gelesen werden": "Image could not be read", "SVG ist größer als 2 MB": "SVG is larger than 2 MB", "Datei konnte nicht als SVG gelesen werden": "File could not be read as SVG",
+  "Das Layout wurde gerade woanders geändert – zum Übernehmen Bearbeiten abbrechen": "The layout was just changed elsewhere – cancel editing to load it",
+  "Altes Startseiten-Dashboard entfernt – Hauspanel ist direkt als Startseite eingetragen": "Old start dashboard removed – Hauspanel is set as start page directly",
+  "Hauspanel ist jetzt Startseite für alle": "Hauspanel is now the start page for everyone", "Hauspanel ist jetzt deine Startseite": "Hauspanel is now your start page",
+  "Das Layout wurde inzwischen woanders geändert (anderes Gerät oder Claude). Speichern würde das überschreiben – Bearbeiten abbrechen und neu öffnen.": "The layout was changed elsewhere in the meantime (another device or an AI assistant). Saving would overwrite it – cancel editing and reopen.",
+  "kein Label": "no label",
+};
+const I18N_RX = [
+  [/^(Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday), (\d{1,2})\. ([A-Z][a-z]+)( \d{4})?$/, (m) => `${m[1]}, ${m[3]} ${m[2]}${m[4] ? "," + m[4] : ""}`],
+  [/^(\d+) Geräte? im (.+) ausgeschaltet$/, (m) => `${m[1]} device${m[1] === "1" ? "" : "s"} in ${m[2]} switched off`],
+  [/^Im (.+) ist schon alles aus$/, (m) => `Everything in ${m[1]} is already off`],
+  [/^in (\d+) Tagen$/, (m) => `in ${m[1]} days`],
+  [/^\+(\d+) weitere$/, (m) => `+${m[1]} more`],
+  [/^(\d+) weitere – Suche eingrenzen\.$/, (m) => `${m[1]} more – refine your search.`],
+  [/^KW (\d+)(?: \/ (\d+))?$/, (m) => `CW ${m[1]}${m[2] ? " / " + m[2] : ""}`],
+  [/^(\d\d:\d\d) – (\d\d:\d\d) Uhr$/, (m) => `${m[1]} – ${m[2]}`],
+  [/^seit (\d\d:\d\d) Uhr$/, (m) => `since ${m[1]}`],
+  [/^Jetzt: (.*)$/, (m) => `Now: ${trText(m[1])}`],
+  [/^Ist (.+) · (.+)$/, (m) => `Current ${m[1]} · ${trText(m[2])}`],
+  [/^Automatisch \((.*)\)$/, (m) => `Automatic (${trText(m[1])})`],
+  [/^Helligkeit (\d+) %$/, (m) => `Brightness ${m[1]} %`],
+  [/^Position (\d+) %$/, (m) => `Position ${m[1]} %`],
+  [/^Kalender · (.+)$/, (m) => `Calendar · ${m[1]}`],
+  [/^Ganztägig bis (.+)$/, (m) => `All day until ${m[1]}`],
+  [/^(.+) · schon platziert$/, (m) => `${m[1]} · already placed`],
+  [/^Nur ([A-Za-z0-9ÄÖÜäöü]{1,4})$/, (m) => `Only ${m[1]}`],
+  [/^Ganze Seite: (\d+) Zeilen(?: · (.+): (\d+) Zeilen)?\. Wirkt live, auch in der Vorschau\.$/, (m) => `Whole page: ${m[1]} lines${m[2] ? ` · ${m[2]}: ${m[3]} lines` : ""}. Applies live, also in preview.`],
+  [/^✓ (.+?) · (.*)$/, (m) => `✓ ${trText(m[1])} · ${trText(m[2])}`],
+  [/^Zustand: „(.*)“$/, (m) => `state: “${m[1]}”`],
+  [/^Kein Termin erkannt · (.*)$/, (m) => `No date detected · ${trText(m[1])}`],
+  [/^Speichern fehlgeschlagen: (.*)$/, (m) => `Saving failed: ${trText(m[1])}`],
+  [/^Anlegen fehlgeschlagen: (.*)$/, (m) => `Creating failed: ${trText(m[1])}`],
+  [/^Ging nicht: (.*)$/, (m) => `Failed: ${m[1]}`],
+  [/^(Hauspanel ist jetzt (?:Startseite für alle|deine Startseite)) – altes Weiterleitungs-Dashboard entfernt$/, (m) => `${trText(m[1])} – old redirect dashboard removed`],
+  [/^Entity (.+) gibt es in Home Assistant nicht \(mehr\)\.$/, (m) => `Entity ${m[1]} does not exist in Home Assistant (anymore).`],
+];
+function trText(s) {
+  if (LANG === "de" || !s) return s;
+  const t = s.trim(); if (!t) return s;
+  let r = I18N_EN[t];
+  if (r == null) for (const [re, fn] of I18N_RX) { const m = t.match(re); if (m) { r = fn ? fn(m) : null; break; } }
+  return r == null ? s : s.replace(t, r);
+}
+const TR_ATTRS = ["placeholder", "title", "aria-label"];
+function trTree(node) {
+  if (LANG === "de" || !node) return;
+  if (node.nodeType === 3) { const v = trText(node.nodeValue); if (v !== node.nodeValue) node.nodeValue = v; return; }
+  if (node.nodeType !== 1 && node.nodeType !== 11) return;
+  if (node.nodeType === 1) {
+    if (node.tagName === "STYLE" || node.tagName === "SCRIPT" || node.tagName === "TEXTAREA" || node.tagName === "svg") return;
+    for (const a of TR_ATTRS) { const v = node.getAttribute(a); if (v) { const nv = trText(v); if (nv !== v) node.setAttribute(a, nv); } }
+  }
+  for (const c of node.childNodes) trTree(c);
+}
+const DAYS_EN = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"], DAYS_LONG_EN = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+const MONTHS_EN = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+function setLang(lang) {
+  const l = String(lang || "en").toLowerCase().startsWith("de") ? "de" : "en";
+  if (l === LANG) return false;
+  LANG = l;
+  if (l === "en") { DAYS.splice(0, 7, ...DAYS_EN); DAYS_LONG.splice(0, 7, ...DAYS_LONG_EN); MONTHS.splice(0, 12, ...MONTHS_EN); }
+  return true;
+}
+
 /* ---------- Hilfsfunktionen ---------- */
 const ic = (name, size = 20, sw = 2) =>
   `<svg class="i" width="${size}" height="${size}" viewBox="0 0 24 24" style="stroke-width:${sw}">${ICONS[name] || ICONS["circle-dot"]}</svg>`;
@@ -79,7 +272,7 @@ const calStart = (mode, offset) => {
 const fmtShort = (d) => pad(d.getDate()) + "." + pad(d.getMonth() + 1) + ".";
 const hhmm = (d) => pad(d.getHours()) + ":" + pad(d.getMinutes());
 const isoLocal = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:00`;
-const fmtNum = (v, dec = 1) => Number(v).toLocaleString("de-DE", { maximumFractionDigits: dec });
+const fmtNum = (v, dec = 1) => Number(v).toLocaleString(LANG === "de" ? "de-DE" : "en-US", { maximumFractionDigits: dec });
 function kw(d) {
   const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
   const n = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - n);
@@ -297,6 +490,48 @@ function themeCss(theme) {
 }
 
 /* ---------- Eigenes CSS: Spickzettel im CSS-Fenster ---------- */
+const CSS_HELP_EN = `/* Custom CSS overrides the built-in styles and survives updates.
+   If specificity isn't enough, use !important.
+   Emergency: open the panel with ?nocss -> custom CSS is ignored. */
+
+/* Variables (best place to start) */
+:host {
+  --accent: #E5391D;  --bg: #EEECEA;  --card: #fff;  --tile: #F4F2F0;
+  --text: #1E1C1B;  --muted: #8A8580;  --dark: #1F1D1C;
+  --wall: #2E2C2B;  --floor: #fff;  --outside: #EDEBE9;  --door: #B3AEA9;
+  --radius: 22px;  --gap: 12px;  --m: 18px;  --pad: 16px;  --cal-h: 198px;
+  --pin: 36px;  --pin-fs: 14px;  --label-fs: 11px;  --fs: 1;
+  /* --k = scaling of pins/labels with the floor plan (calculated) */
+}
+:host([data-theme="dark"]) { }      /* night mode only */
+:host([data-floor="OG"]) { }         /* only while floor OG is open */
+:host(.edit) { }                     /* editor only */
+
+/* Areas */
+#top  #home  #date  #clock           /* header */
+#floors  .floor-btn  .floor-btn.active
+#plan-card  #plan-title  #all-off  #plan
+#weather  .w-temp  .w-cond  .w-day
+#waste  .bin  .bin.soon  .bin-ico
+#cal  .day  .day.today  .ev  .chip  .legend
+
+/* Floor plan */
+.fp .f-wall  .fp .f-floor  .fp .f-out  .fp .f-door   /* areas */
+.room-label  .room-label[data-room-name="Kitchen"]
+
+/* Device pins */
+.pin  .pin.on  .pin.val  .pin.unavail
+.pin[data-domain="light"]  .pin[data-entity="light.kitchen"]
+
+/* Popups */
+.pop  .pop[data-domain="climate"]  .pop-title  .toggle  .panel
+
+/* Examples */
+.pin.on { animation: glow 2s infinite alternate; }
+@keyframes glow { to { box-shadow: 0 0 18px var(--accent); } }
+#date { font-weight: 800; }
+.pin[data-domain="climate"].on { background: #F59E0B; }
+`;
 const CSS_HELP = `/* Eigenes CSS überschreibt das eingebaute – es bleibt bei Updates erhalten.
    Reicht die Spezifität nicht, hilft !important.
    Notfall: Panel mit ?nocss aufrufen -> eigenes CSS wird ignoriert. */
@@ -780,6 +1015,7 @@ class HauspanelPanel extends HTMLElement {
   set hass(hass) {
     const first = !this._hass;
     this._hass = hass;
+    if (setLang((hass.locale && hass.locale.language) || hass.language) && this._ready) { this._renderAll(); this._renderCal(); }
     if (first && this.isConnected) this._init();
     else if (this._ready) this._onHass();
   }
@@ -820,6 +1056,16 @@ class HauspanelPanel extends HTMLElement {
       </div>
       <div id="ghost"></div><div id="scratch"></div>`;
     this.$ = (s) => this.shadowRoot.querySelector(s);
+    // Übersetzungsschicht: jeder neu gerenderte Text läuft einmal durchs Wörterbuch (nur bei nicht-deutscher Sprache)
+    this._trObs = new MutationObserver((muts) => {
+      if (LANG === "de") return;
+      for (const m of muts) {
+        if (m.type === "childList") m.addedNodes.forEach((n) => trTree(n));
+        else if (m.type === "characterData") trTree(m.target);
+        else if (m.type === "attributes") { const v = m.target.getAttribute(m.attributeName); const nv = v && trText(v); if (nv && nv !== v) m.target.setAttribute(m.attributeName, nv); }
+      }
+    });
+    this._trObs.observe(this.shadowRoot, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: TR_ATTRS });
     this._bindEvents();
     this._ro = new ResizeObserver(() => this._fit());
     this._ro.observe(this);
@@ -1009,7 +1255,9 @@ class HauspanelPanel extends HTMLElement {
   _tick() {
     const n = new Date();
     const t = this.$("#time"); if (t) t.textContent = hhmm(n);
-    const d = this.$("#date-txt"); if (d) d.textContent = this._mobile ? `${DAYS_LONG[n.getDay()]}, ${n.getDate()}. ${MONTHS[n.getMonth()]}` : `${DAYS_LONG[n.getDay()]}, ${n.getDate()}. ${MONTHS[n.getMonth()]} ${n.getFullYear()}`;
+    const d = this.$("#date-txt");
+    if (d && LANG !== "de") d.textContent = n.toLocaleDateString("en-US", this._mobile ? { weekday: "long", month: "long", day: "numeric" } : { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+    else if (d) d.textContent = this._mobile ? `${DAYS_LONG[n.getDay()]}, ${n.getDate()}. ${MONTHS[n.getMonth()]}` : `${DAYS_LONG[n.getDay()]}, ${n.getDate()}. ${MONTHS[n.getMonth()]} ${n.getFullYear()}`;
     this._applyTheme();
     if (!this._day || !sameDay(this._day, n)) {
       const first = !this._day; this._day = n;
@@ -2237,7 +2485,7 @@ class HauspanelPanel extends HTMLElement {
       <div class="icon-grid"><button class="${p.icon ? "" : "sel"}" data-a="pin-icon" data-icon="auto" title="Automatisch" style="font-size:11px;font-weight:700">Auto</button></div>
       ${groups.map(([g, items]) => { const open = q || (this._iconOpen && this._iconOpen.has(g)) || items.some(([n]) => n === p.icon);
         return `<details class="icon-group"${open ? " open" : ""} data-igroup="${esc(g)}"><summary>${esc(g)}<span>${items.length}</span></summary><div class="icon-grid">${items.map(([n, tags]) =>
-        `<button class="${p.icon === n ? "sel" : ""}" data-a="pin-icon" data-icon="${n}" title="${esc((tags || n).split(" ")[0])}">${ic(n, 17)}</button>`).join("")}</div></details>`; }).join("")
+        `<button class="${p.icon === n ? "sel" : ""}" data-a="pin-icon" data-icon="${n}" title="${esc(LANG === "de" ? (tags || n).split(" ")[0] : n.replace(/-/g, " "))}">${ic(n, 17)}</button>`).join("")}</div></details>`; }).join("")
       || `<div class="hint">Kein Icon gefunden.</div>`}`;
   }
   _statusField(p, d) {
@@ -2352,7 +2600,7 @@ class HauspanelPanel extends HTMLElement {
     let body;
     if (cur === "global") body = `<textarea data-f="css-global" spellcheck="false" placeholder="/* z. B. */\n#date { font-weight: 800; }">${esc(this.draft.css || "")}</textarea>`;
     else if (cur === "floor") body = `<textarea data-f="css-floor" spellcheck="false" placeholder="/* gilt nur, solange ${esc(f.code)} offen ist */\n.pin.on { background: #2F6DD0; }">${esc(f.css || "")}</textarea>`;
-    else body = `<pre>${esc(cur === "help" ? CSS_HELP : CSS.trim())}</pre>`;
+    else body = `<pre>${esc(cur === "help" ? (LANG === "de" ? CSS_HELP : CSS_HELP_EN) : CSS.trim())}</pre>`;
     w.innerHTML = `<div class="cw-head" data-drag="css">${ic("code", 16)}<b>Eigenes CSS</b>
         <button class="sbtn" data-a="css-min">${this._cssMin ? "Aufklappen" : "Einklappen"}</button>
         <button class="sbtn" data-a="css-close" aria-label="Schließen">${ic("x", 16)}</button></div>
