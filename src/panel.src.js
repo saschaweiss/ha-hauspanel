@@ -742,7 +742,7 @@ svg.fp{fill:var(--wall)}
 .pin.blink::before,.pin.blink::after{content:"";position:absolute;inset:0;border-radius:inherit;border:2px solid var(--alert);background:var(--alert);opacity:0;pointer-events:none;z-index:-1;
   animation:hp-pulsar var(--pulse, 1.6s) cubic-bezier(.2,.6,.35,1) infinite}
 .pin.blink::after{animation-delay:calc(var(--pulse, 1.6s) / 2)}
-@keyframes hp-pulsar{0%{transform:scale(1);opacity:.55}70%{opacity:.12}100%{transform:scale(2.4);opacity:0}}
+@keyframes hp-pulsar{0%{transform:scale(1);opacity:.5}70%{opacity:.1}100%{transform:scale(1.65);opacity:0}}
 .alert-note{display:flex;align-items:center;gap:8px;margin-top:14px;padding:9px 12px;border-radius:12px;background:var(--tile);color:var(--alert);font-weight:600;font-size:calc(13px * var(--fs))}
 .alert-card{background:var(--tile);border-radius:14px;padding:10px;margin:8px 0}
 .alert-card .inp,.alert-card .chips button:not(.sel){background:var(--card)}
@@ -1911,6 +1911,7 @@ class HauspanelPanel extends HTMLElement {
     }
     const cpb = t.closest("[data-a^='cp-']");
     if (cpb) return this._colorPopAction(cpb);
+    if (this._cp && !this._cp.div.contains(t)) this._closeColorPop();
     const isum = t.closest(".icon-group summary");
     if (isum) { const d = isum.parentElement; this._iconOpen = this._iconOpen || new Set();
       if (d.open) this._iconOpen.delete(d.dataset.igroup); else this._iconOpen.add(d.dataset.igroup); return; }
