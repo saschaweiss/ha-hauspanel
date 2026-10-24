@@ -30,6 +30,9 @@ Floors, plans and devices are set up right inside the panel: upload a floor plan
 - Week calendar for any `calendar.*` entities; shows as many entries per day as fit, the rest behind "+N more"
 - Calendar range: calendar week, calendar week but "from today" on weekends, or always the next 7 days
 
+**Header**
+- Up to four entity values next to the clock, e.g. the tablet's battery level (icon follows level and charging state)
+
 **Look & behaviour**
 - Night mode by time or sun position; tap the clock to toggle light/dark for 5 minutes
 - Design editor with separate light and night colours, detail colours, shadows, sizes, spacing and layout (column widths, calendar height or hidden)

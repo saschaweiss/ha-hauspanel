@@ -181,7 +181,11 @@ const I18N_EN = {
   "Altes Startseiten-Dashboard entfernt – Hauspanel ist direkt als Startseite eingetragen": "Old start dashboard removed – Hauspanel is set as start page directly",
   "Hauspanel ist jetzt Startseite für alle": "Hauspanel is now the start page for everyone", "Hauspanel ist jetzt deine Startseite": "Hauspanel is now your start page",
   "Das Layout wurde inzwischen woanders geändert (anderes Gerät oder Claude). Speichern würde das überschreiben – Bearbeiten abbrechen und neu öffnen.": "The layout was changed elsewhere in the meantime (another device or an AI assistant). Saving would overwrite it – cancel editing and reopen.",
-  "kein Label": "no label",
+  "kein Label": "no label", "Kopfzeile": "Header",
+  "Aktiv für dich und für alle Benutzer.": "Active for you and for all users.", "Aktiv für dich.": "Active for you.",
+  "Aktiv für alle Benutzer (sofern im Profil nichts Eigenes gewählt ist).": "Active for all users (unless they chose something else in their profile).",
+  "Hauspanel ist gerade nicht als Startseite eingetragen.": "Hauspanel is currently not set as the start page.",
+  "Werte oben neben der Uhr, z. B. Akkustand des Tablets oder Außentemperatur. Antippen öffnet die Details.": "Values at the top next to the clock, e.g. the tablet's battery level or the outdoor temperature. Tap to open details.",
 };
 const I18N_RX = [
   [/^(Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday), (\d{1,2})\. ([A-Z][a-z]+)( \d{4})?$/, (m) => `${m[1]}, ${m[3]} ${m[2]}${m[4] ? "," + m[4] : ""}`],
@@ -676,6 +680,12 @@ svg.i{display:block;fill:none;stroke:currentColor;stroke-linecap:round;stroke-li
 .home-ico{width:26px;height:26px;border-radius:8px;background:var(--accent);color:#fff;display:grid;place-items:center}
 #date{margin-left:10px;font-size:calc(23px * var(--fs));font-weight:500;letter-spacing:-.2px;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #date small{font-size:calc(14px * var(--fs));color:var(--muted);font-weight:500;margin-left:8px}
+#hdr-items{display:flex;gap:8px;flex:none}
+.hdr-item{background:var(--card);box-shadow:var(--shadow);font-weight:700;font-size:calc(16px * var(--fs));gap:7px;padding:0 15px;font-variant-numeric:tabular-nums}
+.hdr-item svg{color:var(--muted)}
+.hdr-item.low svg,.hdr-item.low{color:var(--accent)}
+:host(.mobile) .hdr-item{height:40px;padding:0 11px;font-size:calc(14px * var(--fs))}
+:host(.mobile) .hdr-item:nth-child(n+2){display:none}
 #clock{background:var(--clock-bg);color:var(--clock-fg);font-size:calc(25px * var(--fs));font-weight:700;letter-spacing:-.3px;font-variant-numeric:tabular-nums}
 #clock svg{color:var(--accent)}
 .icon-btn{width:42px;height:42px;border-radius:50%;background:var(--card);display:grid;place-items:center;box-shadow:var(--shadow);flex:none}
@@ -964,6 +974,7 @@ select.inp{padding-right:6px}
 .crow{margin-bottom:6px}.crow .cl{flex:1;font-size:13px}.crow .cv{font:11.5px ui-monospace,Menlo,monospace;color:var(--muted);width:62px;text-align:right}
 .crow .cx{width:22px;height:22px;border-radius:6px;display:grid;place-items:center;color:var(--muted);flex:none}
 .crow button.cx{background:var(--tile)}
+.sbtn.sel{background:var(--accent);color:#fff}
 .sx{width:22px;height:22px;border-radius:6px;display:grid;place-items:center;color:var(--muted);background:var(--tile);flex:none}
 .icon-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
 .icon-grid button{height:38px;border-radius:10px;background:var(--tile);display:grid;place-items:center}
@@ -1200,6 +1211,7 @@ class HauspanelPanel extends HTMLElement {
     const c = this.C; if (!c) return ids;
     (c.floors || []).forEach((f) => (f.pins || []).forEach((p) => { ids.add(p.entity_id); if (p.state_entity) ids.add(p.state_entity); (p.extras || []).forEach((x) => x && ids.add(x)); }));
     (c.waste || []).forEach((w) => w.entity_id && ids.add(w.entity_id));
+    (c.header || []).forEach((x) => { if (x.entity_id) { ids.add(x.entity_id); this._chargeIds(x.entity_id).forEach((y) => ids.add(y)); } });
     if (c.weather_entity) ids.add(c.weather_entity);
     ids.add("sun.sun");
     return ids;
@@ -1213,7 +1225,7 @@ class HauspanelPanel extends HTMLElement {
     }
     if (this._hass.user !== this._prevUser) { this._prevUser = this._hass.user; this._renderTop(); }
     if (!changed) return;
-    this._updatePins(); this._renderFloors();
+    this._updatePins(); this._renderFloors(); this._updateHeader();
     if (this.viewing) {
       this._renderWeather(); this._renderWaste(); this._applyTheme();
       if (this.popup && this.popup.type === "entity" && !this._sliding) this._renderEntityPop();
@@ -1280,11 +1292,33 @@ class HauspanelPanel extends HTMLElement {
     top.innerHTML = `${menu}<div class="pill" id="home"><span class="home-ico">${ic("house", 15)}</span>Zuhause</div>
       <div id="date"><span id="date-txt"></span></div>
       ${this.preview ? `<button class="btn primary" data-a="preview-exit">${ic("pencil", 16)}Zurück zum Editor</button>` : ""}
+      <div id="hdr-items">${this._headerHtml()}</div>
       ${admin && !this.kiosk && !this.preview && !this._mobile ? `<button class="icon-btn" data-a="edit" aria-label="Bearbeiten" title="Bearbeiten">${ic("pencil", 18)}</button>` : ""}
       <button class="pill" id="clock" data-a="clock">${ic("clock", 20)}<span id="time"></span></button>`;
     this._tick();
   }
 
+  /* Werte in der Kopfzeile (z. B. Akkustand des Tablets) */
+  _headerHtml() {
+    return ((this.C && this.C.header) || []).filter((x) => x.entity_id).map((x, i) => {
+      const s = this._hass.states[x.entity_id];
+      const dc = s && s.attributes.device_class, lvl = s ? Number(s.state) : NaN;
+      let icon = x.icon || defaultIcon(s, x.entity_id);
+      if (!x.icon && dc === "battery" && !isNaN(lvl)) icon = this._charging(x.entity_id, s) ? "battery-charging" : lvl <= 20 ? "battery-low" : lvl <= 60 ? "battery-medium" : "battery-full";
+      const low = dc === "battery" && !isNaN(lvl) && lvl <= 20;
+      return `<button class="pill hdr-item${low ? " low" : ""}" data-a="hdr-item" data-i="${i}" title="${esc(x.name || friendly(this._hass, x.entity_id))}">${ic(icon, 18)}<span>${esc(this._pinValue({ entity_id: x.entity_id }, s))}</span></button>`;
+    }).join("");
+  }
+  /* Lädt das Gerät gerade? Akku-Sensor xyz_batterie -> binary_sensor.xyz_plugged_in / _charging (z. B. Fully Kiosk) */
+  _chargeIds(id) {
+    const base = id.split(".")[1].replace(/_(batterie|battery|battery_level|batteriestand|akku)$/, "");
+    return [`binary_sensor.${base}_plugged_in`, `binary_sensor.${base}_charging`, `binary_sensor.${base}_angeschlossen`, `binary_sensor.${base}_ladt`];
+  }
+  _charging(id, s) {
+    if (s && (s.attributes.charging === true || s.attributes.is_charging === true)) return true;
+    return this._chargeIds(id).some((c) => this._hass.states[c] && this._hass.states[c].state === "on");
+  }
+  _updateHeader() { const el = this.$("#hdr-items"); if (el) { const h = this._headerHtml(); if (el.innerHTML !== h) el.innerHTML = h; } }
   _lightsOn(f) {
     return (f.pins || []).filter((p) => domainOf(p.entity_id) === "light" && isActive(this._hass.states[p.entity_id])).length;
   }
@@ -1496,6 +1530,18 @@ class HauspanelPanel extends HTMLElement {
     } catch (e) { console.warn("Hauspanel: Kalender", e); this.events = []; }
     this._renderCal();
   }
+  /* Zeigt im Tab „Allgemein“, wofür Hauspanel gerade Startseite ist */
+  async _loadStartState() {
+    try {
+      const [u, s] = await Promise.all([this._hass.callWS({ type: "frontend/get_user_data", key: "core" }), this._hass.callWS({ type: "frontend/get_system_data", key: "core" })]);
+      const me = ((u && u.value) || {}).default_panel === "hauspanel", all = ((s && s.value) || {}).default_panel === "hauspanel";
+      const bu = this.$('[data-a="start-set"][data-v="user"]'), bs = this.$('[data-a="start-set"][data-v="system"]');
+      if (bu) bu.classList.toggle("sel", me);
+      if (bs) bs.classList.toggle("sel", all);
+      const h = this.$("#start-state");
+      if (h) h.textContent = me && all ? "Aktiv für dich und für alle Benutzer." : me ? "Aktiv für dich." : all ? "Aktiv für alle Benutzer (sofern im Profil nichts Eigenes gewählt ist)." : "Hauspanel ist gerade nicht als Startseite eingetragen.";
+    } catch (e) { /* ohne Rechte einfach nichts anzeigen */ }
+  }
   async _setStart(scope) {
     const sys = scope === "system";
     try {
@@ -1510,6 +1556,7 @@ class HauspanelPanel extends HTMLElement {
         if (old) { await this._hass.callWS({ type: "lovelace/dashboards/delete", dashboard_id: old.id }); cleaned = true; }
       } catch (e) { /* egal */ }
       this._toast((sys ? "Hauspanel ist jetzt Startseite für alle" : "Hauspanel ist jetzt deine Startseite") + (cleaned ? " – altes Weiterleitungs-Dashboard entfernt" : ""));
+      this._loadStartState();
     } catch (e) { this._toast("Ging nicht: " + (e.message || e.code || e)); }
   }
   _calSoon() { clearTimeout(this._calT); this._calT = setTimeout(() => this._fetchEvents(), 400); }
@@ -1834,6 +1881,11 @@ class HauspanelPanel extends HTMLElement {
     if (this.popup && ["toggle","temp","mode","svc","media"].includes(a)) return this._popAction(b);
     switch (a) {
       case "pop-close": return this._closePop();
+      case "hdr-item": {
+        const x = ((this.C && this.C.header) || []).filter((y) => y.entity_id)[Number(b.dataset.i)];
+        if (x) this.dispatchEvent(new CustomEvent("hass-more-info", { detail: { entityId: x.entity_id }, bubbles: true, composed: true }));
+        return;
+      }
       case "cam-more": {
         const f = this._floor(), p = f && (f.pins || []).find((x) => x.id === (this.popup && this.popup.pin));
         if (!p) return;
@@ -2017,6 +2069,18 @@ class HauspanelPanel extends HTMLElement {
         return this._pickEntity("Status von", ["binary_sensor", "switch", "input_boolean", "light", "fan"], p.state_entity, (id) => {
           p.state_entity = id; this._markDirty(); this._renderPlan(); this._renderInspector();
         });
+      }
+      case "pick-header": {
+        const i = b.dataset.i; this.draft.header = (this.draft.header || []).filter((x) => x.entity_id);
+        return this._pickEntity("Kopfzeile", ["sensor", "binary_sensor"], i === "new" ? null : this.draft.header[Number(i)].entity_id, (id) => {
+          if (i === "new") this.draft.header.push({ entity_id: id }); else this.draft.header[Number(i)] = { entity_id: id };
+          this._markDirty(); this._renderTop(); this._renderInspector();
+        });
+      }
+      case "header-del": {
+        this.draft.header = (this.draft.header || []).filter((x) => x.entity_id); this.draft.header.splice(Number(b.dataset.i), 1);
+        if (!this.draft.header.length) delete this.draft.header;
+        this._markDirty(); this._renderTop(); return this._renderInspector();
       }
       case "pick-clear": { const p = this._selPin(); delete p.state_entity; this._markDirty(); this._renderPlan(); return this._renderInspector(); }
       case "pick-scope": { this._picker.all = b.dataset.v === "all"; return this._renderPicker(true); }
@@ -2352,6 +2416,7 @@ class HauspanelPanel extends HTMLElement {
     else if (this.tab === "design") body.innerHTML = this._tabDesign();
     else body.innerHTML = this._tabGeneral();
     if (this.tab === "devices") this._renderEntityList();
+    if (this.tab === "general") this._loadStartState();
     body.classList.toggle("insp-select", this.tab === "select");
     this._inspTab = this.tab;
     body.scrollTop = this._inspScroll[this.tab] || 0;
@@ -2648,6 +2713,11 @@ class HauspanelPanel extends HTMLElement {
           `<option value="${v}"${(c.cal_mode || "week") === v ? " selected" : ""}>${l}</option>`).join("")}</select>
         <div class="hint" style="margin-top:6px">„Am Wochenende ab heute“: Samstag und Sonntag zeigen schon die kommende Woche mit. Wo eine neue Woche beginnt, steht die KW am Tag.</div></div>
       <div class="sep"></div>
+      <div class="fld"><label>Kopfzeile</label><div class="hint">Werte oben neben der Uhr, z. B. Akkustand des Tablets oder Außentemperatur. Antippen öffnet die Details.</div>
+        ${(c.header || []).filter((x) => x.entity_id).map((x, i) => `<div class="row" style="margin-bottom:8px">${this._pickField(x.entity_id, "pick-header", "Entity wählen", i)}
+          <button class="sbtn" data-a="header-del" data-i="${i}" aria-label="Entfernen">${ic("x", 16)}</button></div>`).join("")}
+        ${(c.header || []).filter((x) => x.entity_id).length < 4 ? `<button class="sbtn" data-a="pick-header" data-i="new">${ic("plus", 16)}Wert hinzufügen</button>` : ""}</div>
+      <div class="sep"></div>
       ${listBlock("waste", "Müllabfuhr", "sensor", "Sensor mit Datum (z. B. 2026-10-16 oder 16.10.2026) oder Anzahl Tage als Zustand. Attribut daysTo wird auch erkannt.")}
       ${this._datalist()}
       <div class="sep"></div>
@@ -2663,7 +2733,7 @@ class HauspanelPanel extends HTMLElement {
         <div class="hint">HA bietet im Profil nur Dashboards zur Auswahl an. Diese Knöpfe tragen das Hauspanel direkt als Startseite ein – ohne Umweg, der Menüeintrag bleibt dabei aktiv markiert.</div>
         <div class="row" style="gap:8px;flex-wrap:wrap"><button class="sbtn" data-a="start-set" data-v="user">${ic("house", 16)}Für mich</button>
         <button class="sbtn" data-a="start-set" data-v="system">${ic("users", 16)}Für alle Benutzer</button></div>
-        <div class="hint" style="margin-top:6px">„Für alle“ gilt für jeden, der im Profil nichts Eigenes gewählt hat.</div></div>`;
+        <div class="hint" style="margin-top:6px" id="start-state">„Für alle“ gilt für jeden, der im Profil nichts Eigenes gewählt hat.</div></div>`;
   }
 }
 
