@@ -106,6 +106,7 @@ const I18N_EN = {
   "„Wie Messwert“: immer in den Messwert-Farben, egal ob an oder aus.": "“As measured value”: always uses the measured-value colours, on or off.",
   "„Heizt“ nutzt hvac_action – rot nur, solange wirklich geheizt wird. „Heizmodus“ ist rot, solange das Thermostat nicht auf Aus steht.": "“Heating” uses hvac_action – highlighted only while actually heating. “Heat mode” is highlighted as long as the thermostat is not off.",
   "Messwert-Farben – dieses Gerät hat keinen An/Aus-Status.": "Measured-value colours – this device has no on/off state.",
+  "Icon spiegeln": "Mirror icon", "Horizontal": "Horizontal", "Vertikal": "Vertical",
   "Mit Hintergrund": "With background", "Ohne Hintergrund": "No background", "Wenn aus": "When off",
   "Ausgegraut": "Greyed out", "Durchgestrichen": "Struck through", "Beides": "Both",
   "An = Symbol in der An-Farbe, Warnungen färben das Symbol.": "On = icon in the on colour; alerts colour the icon.",
@@ -743,6 +744,7 @@ svg.fp{fill:var(--wall)}
 .pin.cam{background:var(--pin-cam-bg);color:var(--pin-cam-fg)}
 .pin.unavail{opacity:.4}
 .pin.alert{background:var(--alert);color:var(--alert-fg);opacity:1}
+.pin.flip-h svg.i{transform:scaleX(-1)}.pin.flip-v svg.i{transform:scaleY(-1)}.pin.flip-h.flip-v svg.i{transform:scale(-1)}
 .pin.bare,.pin.bare.on,.pin.bare.cam,.pin.bare.plain,.pin.bare.alert{background-color:transparent;box-shadow:none}
 .pin.bare{color:var(--pin-off-fg)}
 .pin.bare.plain{color:var(--pin-val-fg)}
@@ -1514,6 +1516,7 @@ class HauspanelPanel extends HTMLElement {
       el.classList.toggle("unavail", !s || s.state === "unavailable");
       const offS = p.off_style || "grey";
       el.classList.toggle("bare", !!p.bare);
+      el.classList.toggle("flip-h", (p.flip || "").includes("h")); el.classList.toggle("flip-v", (p.flip || "").includes("v"));
       el.classList.toggle("inact", !!p.bare && (pinStatusful(p) || !!p.state_entity) && !el.classList.contains("on"));
       el.classList.toggle("grey", offS !== "strike"); el.classList.toggle("strike", offS !== "grey");
       const al = this._pinAlert(p);
@@ -2115,6 +2118,12 @@ class HauspanelPanel extends HTMLElement {
         this._markDirty(); this._renderPlan(); return this._renderInspector();
       }
       case "start-set": { this._setStart(b.dataset.v); return; }
+      case "pin-flip": {
+        const p = this._selPin(), k = b.dataset.v, cur = p.flip || "";
+        const nf = ["h", "v"].filter((x) => (x === k) !== cur.includes(x)).join("");
+        if (nf) p.flip = nf; else delete p.flip;
+        this._markDirty(); this._updatePins(); return this._renderInspector();
+      }
       case "pin-bare": {
         const p = this._selPin(); if (b.dataset.v) p.bare = true; else { delete p.bare; delete p.off_style; }
         this._markDirty(); this._updatePins(); return this._renderInspector();
@@ -2607,6 +2616,8 @@ class HauspanelPanel extends HTMLElement {
         <div class="hint" style="margin-top:4px">${d === "camera" ? "Kamera an = Pin in An-Farbe, aus = durchgestrichenes Symbol. Antippen öffnet weiterhin das Kamerabild." : "Der Pin wird „an“ gefärbt, wenn diese Entity an ist."}</div></div>
       <div class="sep"></div>
       ${scaleField(p, "pin-scale")}
+      <div class="fld"><label>Icon spiegeln</label><div class="chips" style="margin:0">
+        ${[["h", "Horizontal"], ["v", "Vertikal"]].map(([k, l]) => `<button class="${(p.flip || "").includes(k) ? "sel" : ""}" data-a="pin-flip" data-v="${k}">${l}</button>`).join("")}</div></div>
       <div class="sep"></div>
       ${TOGGLE_DOMAINS.has(d) ? `<label class="check"><input type="checkbox" data-f="pin-toggle" ${p.toggle ? "checked" : ""}>Antippen schaltet direkt an/aus</label>
         <div class="hint" style="margin:2px 0 10px 30px">Lange drücken öffnet weiterhin das Popup (z. B. für Helligkeit).</div>` : ""}

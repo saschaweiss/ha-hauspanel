@@ -15,7 +15,7 @@ Floors, plans and devices are set up right inside the panel: upload a floor plan
 **Device pins**
 - Lights, switches, plugs, climate, sensors, cameras, covers, locks, media players, scenes and scripts
 - Show an icon, a value (e.g. temperature) or both; 100+ icons in searchable groups
-- Per pin: with or without background (without: off state greyed out and/or struck through), size (50–200 %), "tap toggles directly" (long-press still opens the popup), colour by on/off state or as a measured value
+- Per pin: with or without background (without: off state greyed out and/or struck through), size (50–200 %), mirrored icon, "tap toggles directly" (long-press still opens the popup), colour by on/off state or as a measured value
 - Alerts like automation triggers: colour (and optionally blink) a pin when a state is / is not a value or a number is above / below a threshold, optionally for a minimum time – e.g. camera battery below 10 %, or a light on for more than 3 hours
 - "State from another entity": colour a pin by a different entity, e.g. a camera pin by its *camera enabled* sensor
 - Up to four extra values per popup (e.g. power and energy of a plug)

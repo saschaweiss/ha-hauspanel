@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.10.1]
+
+### Added
+- Per pin "Mirror icon": flip the icon horizontally and/or vertically (e.g. to point a camera icon the other way). MCP field `flip` ("h", "v", "hv").
+
 ## [0.10.0]
 
 ### Added
