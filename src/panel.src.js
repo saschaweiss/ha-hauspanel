@@ -142,6 +142,10 @@ function supportsBrightness(stateObj) {
   const m = stateObj.attributes.supported_color_modes;
   return Array.isArray(m) ? !(m.length === 1 && m[0] === "onoff") : stateObj.attributes.brightness != null;
 }
+const COLOR_MODES = ["hs", "xy", "rgb", "rgbw", "rgbww"];
+function supportsColor(stateObj) { return (stateObj.attributes.supported_color_modes || []).some((m) => COLOR_MODES.includes(m)); }
+function supportsColorTemp(stateObj) { return (stateObj.attributes.supported_color_modes || []).includes("color_temp"); }
+const LIGHT_PRESETS = [[0, 100], [25, 100], [50, 100], [120, 90], [180, 80], [215, 90], [270, 80], [310, 80]];
 /* Findet ein Datum irgendwo in einem Text: 2026-10-16 · 16.10.2026 · Fr, 16.10.26 · 16.10. */
 function findDate(str) {
   const s = String(str ?? "");
@@ -588,6 +592,15 @@ input[type=range]::-webkit-slider-runnable-track{height:8px;border-radius:4px;ba
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:50%;background:var(--accent);margin-top:-8px;border:3px solid var(--card)}
 input[type=range]::-moz-range-track{height:8px;border-radius:4px;background:linear-gradient(90deg,var(--accent) var(--p),var(--card) var(--p))}
 input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--accent);border:3px solid var(--card)}
+input.hue::-webkit-slider-runnable-track{background:linear-gradient(90deg,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00);box-shadow:none}
+input.hue::-moz-range-track{background:linear-gradient(90deg,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00)}
+input.ct::-webkit-slider-runnable-track{background:linear-gradient(90deg,#ffb35c,#fff4e0,#cfe4ff);box-shadow:inset 0 0 0 1px var(--soft)}
+input.ct::-moz-range-track{background:linear-gradient(90deg,#ffb35c,#fff4e0,#cfe4ff)}
+input.hue::-webkit-slider-thumb,input.ct::-webkit-slider-thumb{background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.4)}
+.swatches{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.lsw{width:34px;height:34px;border-radius:50%;background:var(--c);box-shadow:inset 0 0 0 1px rgba(0,0,0,.15)}
+.lsw.warm{background:#ffc47a}.lsw.cold{background:#dfeaff}
+.lsw:active{transform:scale(.9)}
 .tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
 .tiles .panel{margin-top:0}
 .tiles .l{font-size:calc(12.5px * var(--fs));color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -1328,6 +1341,18 @@ class HauspanelPanel extends HTMLElement {
       h += toggle(fmtState(s), unavail ? "" : on ? (a.brightness != null ? `Helligkeit ${pct} %` : "Eingeschaltet") : "Tippen zum Einschalten");
       if (!unavail && supportsBrightness(s)) h += `<div class="panel"><div class="panel-h"><span>Helligkeit</span><span id="bval">${pct} %</span></div>
         <input type="range" min="1" max="100" value="${pct || 1}" style="--p:${pct}%" id="bright" aria-label="Helligkeit"></div>`;
+      if (!unavail && (supportsColor(s) || supportsColorTemp(s))) {
+        const hs = a.hs_color || [0, 0], isTemp = a.color_mode === "color_temp";
+        const kMin = a.min_color_temp_kelvin || 2000, kMax = a.max_color_temp_kelvin || 6500, k = a.color_temp_kelvin || Math.round((kMin + kMax) / 2);
+        h += `<div class="panel">`;
+        if (supportsColor(s)) h += `<div class="panel-h"><span>Farbe</span><span id="hval">${on && !isTemp ? Math.round(hs[0]) + "°" : ""}</span></div>
+          <input type="range" class="hue" min="0" max="359" value="${Math.round(hs[0])}" id="hue" aria-label="Farbton">
+          <div class="swatches">${LIGHT_PRESETS.map(([hh, ss]) => `<button class="lsw" data-a="light-hs" data-h="${hh}" data-s="${ss}" style="--c:hsl(${hh},${ss}%,55%)" aria-label="Farbe"></button>`).join("")}
+            ${supportsColorTemp(s) ? `<button class="lsw warm" data-a="light-k" data-k="${kMin + Math.round((kMax - kMin) * 0.1)}" aria-label="Warmweiß"></button><button class="lsw cold" data-a="light-k" data-k="${kMax}" aria-label="Kaltweiß"></button>` : ""}</div>`;
+        if (supportsColorTemp(s)) h += `<div class="panel-h" style="margin-top:${supportsColor(s) ? 14 : 0}px"><span>Weißton</span><span id="kval">${on && isTemp ? k + " K" : ""}</span></div>
+          <input type="range" class="ct" min="${kMin}" max="${kMax}" step="50" value="${k}" id="ctemp" aria-label="Farbtemperatur">`;
+        h += `</div>`;
+      }
     } else if (["switch","fan","input_boolean"].includes(d)) {
       h += toggle(fmtState(s), unavail ? "" : on ? ((p.extras || []).length ? "Verbraucht Strom" : "Eingeschaltet") : "Ausgeschaltet");
     } else if (d === "media_player") {
@@ -1364,6 +1389,17 @@ class HauspanelPanel extends HTMLElement {
     }
     h += this._extrasHtml(p);
     this._showPop(h);
+    const hue = this.$("#hue"), ct = this.$("#ctemp");
+    if (hue) {
+      hue.addEventListener("pointerdown", () => { this._sliding = true; });
+      hue.addEventListener("input", () => { this.$("#hval").textContent = hue.value + "°"; });
+      hue.addEventListener("change", () => { this._sliding = false; this._hass.callService("light", "turn_on", { entity_id: id, hs_color: [Number(hue.value), 100] }); });
+    }
+    if (ct) {
+      ct.addEventListener("pointerdown", () => { this._sliding = true; });
+      ct.addEventListener("input", () => { this.$("#kval").textContent = ct.value + " K"; });
+      ct.addEventListener("change", () => { this._sliding = false; this._hass.callService("light", "turn_on", { entity_id: id, color_temp_kelvin: Number(ct.value) }); });
+    }
     const r = this.$("#bright");
     if (r) {
       r.addEventListener("pointerdown", () => { this._sliding = true; });
@@ -1468,6 +1504,12 @@ class HauspanelPanel extends HTMLElement {
     const b = t.closest("[data-a]");
     if (!b) return;
     const a = b.dataset.a;
+    if (this.popup && ["light-hs", "light-k"].includes(a)) {
+      const f = this._floor(), p = f && (f.pins || []).find((x) => x.id === this.popup.pin); if (!p) return;
+      const data = a === "light-hs" ? { hs_color: [Number(b.dataset.h), Number(b.dataset.s)] } : { color_temp_kelvin: Number(b.dataset.k) };
+      this._hass.callService("light", "turn_on", { entity_id: p.entity_id, ...data });
+      return;
+    }
     if (this.popup && ["toggle","temp","mode","svc","media"].includes(a)) return this._popAction(b);
     switch (a) {
       case "pop-close": return this._closePop();
