@@ -675,6 +675,11 @@ input.hue::-webkit-slider-thumb,input.ct::-webkit-slider-thumb{background:#fff;b
 .tabs button.sel{background:var(--card);color:var(--text);box-shadow:var(--shadow)}
 .insp-body{flex:1;overflow:auto;margin-top:12px;padding:0 2px 8px;user-select:text;-webkit-user-select:text}
 .fld{margin-bottom:14px}
+.insp-select .fld{margin-bottom:20px}
+.insp-select .sep{margin:6px 0 20px}
+.insp-select .fld:has(+ .sep){margin-bottom:14px}
+.insp-select .icon-group{margin-top:10px}
+.insp-select .check{margin-bottom:10px}
 .fld > label:not(.drop-zone),.lbl{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px}
 .inp{width:100%;height:38px;border-radius:11px;border:1.5px solid transparent;background:var(--tile);padding:0 12px;font-size:14px;outline:none}
 .inp:focus{border-color:var(--accent)}
@@ -2065,6 +2070,7 @@ class HauspanelPanel extends HTMLElement {
     else if (this.tab === "design") body.innerHTML = this._tabDesign();
     else body.innerHTML = this._tabGeneral();
     if (this.tab === "devices") this._renderEntityList();
+    body.classList.toggle("insp-select", this.tab === "select");
     this._inspTab = this.tab;
     body.scrollTop = this._inspScroll[this.tab] || 0;
   }
@@ -2127,15 +2133,20 @@ class HauspanelPanel extends HTMLElement {
         ${[["icon","Icon"],["value", d === "climate" ? "Ist-Temperatur" : "Wert"],["both","Icon + Wert"]].map(([k, l]) =>
           `<button class="${(p.display || "icon") === k ? "sel" : ""}" data-a="pin-display" data-v="${k}">${l}</button>`).join("")}</div>
         <div class="hint" style="margin-top:6px">Jetzt: ${esc(this._pinValue(p, s))}</div></div>
+      <div class="sep"></div>
       <div class="fld"><label>Icon</label>${this._iconPicker(p)}</div>
+      <div class="sep"></div>
       ${this._statusField(p, d)}
       ${d === "camera" ? `<div class="fld"><label>Ansicht im Popup</label><div class="chips" style="margin:0">
         ${[["live", "Livebild"], ["snapshot", "Standbild (alle 3 s neu)"]].map(([k, l]) => `<button class="${(p.cam_view || "live") === k ? "sel" : ""}" data-a="pin-camview" data-v="${k}">${l}</button>`).join("")}</div>
         <div class="hint" style="margin-top:6px">Akku-Kameras liefern oft kein Livebild an Home Assistant – dann Standbild wählen.</div></div>` : ""}
+      <div class="sep"></div>
       <div class="fld"><label>Status von anderer Entity</label>
         <input class="inp" list="dl-sensors" data-f="pin-state-entity" value="${esc(p.state_entity || "")}" placeholder="optional, z. B. binary_sensor.…_camera_enabled">
         <div class="hint" style="margin-top:4px">${d === "camera" ? "Kamera an = Pin in An-Farbe, aus = durchgestrichenes Symbol. Antippen öffnet weiterhin das Kamerabild." : "Der Pin wird „an“ gefärbt, wenn diese Entity an ist."}</div></div>
+      <div class="sep"></div>
       ${scaleField(p, "pin-scale")}
+      <div class="sep"></div>
       ${TOGGLE_DOMAINS.has(d) ? `<label class="check"><input type="checkbox" data-f="pin-toggle" ${p.toggle ? "checked" : ""}>Antippen schaltet direkt an/aus</label>
         <div class="hint" style="margin:-4px 0 8px 30px">Lange drücken öffnet weiterhin das Popup (z. B. für Helligkeit).</div>` : ""}
       <label class="check"><input type="checkbox" data-f="pin-power" ${p.power_off ? "checked" : ""}>Mit Power-Button ausschalten</label>
