@@ -2,6 +2,7 @@
 
 [![CI](https://github.com/saschaweiss/ha-hauspanel/actions/workflows/ci.yml/badge.svg)](https://github.com/saschaweiss/ha-hauspanel/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/saschaweiss/ha-hauspanel)](https://github.com/saschaweiss/ha-hauspanel/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![HACS Custom](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://hacs.xyz/docs/faq/custom_repositories)
 
 A floor-plan dashboard for Home Assistant, built for wall-mounted tablets (e.g. Fire HD 10 with Fully Kiosk Browser).
@@ -151,3 +152,7 @@ cd e2e && HASS_BIN=~/ha/bin/hass pytest
 ### Releases
 
 CI runs on every push. Bumping the version in `manifest.json` and `const.py` (plus a `CHANGELOG.md` entry) creates a GitHub release automatically – but only after all checks and tests passed.
+
+## License
+
+MIT – see [LICENSE](LICENSE). Bundled: Lucide icons (ISC), Inter font (SIL OFL 1.1).

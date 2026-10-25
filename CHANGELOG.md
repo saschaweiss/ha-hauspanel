@@ -12,6 +12,7 @@
 - Backend test suite (pytest-homeassistant-custom-component): setup, config flow, websocket API, conflict detection, SVG sanitizing, AI tools incl. undo, floor plan analysis.
 - End-to-end test suite: the real panel in Chromium against a throwaway Home Assistant with the demo integration.
 - CI on every push: ruff, built file up to date, version/changelog consistency, hassfest, HACS validation, both test suites. Releases are only created when CI passes.
+- MIT licence.
 - `npm run build` with pinned icon set; code comments translated to English; README screenshots from the demo layout.
 
 ## [0.10.1]
