@@ -109,6 +109,8 @@ const I18N_EN = {
   "Kamera bei Ereignis": "Camera on event", "Auslöser": "Trigger", "Kamera": "Camera", "Testen": "Test", "Dauer": "Duration",
   "z. B. Klingel": "e.g. doorbell", "Kamera wählen": "Choose camera", "Kamera-Ereignis hinzufügen": "Add camera event",
   "Öffnet automatisch das Kamerabild, z. B. wenn jemand klingelt. Klingel-Ereignisse (event.*) lösen bei jedem Klingeln aus, Sensoren und Schalter beim Wechsel auf „an“. Schließt sich nach der eingestellten Zeit, außer jemand bedient das Tablet. In Fully Kiosk geht dabei der Bildschirm an (JavaScript-Schnittstelle muss aktiv sein).": "Opens the camera view automatically, e.g. when someone rings the doorbell. Doorbell events (event.*) fire on every ring, sensors and switches when they turn on. Closes after the chosen time unless someone uses the tablet. In Fully Kiosk the screen turns on (JavaScript interface must be enabled).",
+  "Aktive Warnungen": "Active alerts", "1 Warnung": "1 alert", "Aktive Warnungen anzeigen": "Show active alerts",
+  "Zeigt neben der Uhr, wie viele Pin-Warnungen gerade aktiv sind (antippen listet sie), und markiert die Etagen mit einem Punkt.": "Shows next to the clock how many pin alerts are active (tap to list them) and marks the floors with a dot.",
   "Raumfläche": "Room area", "Fläche zeichnen": "Draw area", "Fläche bearbeiten": "Edit area", "Automatisch erkennen": "Detect automatically",
   "Letzter Punkt": "Undo point", "Auf den Plan tippen, um Eckpunkte zu setzen. Zum Schließen auf den ersten Punkt tippen.": "Tap the plan to set corner points. Tap the first point to close the shape.",
   "Selbst gezeichnet – wird zum Einfärben verwendet.": "Drawn by hand – used for tinting.",
@@ -212,6 +214,7 @@ const I18N_RX = [
   [/^(\d+) Geräte? im (.+) ausgeschaltet$/, (m) => `${m[1]} device${m[1] === "1" ? "" : "s"} in ${m[2]} switched off`],
   [/^Im (.+) ist schon alles aus$/, (m) => `Everything in ${m[1]} is already off`],
   [/^in (\d+) Tagen$/, (m) => `in ${m[1]} days`],
+  [/^(\d+) Warnungen$/, (m) => `${m[1]} alerts`],
   [/^\+(\d+) weitere$/, (m) => `+${m[1]} more`],
   [/^(\d+) weitere – Suche eingrenzen\.$/, (m) => `${m[1]} more – refine your search.`],
   [/^KW (\d+)(?: \/ (\d+))?$/, (m) => `CW ${m[1]}${m[2] ? " / " + m[2] : ""}`],
@@ -707,6 +710,15 @@ svg.i{display:block;fill:none;stroke:currentColor;stroke-linecap:round;stroke-li
 .hdr-item{background:var(--card);box-shadow:var(--shadow);font-weight:700;font-size:calc(16px * var(--fs));gap:7px;padding:0 15px;font-variant-numeric:tabular-nums}
 .hdr-item svg{color:var(--muted)}
 .hdr-item.low svg,.hdr-item.low{color:var(--accent)}
+.hdr-item.hdr-alert{background:var(--alert);color:var(--alert-fg);position:relative}
+.hdr-item.hdr-alert.blink::before{content:"";position:absolute;inset:0;border-radius:inherit;background:var(--alert);z-index:-1;animation:hp-pulsar 1.8s cubic-bezier(.2,.6,.35,1) infinite}
+.fl-alert{position:absolute;left:8px;top:8px;width:10px;height:10px;border-radius:50%;box-shadow:0 0 0 2.5px var(--card)}
+.al-list{display:flex;flex-direction:column;gap:8px;margin-top:16px}
+.al-row{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:14px;background:var(--tile);text-align:left;color:var(--text)}
+.al-row .al-ic{flex:none;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:var(--alert);color:#fff}
+.al-row .al-tx{flex:1;min-width:0}.al-row .al-tx b{display:block;font-size:calc(15px * var(--fs))}
+.al-row .al-tx span{display:block;font-size:calc(13px * var(--fs));color:var(--muted);margin-top:2px}
+.al-row > svg{color:var(--muted);flex:none}
 :host(.mobile) .hdr-item{height:40px;padding:0 11px;font-size:calc(14px * var(--fs))}
 :host(.mobile) .hdr-item:nth-child(n+2){display:none}
 #clock{background:var(--clock-bg);color:var(--clock-fg);font-size:calc(25px * var(--fs));font-weight:700;letter-spacing:-.3px;font-variant-numeric:tabular-nums}
@@ -1151,7 +1163,7 @@ class HauspanelPanel extends HTMLElement {
     } catch (err) {
       this.$("#plan").innerHTML = `<div class="empty"><div><b>Keine Verbindung zum Backend</b>${esc(err.message || err.code || err)}</div></div>`;
     }
-    this._timers.push(setInterval(() => { this._tick(); this._idleReset(); if (this.viewing) this._updatePins(); }, 15000));
+    this._timers.push(setInterval(() => { this._tick(); this._idleReset(); if (this.viewing) { this._updatePins(); this._updateAlertsUi(); } }, 15000));
     this._scheduleClock();
     this._timers.push(setInterval(() => this._fetchEvents(), 10 * 60000));
     this._ready = true;
@@ -1292,6 +1304,7 @@ class HauspanelPanel extends HTMLElement {
     if (this._hass.user !== this._prevUser) { this._prevUser = this._hass.user; this._renderTop(); }
     if (!changed) return;
     this._updatePins(); this._renderFloors(); this._updateHeader();
+    if (this.popup && this.popup.type === "alerts") this._openAlerts();
     if (this.viewing) {
       this._renderWeather(); this._renderWaste(); this._applyTheme();
       if (this.popup && this.popup.type === "entity" && !this._sliding) this._renderEntityPop();
@@ -1401,8 +1414,36 @@ class HauspanelPanel extends HTMLElement {
   }
 
   /* values in the header (e.g. the tablet's battery level) */
+  /* all alerts that are active right now, over all floors */
+  _activeAlerts() {
+    const out = [];
+    ((this.C && this.C.floors) || []).forEach((f) => (f.pins || []).forEach((p) => { const r = this._pinAlert(p); if (r) out.push({ f, p, r }); }));
+    return out;
+  }
+  _alertBadge() {
+    if (!this.C || this.C.alert_badge === false) return "";
+    const list = this._activeAlerts(); if (!list.length) return "";
+    const col = list[0].r.color || "#E5391D", blink = list.some((x) => x.r.blink);
+    const title = list.length === 1 ? "1 Warnung" : `${list.length} Warnungen`;
+    return `<button class="pill hdr-item hdr-alert${blink ? " blink" : ""}" data-a="alerts" title="${title}" aria-label="${title}" style="--alert:${esc(col)};--alert-fg:${contrastFg(col, "#1E1C1B", "#FFFFFF")}">${ic("triangle-alert", 18)}<span>${list.length}</span></button>`;
+  }
+  _openAlerts() {
+    const list = this._activeAlerts();
+    if (!list.length) return this._closePop();
+    let h = `<div class="pop-h"><div class="pop-ico on" style="background:${esc(list[0].r.color || "#E5391D")}">${ic("triangle-alert", 24)}</div><div><div class="pop-sub">${list.length === 1 ? "1 Warnung" : `${list.length} Warnungen`}</div><div class="pop-title">Aktive Warnungen</div></div>
+      <button class="pop-x" data-a="pop-close" aria-label="Schließen">${ic("x", 20)}</button></div><div class="al-list">`;
+    list.forEach(({ f, p, r }) => {
+      const s = this._hass.states[p.entity_id], room = this._roomOf(f, p);
+      h += `<button class="al-row" data-a="al-go" data-fl="${esc(f.id)}" data-pin="${esc(p.id)}" style="--alert:${esc(r.color || "#E5391D")}">
+        <span class="al-ic">${ic(p.icon || defaultIcon(s, p.entity_id), 20)}</span>
+        <span class="al-tx"><b>${esc(p.name || friendly(this._hass, p.entity_id))}</b><span>${esc([f.code, room].filter(Boolean).join(" · "))} – ${esc(this._alertText(r, p))}</span></span>
+        ${ic("chevron-right", 18)}</button>`;
+    });
+    this.popup = { type: "alerts" };
+    this._showPop(h + `</div>`);
+  }
   _headerHtml() {
-    return ((this.C && this.C.header) || []).filter((x) => x.entity_id).map((x, i) => {
+    return this._alertBadge() + ((this.C && this.C.header) || []).filter((x) => x.entity_id).map((x, i) => {
       const s = this._hass.states[x.entity_id];
       const dc = s && s.attributes.device_class, lvl = s ? Number(s.state) : NaN;
       let icon = x.icon || defaultIcon(s, x.entity_id);
@@ -1420,7 +1461,18 @@ class HauspanelPanel extends HTMLElement {
     if (s && (s.attributes.charging === true || s.attributes.is_charging === true)) return true;
     return this._chargeIds(id).some((c) => this._hass.states[c] && this._hass.states[c].state === "on");
   }
+  _updateAlertsUi() {
+    const sig = this._activeAlerts().map((x) => x.p.id + x.r.color).join("|");
+    if (sig === this._alertSig) return;
+    this._alertSig = sig; this._updateHeader(); this._renderFloors();
+    if (this.popup && this.popup.type === "alerts") this._openAlerts();
+  }
   _updateHeader() { const el = this.$("#hdr-items"); if (el) { const h = this._headerHtml(); if (el.innerHTML !== h) el.innerHTML = h; } }
+  _floorAlertDot(f) {
+    if (!this.C || this.C.alert_badge === false) return "";
+    const r = (f.pins || []).map((p) => this._pinAlert(p)).find(Boolean);
+    return r ? `<i class="fl-alert" style="background:${esc(r.color || "#E5391D")}" title="Warnung"></i>` : "";
+  }
   _lightsOn(f) {
     return (f.pins || []).filter((p) => domainOf(p.entity_id) === "light" && isActive(this._hass.states[p.entity_id])).length;
   }
@@ -1431,7 +1483,7 @@ class HauspanelPanel extends HTMLElement {
       if (f.separated) h += `<div class="floor-sep"></div>`;
       h += `<button class="floor-btn${f.id === this.activeFloor ? " active" : ""}" data-floor="${f.id}">
         <div class="code">${esc(f.code || "?")}</div><div class="name">${esc(f.name || "")}</div>
-        <div class="count">${ic("lightbulb", 14)}${this._lightsOn(f)}</div></button>`;
+        <div class="count">${ic("lightbulb", 14)}${this._lightsOn(f)}</div>${this._floorAlertDot(f)}</button>`;
     });
     if (this.editing) h += `<button class="floor-add" data-a="floor-add">${ic("plus", 16)}Etage</button>`;
     el.classList.toggle("compact", (this.C.floors || []).length > (this.editing ? 3 : 4));
@@ -2154,6 +2206,14 @@ class HauspanelPanel extends HTMLElement {
     if (this.popup && ["toggle","temp","mode","svc","media"].includes(a)) return this._popAction(b);
     switch (a) {
       case "pop-close": return this._closePop();
+      case "alerts": return this._openAlerts();
+      case "al-go": {
+        const fid = b.dataset.fl, pid = b.dataset.pin;
+        this._closePop();
+        if (fid !== this.activeFloor) { this.activeFloor = fid; this._renderFloors(); this._renderPlan(); }
+        if (!this.editing) this._openPin(pid);
+        return;
+      }
       case "hdr-item": {
         const x = ((this.C && this.C.header) || []).filter((y) => y.entity_id)[Number(b.dataset.i)];
         if (x) this.dispatchEvent(new CustomEvent("hass-more-info", { detail: { entityId: x.entity_id }, bubbles: true, composed: true }));
@@ -2525,6 +2585,7 @@ class HauspanelPanel extends HTMLElement {
       }
       case "default-floor": this.draft.default_floor = val; break;
       case "night-mode": this.draft.night.mode = val; this._renderInspector(); break;
+      case "alert-badge": if (val) delete this.draft.alert_badge; else this.draft.alert_badge = false; this._alertSig = null; this._updateHeader(); this._renderFloors(); break;
       case "cal-mode": if (val === "week") delete this.draft.cal_mode; else this.draft.cal_mode = val; this.weekOffset = 0; this._fetchEvents(); break;
       case "night-from": this.draft.night.from = Number(val); break;
       case "night-to": this.draft.night.to = Number(val); break;
@@ -3105,7 +3166,9 @@ class HauspanelPanel extends HTMLElement {
       <div class="fld"><label>Kopfzeile</label><div class="hint">Werte oben neben der Uhr, z. B. Akkustand des Tablets oder Außentemperatur. Antippen öffnet die Details.</div>
         ${(c.header || []).filter((x) => x.entity_id).map((x, i) => `<div class="row" style="margin-bottom:8px">${this._pickField(x.entity_id, "pick-header", "Entity wählen", i)}
           <button class="sbtn" data-a="header-del" data-i="${i}" aria-label="Entfernen">${ic("x", 16)}</button></div>`).join("")}
-        ${(c.header || []).filter((x) => x.entity_id).length < 4 ? `<button class="sbtn" data-a="pick-header" data-i="new">${ic("plus", 16)}Wert hinzufügen</button>` : ""}</div>
+        ${(c.header || []).filter((x) => x.entity_id).length < 4 ? `<button class="sbtn" data-a="pick-header" data-i="new">${ic("plus", 16)}Wert hinzufügen</button>` : ""}
+        <label class="check" style="margin-top:12px"><input type="checkbox" data-f="alert-badge" ${c.alert_badge === false ? "" : "checked"}>Aktive Warnungen anzeigen</label>
+        <div class="hint" style="margin:2px 0 0 30px">Zeigt neben der Uhr, wie viele Pin-Warnungen gerade aktiv sind (antippen listet sie), und markiert die Etagen mit einem Punkt.</div></div>
       <div class="sep"></div>
       <div class="fld"><label>Kamera bei Ereignis</label>
         <div class="hint">Öffnet automatisch das Kamerabild, z. B. wenn jemand klingelt. Klingel-Ereignisse (event.*) lösen bei jedem Klingeln aus, Sensoren und Schalter beim Wechsel auf „an“. Schließt sich nach der eingestellten Zeit, außer jemand bedient das Tablet. In Fully Kiosk geht dabei der Bildschirm an (JavaScript-Schnittstelle muss aktiv sein).</div>

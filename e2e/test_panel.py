@@ -19,7 +19,7 @@ def test_view_renders_layout(open_panel):
     assert p.locator("hauspanel-panel #plan svg").count() >= 1
     assert p.locator("hauspanel-panel .pin").count() == 7
     assert p.locator("hauspanel-panel .room-label").count() == 6
-    assert "%" in p.locator("hauspanel-panel .hdr-item").first.inner_text()  # header value (battery)
+    assert "%" in p.locator("hauspanel-panel .hdr-item:not(.hdr-alert)").first.inner_text()  # header value (battery)
     assert p.locator("hauspanel-panel #weather").inner_text().strip()
     p.assert_no_errors()
 
@@ -281,3 +281,30 @@ def test_draw_room_area(open_panel, server):
     expect(_tint(v, "r4")).to_have_css("background-color", "rgb(245, 166, 35)", timeout=5000)
     assert "polygon" in _tint(v, "r4").evaluate("e => getComputedStyle(e).clipPath")
     p.assert_no_errors()
+
+
+def test_alert_badge_and_list(open_panel, server):
+    p = open_panel()
+    badge = p.locator("hauspanel-panel .hdr-alert")
+    expect(badge).to_have_text("1")
+    assert badge.evaluate("e => getComputedStyle(e).backgroundColor") == "rgb(255, 0, 0)"
+    assert p.locator('hauspanel-panel .floor-btn[data-floor="og"] .fl-alert').count() == 1
+    assert p.locator('hauspanel-panel .floor-btn[data-floor="eg"] .fl-alert').count() == 0
+    p.click('hauspanel-panel .floor-btn[data-floor="eg"]')
+    badge.click()
+    rows = p.locator("hauspanel-panel .al-row")
+    expect(rows).to_have_count(1)
+    assert "OG" in rows.first.inner_text()
+    rows.first.click()
+    assert p.locator("hauspanel-panel .floor-btn.active").get_attribute("data-floor") == "og"
+    expect(p.locator("hauspanel-panel #pop .alert-note")).to_be_visible()  # the pin popup with its alert
+    p.click("hauspanel-panel [data-a=pop-close]")
+    service(server, "switch", "turn_on", entity_id="switch.ac")
+    expect(badge).to_have_count(0, timeout=5000)
+    assert p.locator("hauspanel-panel .fl-alert").count() == 0
+    p.assert_no_errors()
+
+
+def test_alert_badge_english(open_panel):
+    p = open_panel(lang="en")
+    assert p.locator("hauspanel-panel .hdr-alert").get_attribute("title") == "1 alert"

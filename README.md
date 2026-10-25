@@ -52,6 +52,7 @@ Floors, plans and devices are set up right inside the panel: upload a floor plan
 - Calendar range: calendar week, calendar week but "from today" on weekends, or always the next 7 days
 
 **Header**
+- Badge with the number of active alerts on all floors – tap to list them and jump to the device
 - Up to four entity values next to the clock, e.g. the tablet's battery level (icon follows level and charging state)
 
 **Look & behaviour**

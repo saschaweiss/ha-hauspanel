@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.15.0]
+
+### Added
+- Active alerts in the header: a badge next to the clock shows how many pin alerts are active on any floor (in the colour of the first one, pulsing if it pulses). Tapping it lists them; tapping an entry jumps to the floor and opens the device. Floors with active alerts get a dot. Can be switched off under *General → Header*.
+- MCP: `alert_badge` setting.
+
 ## [0.14.0]
 
 ### Added
