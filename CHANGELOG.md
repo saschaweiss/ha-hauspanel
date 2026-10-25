@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.14.0]
+
+### Added
+- Draw room areas by hand: select a room label → *Draw area*, tap the corners on the plan, tap the first point to close. Drag points to adjust, insert new ones via the dots on the edges, double-tap a corner to remove it. Points snap to corners of other rooms and line up with their neighbours. A drawn area replaces the automatic detection for tinting; *Detect automatically* switches back.
+- MCP: `area` field for room labels (`[[x, y], …]` in percent).
+
+### Changed
+- The automatic room detection is only used for rooms without a drawn area.
+
 ## [0.13.0]
 
 ### Added

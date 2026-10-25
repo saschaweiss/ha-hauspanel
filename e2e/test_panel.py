@@ -250,3 +250,34 @@ def test_room_tint_editor(open_panel):
     p.click("hauspanel-panel [data-a=alert-add]")
     assert insp.locator(".alert-card").count() == 2
     p.assert_no_errors()
+
+
+def _plan_click(p, x, y):
+    box = p.locator("hauspanel-panel #plan").bounding_box()
+    p.mouse.click(box["x"] + box["width"] * x / 100, box["y"] + box["height"] * y / 100)
+
+
+def test_draw_room_area(open_panel, server):
+    p = open_panel("/hauspanel", 1440, 1000)
+    p.click("hauspanel-panel [data-a=edit]")
+    p.click('hauspanel-panel .room-label[data-room="r4"]')
+    p.click("hauspanel-panel [data-a=area-edit]")
+    for x, y in [(10, 60), (30, 60), (30, 85), (10, 85)]:
+        _plan_click(p, x, y)
+    assert p.locator("hauspanel-panel .av").count() == 4
+    assert p.locator("hauspanel-panel [data-a=area-done]").is_disabled()  # not closed yet
+    p.locator("hauspanel-panel .av.first").click()
+    assert p.locator("hauspanel-panel .am").count() == 4  # closed: midpoints to insert points
+    p.locator("hauspanel-panel .am").first.click()
+    assert p.locator("hauspanel-panel .av").count() == 5
+    p.click("hauspanel-panel [data-a=area-done]")
+    p.click("hauspanel-panel [data-a=edit-save]")
+    p.wait_for_timeout(1000)
+    cfg = ha_server.ws_call(server, {"type": "hauspanel/get"})[0]["config"]
+    area = next(r for r in cfg["floors"][0]["rooms"] if r["id"] == "r4")["area"]
+    assert len(area) == 5 and area[0] == [10, 60] and area[2] == [30, 60]  # inserted midpoint at index 1
+    v = open_panel()
+    service(server, "light", "turn_on", entity_id="light.kitchen_lights")
+    expect(_tint(v, "r4")).to_have_css("background-color", "rgb(245, 166, 35)", timeout=5000)
+    assert "polygon" in _tint(v, "r4").evaluate("e => getComputedStyle(e).clipPath")
+    p.assert_no_errors()

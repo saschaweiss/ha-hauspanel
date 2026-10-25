@@ -49,7 +49,7 @@ FLOOR_ID_RE = re.compile(r"^[a-z0-9_-]{1,40}$")
 ENTITY_ID_RE = re.compile(r"^[a-z0-9_]+\.[a-z0-9_]+$")
 
 PIN_KEYS = {"id", "entity_id", "x", "y", "scale", "toggle", "state_entity", "cam_view", "alerts", "bare", "off_style", "flip", "name", "room", "icon", "display", "status", "power_off", "extras"}
-ROOM_KEYS = {"id", "name", "x", "y", "scale", "tints"}
+ROOM_KEYS = {"id", "name", "x", "y", "scale", "tints", "area"}
 FLOOR_KEYS = {"code", "name", "separated", "recolor", "css", "position"}
 SETTINGS_KEYS = {"theme", "css", "night", "calendars", "waste", "weather_entity", "default_floor", "cal_mode", "palette", "header", "cam_popups"}
 
@@ -510,7 +510,8 @@ class UpsertRoomsTool(_WriteTool):
                    "tints = Raum einfärben, Regeln wie bei Pin-Warnungen, erste zutreffende färbt den Raum: "
                    "[{entity_id, attribute?, kind:\"state\"|\"numeric\", state?, not?, above?, below?, for?, unit?, color:\"#hex\"}], z. B. "
                    "Anwesenheit {entity_id: binary_sensor.praesenz_kueche, kind: state, state: on, color: #F5A623} oder zu kalt {kind: numeric, below: 18, color: #2F6DD0}. "
-                   "Die Raumfläche wird aus dem Grundriss erkannt (Label oben links im Raum).")
+                   "Die Raumfläche wird aus dem Grundriss erkannt (Label oben links im Raum), außer der Raum hat eine selbst gezeichnete area: "
+                   "[[x, y], …] in Prozent (Polygon, mindestens 3 Punkte; null = wieder automatisch).")
     parameters = vol.Schema({
         vol.Required("floor_id"): str,
         vol.Required("rooms"): [vol.Schema({
@@ -520,6 +521,7 @@ class UpsertRoomsTool(_WriteTool):
             vol.Optional("y"): vol.Coerce(float),
             vol.Optional("scale"): vol.Any(None, vol.Coerce(int)),
             vol.Optional("tints"): vol.Any(None, [dict]),
+            vol.Optional("area"): vol.Any(None, [[vol.Coerce(float)]]),
         })],
     })
 
@@ -547,6 +549,13 @@ class UpsertRoomsTool(_WriteTool):
             old = room.get("name")
             if "scale" in item:
                 _set_scale(room, item["scale"])
+            if "area" in item:
+                if item["area"]:
+                    if len(item["area"]) < 3 or any(len(pt) != 2 for pt in item["area"]):
+                        raise ValueError("area: mindestens 3 Punkte [x, y]")
+                    room["area"] = [[_pct(x, "x"), _pct(y, "y")] for x, y in item["area"]]
+                else:
+                    room.pop("area", None)
             if "tints" in item:
                 if item["tints"]:
                     if any(not t.get("entity_id") or not ENTITY_ID_RE.match(t["entity_id"]) for t in item["tints"]):

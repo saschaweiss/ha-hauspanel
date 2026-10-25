@@ -109,8 +109,14 @@ const I18N_EN = {
   "Kamera bei Ereignis": "Camera on event", "Auslöser": "Trigger", "Kamera": "Camera", "Testen": "Test", "Dauer": "Duration",
   "z. B. Klingel": "e.g. doorbell", "Kamera wählen": "Choose camera", "Kamera-Ereignis hinzufügen": "Add camera event",
   "Öffnet automatisch das Kamerabild, z. B. wenn jemand klingelt. Klingel-Ereignisse (event.*) lösen bei jedem Klingeln aus, Sensoren und Schalter beim Wechsel auf „an“. Schließt sich nach der eingestellten Zeit, außer jemand bedient das Tablet. In Fully Kiosk geht dabei der Bildschirm an (JavaScript-Schnittstelle muss aktiv sein).": "Opens the camera view automatically, e.g. when someone rings the doorbell. Doorbell events (event.*) fire on every ring, sensors and switches when they turn on. Closes after the chosen time unless someone uses the tablet. In Fully Kiosk the screen turns on (JavaScript interface must be enabled).",
+  "Raumfläche": "Room area", "Fläche zeichnen": "Draw area", "Fläche bearbeiten": "Edit area", "Automatisch erkennen": "Detect automatically",
+  "Letzter Punkt": "Undo point", "Auf den Plan tippen, um Eckpunkte zu setzen. Zum Schließen auf den ersten Punkt tippen.": "Tap the plan to set corner points. Tap the first point to close the shape.",
+  "Selbst gezeichnet – wird zum Einfärben verwendet.": "Drawn by hand – used for tinting.",
+  "Wird automatisch aus dem Grundriss erkannt. Passt das nicht, die Fläche selbst zeichnen.": "Detected automatically from the floor plan. If that does not fit, draw the area yourself.",
+  "Punkte verschieben, über die kleinen Punkte auf den Kanten neue einfügen, Doppeltipp auf einen Eckpunkt entfernt ihn.": "Drag points, use the small dots on the edges to insert new ones, double-tap a corner to remove it.",
+  "Punkte rasten an Ecken anderer Räume und an Nachbarpunkten ein.": "Points snap to corners of other rooms and line up with their neighbours.",
   "Raum einfärben": "Tint room", "Raum einfärben nach": "Tint room by", "Regel hinzufügen": "Add rule",
-  "Tönt die ganze Raumfläche, solange eine Bedingung zutrifft – z. B. Anwesenheit, Fenster offen oder zu kalt. Die erste zutreffende Regel bestimmt die Farbe. Die Fläche wird aus dem Grundriss erkannt (Label oben links im Raum); bei offenen Grundrissen teilen sich die Labels die Fläche.": "Tints the whole room while a condition is true – e.g. presence, window open or too cold. The first matching rule sets the colour. The room area is detected from the floor plan (label at the top left of the room); in open-plan layouts the labels share the area.",
+  "Tönt die Raumfläche, solange eine Bedingung zutrifft – z. B. Anwesenheit, Fenster offen oder zu kalt. Die erste zutreffende Regel bestimmt die Farbe.": "Tints the room area while a condition is true – e.g. presence, window open or too cold. The first matching rule sets the colour.",
   "Icon spiegeln": "Mirror icon", "Horizontal": "Horizontal", "Vertikal": "Vertical",
   "Mit Hintergrund": "With background", "Ohne Hintergrund": "No background", "Wenn aus": "When off",
   "Ausgegraut": "Greyed out", "Durchgestrichen": "Struck through", "Beides": "Both",
@@ -268,6 +274,9 @@ const scaleField = (o, f) => `<div class="fld"><div class="row" style="justify-c
   <span class="row" style="gap:6px"><b id="sv-${f}">${o.scale || 100} %</b>${o.scale && o.scale !== 100 ? `<button class="sx" data-a="scale-reset" data-k="${f}" title="Zurück auf 100 %">${ic("x", 13)}</button>` : ""}</span></div>
   <input type="range" min="50" max="200" step="5" value="${o.scale || 100}" data-f="${f}" style="--p:${((o.scale || 100) - 50) / 1.5}%">
   <div class="hint scale-hint" style="margin-top:4px">Nur dieses ${f === "room-scale" ? "Label" : "Gerät"}; die allgemeine Größe stellst du im Design-Tab ein.</div></div>`;
+/* hand-drawn room areas: [[x, y], …] in percent of the plan */
+const hasArea = (r) => Array.isArray(r.area) && r.area.length >= 3;
+const areaClip = (pts) => `polygon(${pts.map(([x, y]) => `${x}% ${y}%`).join(",")})`;
 /* "#abc", "abc", "#AABBCC" -> "#aabbcc"; invalid -> null */
 const normHex = (v) => {
   let s = String(v || "").trim().replace(/^#/, "").toLowerCase();
@@ -751,6 +760,20 @@ svg.fp{fill:var(--wall)}
 .pin.alert{background:var(--alert);color:var(--alert-fg);opacity:1}
 .pin.flip-h svg.i{transform:scaleX(-1)}.pin.flip-v svg.i{transform:scaleY(-1)}.pin.flip-h.flip-v svg.i{transform:scale(-1)}
 .tints{position:absolute;inset:0;pointer-events:none}
+.area-layer{position:absolute;inset:0;pointer-events:none}
+.area-layer svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.area-layer polygon,.area-layer polyline{vector-effect:non-scaling-stroke;stroke-width:1.5;stroke-linejoin:round}
+.area-layer .ar{fill:var(--accent);fill-opacity:.06;stroke:var(--accent);stroke-opacity:.45;stroke-dasharray:4 3}
+.area-layer .ar.sel{fill-opacity:.16;stroke-opacity:.9}
+.area-layer .ae{fill:var(--accent);fill-opacity:.2;stroke:var(--accent);stroke-width:2}
+.area-layer polyline.ae{fill:none}
+.av,.am{position:absolute;transform:translate(-50%,-50%);border-radius:50%;pointer-events:auto;touch-action:none;cursor:grab}
+.av{width:16px;height:16px;background:var(--card);border:3px solid var(--accent);box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.av.first{width:22px;height:22px;background:var(--accent)}
+.am{width:11px;height:11px;background:var(--accent);opacity:.55}
+.am:hover{opacity:1}
+#plan.area-mode{cursor:crosshair}
+#plan.area-mode .pin,#plan.area-mode .room-label{pointer-events:none!important;opacity:.45}
 .tint{position:absolute;inset:0;opacity:var(--tint-op, .28);background-color:transparent;transition:background-color .5s;-webkit-mask-size:100% 100%;mask-size:100% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
 :host([data-theme="dark"]) .tint{opacity:var(--tint-op-dark, .34)}
 .pin.bare,.pin.bare.on,.pin.bare.cam,.pin.bare.plain,.pin.bare.alert{background-color:transparent;box-shadow:none}
@@ -1460,22 +1483,25 @@ class HauspanelPanel extends HTMLElement {
     });
     plan.innerHTML = h;
     plan.classList.toggle("inv", !!f.raster && f.recolor !== false);
-    this._layoutPlan(); this._updatePins();
+    this._layoutPlan(); this._updatePins(); this._renderAreas();
   }
 
   /* ---------- room tints: room areas come from the backend's plan analysis as PNG masks ---------- */
   _tintRooms(f) { return (f.rooms || []).filter((r) => (r.tints || []).some((x) => x.entity_id)); }
   _tintDivs(f) {
-    const m = this._maskFor(f); if (!m || !m.masks) return "";
-    return this._tintRooms(f).filter((r) => m.masks[r.id]).map((r) =>
-      `<div class="tint" data-tint="${esc(r.id)}" style="-webkit-mask-image:url(${m.masks[r.id]});mask-image:url(${m.masks[r.id]})"></div>`).join("");
+    const m = this._maskFor(f), masks = (m && m.masks) || {};
+    return this._tintRooms(f).map((r) => {
+      if (hasArea(r)) return `<div class="tint" data-tint="${esc(r.id)}" style="clip-path:${areaClip(r.area)}"></div>`;
+      if (masks[r.id]) return `<div class="tint" data-tint="${esc(r.id)}" style="-webkit-mask-image:url(${masks[r.id]});mask-image:url(${masks[r.id]})"></div>`;
+      return "";
+    }).join("");
   }
   _maskFor(f) {
     // all labels go to the backend, so an untinted room (e.g. the hallway) still claims its share of an open area
     const rooms = (f.rooms || []).map((r) => ({ id: r.id, x: Number(r.x), y: Number(r.y) }));
     const plan = this.P[f.id];
     // the backend analyses the saved plan – a freshly uploaded, unsaved plan has no masks yet
-    if (!this._tintRooms(f).length || !plan || plan !== this.plans[f.id]) return null;
+    if (!this._tintRooms(f).some((r) => !hasArea(r)) || !plan || plan !== this.plans[f.id]) return null;
     const sig = f.id + "|" + plan.length + "|" + JSON.stringify(rooms);
     this._masks = this._masks || {};
     if (this._masks[sig]) return this._masks[sig];
@@ -1487,6 +1513,73 @@ class HauspanelPanel extends HTMLElement {
       if (cur && cur.id === f.id && box) { box.innerHTML = this._tintDivs(cur); this._updateTints(); }
     });
     return this._masks[sig];
+  }
+  /* ---------- drawing room areas in the editor ----------
+     this._area = { room, pts: [[x, y], …], closed } while drawing/editing one room's polygon. */
+  _renderAreas() {
+    const plan = this.$("#plan"); if (!plan) return;
+    plan.querySelectorAll(".area-layer").forEach((x) => x.remove());
+    plan.classList.toggle("area-mode", !!this._area);
+    if (!this.editing) return;
+    const f = this._floor(); if (!f) return;
+    const A = this._area, selId = this.sel && this.sel.type === "room" ? this.sel.id : null;
+    let svg = "";
+    (f.rooms || []).forEach((r) => {
+      if (A && A.room === r.id) return;
+      if (hasArea(r)) svg += `<polygon class="ar${r.id === selId ? " sel" : ""}" points="${r.area.map((p) => p.join(",")).join(" ")}"/>`;
+    });
+    let handles = "";
+    if (A) {
+      const pts = A.pts;
+      if (pts.length) svg += A.closed && pts.length >= 3 ? `<polygon class="ae" points="${pts.map((p) => p.join(",")).join(" ")}"/>`
+        : `<polyline class="ae" points="${pts.map((p) => p.join(",")).join(" ")}"/>`;
+      pts.forEach(([x, y], i) => { handles += `<div class="av${i === 0 && !A.closed && pts.length >= 3 ? " first" : ""}" data-av="${i}" style="left:${x}%;top:${y}%"></div>`; });
+      if (A.closed) pts.forEach(([x, y], i) => {
+        const [x2, y2] = pts[(i + 1) % pts.length];
+        handles += `<div class="am" data-am="${i}" style="left:${(x + x2) / 2}%;top:${(y + y2) / 2}%"></div>`;
+      });
+    }
+    const layer = document.createElement("div"); layer.className = "area-layer";
+    layer.innerHTML = `<svg viewBox="0 0 100 100" preserveAspectRatio="none">${svg}</svg>${handles}`;
+    plan.appendChild(layer);
+  }
+  _areaSnap(x, y, skip) {
+    // snap to corners of other rooms (shared walls) and line up with the neighbouring points
+    const f = this._floor(), A = this._area, tol = 1.2;
+    let best = null, bd = tol;
+    (f.rooms || []).forEach((r) => { if (r.id !== A.room && hasArea(r)) r.area.forEach(([px, py]) => { const d = Math.max(Math.abs(px - x), Math.abs(py - y)); if (d < bd) { bd = d; best = [px, py]; } }); });
+    if (best) return best;
+    const n = A.pts.length, nb = skip == null ? [A.pts[n - 1], A.closed || n < 2 ? null : A.pts[0]] : [A.pts[(skip - 1 + n) % n], A.pts[(skip + 1) % n]];
+    nb.forEach((q) => { if (!q) return; if (Math.abs(q[0] - x) < 0.8) x = q[0]; if (Math.abs(q[1] - y) < 0.8) y = q[1]; });
+    return [Math.round(clamp(x, 0, 100) * 10) / 10, Math.round(clamp(y, 0, 100) * 10) / 10];
+  }
+  _areaPointer(ev) {
+    const A = this._area, plan = this.$("#plan");
+    if (!plan || ev.button > 0 || !ev.target.closest("#plan")) return;
+    ev.preventDefault();
+    const pos = (e) => { const p = this._planPct(e); return { ...p, x: p.x, y: p.y }; };
+    let idx = null;
+    const av = ev.target.closest(".av"), am = ev.target.closest(".am");
+    if (av) idx = Number(av.dataset.av);
+    else if (am) { idx = Number(am.dataset.am) + 1; const p = pos(ev); A.pts.splice(idx, 0, this._areaSnap(p.x, p.y, null)); this._renderAreas(); }
+    else if (!A.closed) { const p = pos(ev); if (!p.inside) return; A.pts.push(this._areaSnap(p.x, p.y, null)); this._renderAreas(); this._renderInspector(); return; }
+    else return;
+    const sx = ev.clientX, sy = ev.clientY; let moved = false;
+    const move = (e) => {
+      if (!moved && Math.hypot(e.clientX - sx, e.clientY - sy) < 4) return;
+      moved = true; const p = pos(e); A.pts[idx] = this._areaSnap(p.x, p.y, idx); this._renderAreas();
+    };
+    const up = () => {
+      window.removeEventListener("pointermove", move); window.removeEventListener("pointerup", up); window.removeEventListener("pointercancel", up);
+      if (!moved && av) {
+        const now = Date.now();
+        if (idx === 0 && !A.closed && A.pts.length >= 3) A.closed = true;              // tap the first point: close the shape
+        else if (this._avTap && this._avTap.i === idx && now - this._avTap.t < 400 && A.pts.length > 3) A.pts.splice(idx, 1);  // double tap: remove
+        this._avTap = { i: idx, t: now };
+      }
+      this._renderAreas(); this._renderInspector();
+    };
+    window.addEventListener("pointermove", move); window.addEventListener("pointerup", up); window.addEventListener("pointercancel", up);
   }
   _updateTints() {
     const f = this.C && this._floor(); if (!f) return;
@@ -2284,6 +2377,14 @@ class HauspanelPanel extends HTMLElement {
           this._markDirty(); this._renderInspector();
         });
       }
+      case "area-edit": { const r = this._selRoom(); if (!r) return; this._area = { room: r.id, pts: hasArea(r) ? r.area.map((p) => [...p]) : [], closed: hasArea(r) }; this._renderAreas(); return this._renderInspector(); }
+      case "area-undo": { const A = this._area; if (!A) return; if (A.closed) A.closed = false; else A.pts.pop(); this._renderAreas(); return this._renderInspector(); }
+      case "area-cancel": { this._area = null; this._renderAreas(); return this._renderInspector(); }
+      case "area-done": {
+        const A = this._area, r = A && this._selRoom(); if (!r || !A.closed || A.pts.length < 3) return;
+        r.area = A.pts; this._area = null; this._markDirty(); this._renderPlan(); return this._renderInspector();
+      }
+      case "area-del": { const r = this._selRoom(); if (!r) return; delete r.area; this._markDirty(); this._renderPlan(); return this._renderInspector(); }
       case "header-del": {
         this.draft.header = (this.draft.header || []).filter((x) => x.entity_id); this.draft.header.splice(Number(b.dataset.i), 1);
         if (!this.draft.header.length) delete this.draft.header;
@@ -2508,6 +2609,7 @@ class HauspanelPanel extends HTMLElement {
       return;
     }
     if (!this.editing || ev.button > 0) return;
+    if (this._area) return this._areaPointer(ev);
     const pinEl = ev.target.closest(".pin"), roomEl = ev.target.closest(".room-label"), grip = ev.target.closest(".grip");
     if (pinEl || roomEl) return this._dragOnPlan(ev, pinEl, roomEl);
     if (grip) return this._dragFromList(ev, grip.closest(".ent").dataset.ent);
@@ -2636,6 +2738,7 @@ class HauspanelPanel extends HTMLElement {
 
   _renderInspector() {
     const el = this.$("#insp"); if (!el) return;
+    if (this._area && (!this.editing || !this.sel || this.sel.type !== "room" || this.sel.id !== this._area.room)) { this._area = null; this._renderAreas(); }
     this._cp = null;
     // remember the scroll position per tab so a re-render does not jump to the top
     this._inspScroll = this._inspScroll || {};
@@ -2707,8 +2810,18 @@ class HauspanelPanel extends HTMLElement {
       ${scaleField(r, "room-scale")}
       <div class="hint">Label auf dem Plan an die richtige Stelle ziehen. Geräte ohne festen Raum bekommen automatisch das nächstgelegene Label.</div>
       <div class="sep"></div>
+      ${this._area && this._area.room === r.id ? `<div class="fld"><label>Fläche zeichnen</label>
+        <div class="hint">${!this._area.closed ? "Auf den Plan tippen, um Eckpunkte zu setzen. Zum Schließen auf den ersten Punkt tippen." : "Punkte verschieben, über die kleinen Punkte auf den Kanten neue einfügen, Doppeltipp auf einen Eckpunkt entfernt ihn."} Punkte rasten an Ecken anderer Räume und an Nachbarpunkten ein.</div>
+        <div class="row" style="gap:8px;flex-wrap:wrap"><button class="sbtn${this._area.closed ? " primary" : ""}" data-a="area-done"${this._area.closed ? "" : " disabled"}>${ic("check", 16)}Fertig</button>
+          <button class="sbtn" data-a="area-undo"${this._area.pts.length ? "" : " disabled"}>${ic("undo-2", 16)}Letzter Punkt</button>
+          <button class="sbtn" data-a="area-cancel">Abbrechen</button></div></div>`
+      : `<div class="fld"><label>Raumfläche</label>
+        <div class="hint">${hasArea(r) ? "Selbst gezeichnet – wird zum Einfärben verwendet." : "Wird automatisch aus dem Grundriss erkannt. Passt das nicht, die Fläche selbst zeichnen."}</div>
+        <div class="row" style="gap:8px;flex-wrap:wrap"><button class="sbtn" data-a="area-edit">${ic(hasArea(r) ? "pencil" : "pen-tool", 16)}${hasArea(r) ? "Fläche bearbeiten" : "Fläche zeichnen"}</button>
+          ${hasArea(r) ? `<button class="sbtn" data-a="area-del">${ic("trash-2", 16)}Automatisch erkennen</button>` : ""}</div></div>`}
+      <div class="sep"></div>
       <div class="fld"><label>Raum einfärben</label>
-        <div class="hint">Tönt die ganze Raumfläche, solange eine Bedingung zutrifft – z. B. Anwesenheit, Fenster offen oder zu kalt. Die erste zutreffende Regel bestimmt die Farbe. Die Fläche wird aus dem Grundriss erkannt (Label oben links im Raum); bei offenen Grundrissen teilen sich die Labels die Fläche.</div>
+        <div class="hint">Tönt die Raumfläche, solange eine Bedingung zutrifft – z. B. Anwesenheit, Fenster offen oder zu kalt. Die erste zutreffende Regel bestimmt die Farbe.</div>
         ${(r.tints || []).map((x, i) => this._alertCard(x, i, r, true)).join("")}
         <button class="sbtn" data-a="alert-add">${ic("plus", 16)}Regel hinzufügen</button></div>
       <div class="sep"></div>

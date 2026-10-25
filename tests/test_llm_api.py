@@ -104,6 +104,10 @@ async def test_rooms_and_remove_floor(hass, call):
     assert hass.data[DOMAIN].config["floors"][0]["rooms"][0]["tints"] == [tint]
     out = await call("hauspanel_set_rooms", floor_id="eg", rooms=[{"name": "Küche", "tints": [{"kind": "state"}]}])
     assert "error" in out
+    await call("hauspanel_set_rooms", floor_id="eg", rooms=[{"name": "Küche", "area": [[10, 10], [40, 10], [40, 30], [10, 30]]}])
+    assert hass.data[DOMAIN].config["floors"][0]["rooms"][0]["area"][2] == [40, 30]
+    assert "error" in await call("hauspanel_set_rooms", floor_id="eg", rooms=[{"name": "Küche", "area": [[1, 1], [2, 2]]}])
+    assert "error" in await call("hauspanel_set_rooms", floor_id="eg", rooms=[{"name": "Küche", "area": [[1, 1], [2, 2], [300, 2]]}])
     await call("hauspanel_set_rooms", floor_id="eg", rooms=[{"name": "Küche", "tints": None}])
     assert "tints" not in hass.data[DOMAIN].config["floors"][0]["rooms"][0]
     await call("hauspanel_remove_floor", floor_id="eg")

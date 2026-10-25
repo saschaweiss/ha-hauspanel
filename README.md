@@ -27,7 +27,7 @@ Floors, plans and devices are set up right inside the panel: upload a floor plan
 **Floor plan**
 - One plan per floor: SVG (colours adapt to light/dark mode automatically) or JPG/PNG/WebP (optionally inverted at night)
 - Room labels and device pins scale with the plan, so they sit in the same spot on every screen
-- Tint whole rooms by state, e.g. presence, open window or temperature too low (room areas are detected from the plan)
+- Tint whole rooms by state, e.g. presence, open window or temperature too low – draw the room area on the plan or let it be detected automatically
 - Power button per floor switches off all devices you marked for it
 
 **Device pins**
