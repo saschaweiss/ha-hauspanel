@@ -68,11 +68,14 @@ LAYOUT = {
             "recolor": True,
             "rooms": [
                 {"id": "r1", "name": "Bedroom", "x": 7, "y": 9},
-                {"id": "r2", "name": "Living room", "x": 45, "y": 9},
+                {"id": "r2", "name": "Living room", "x": 45, "y": 9,
+                 "tints": [{"entity_id": "light.ceiling_lights", "kind": "state", "state": "on", "color": "#F5A623"}]},
                 {"id": "r3", "name": "Hallway", "x": 7, "y": 44},
-                {"id": "r4", "name": "Kitchen", "x": 7, "y": 57},
+                {"id": "r4", "name": "Kitchen", "x": 7, "y": 57,
+                 "tints": [{"entity_id": "light.kitchen_lights", "kind": "state", "state": "on", "color": "#F5A623"}]},
                 {"id": "r5", "name": "Bath", "x": 33, "y": 57},
-                {"id": "r6", "name": "Office", "x": 63, "y": 57},
+                {"id": "r6", "name": "Office", "x": 63, "y": 57,
+                 "tints": [{"entity_id": "sensor.outside_temperature", "kind": "numeric", "below": 18, "color": "#2F6DD0"}]},
             ],
             "pins": [
                 {"id": "p_bed", "entity_id": "light.bed_light", "x": 22, "y": 25, "display": "icon", "toggle": True,

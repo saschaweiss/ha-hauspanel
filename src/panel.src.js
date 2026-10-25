@@ -109,6 +109,8 @@ const I18N_EN = {
   "Kamera bei Ereignis": "Camera on event", "Auslöser": "Trigger", "Kamera": "Camera", "Testen": "Test", "Dauer": "Duration",
   "z. B. Klingel": "e.g. doorbell", "Kamera wählen": "Choose camera", "Kamera-Ereignis hinzufügen": "Add camera event",
   "Öffnet automatisch das Kamerabild, z. B. wenn jemand klingelt. Klingel-Ereignisse (event.*) lösen bei jedem Klingeln aus, Sensoren und Schalter beim Wechsel auf „an“. Schließt sich nach der eingestellten Zeit, außer jemand bedient das Tablet. In Fully Kiosk geht dabei der Bildschirm an (JavaScript-Schnittstelle muss aktiv sein).": "Opens the camera view automatically, e.g. when someone rings the doorbell. Doorbell events (event.*) fire on every ring, sensors and switches when they turn on. Closes after the chosen time unless someone uses the tablet. In Fully Kiosk the screen turns on (JavaScript interface must be enabled).",
+  "Raum einfärben": "Tint room", "Raum einfärben nach": "Tint room by", "Regel hinzufügen": "Add rule",
+  "Tönt die ganze Raumfläche, solange eine Bedingung zutrifft – z. B. Anwesenheit, Fenster offen oder zu kalt. Die erste zutreffende Regel bestimmt die Farbe. Die Fläche wird aus dem Grundriss erkannt (Label oben links im Raum); bei offenen Grundrissen teilen sich die Labels die Fläche.": "Tints the whole room while a condition is true – e.g. presence, window open or too cold. The first matching rule sets the colour. The room area is detected from the floor plan (label at the top left of the room); in open-plan layouts the labels share the area.",
   "Icon spiegeln": "Mirror icon", "Horizontal": "Horizontal", "Vertikal": "Vertical",
   "Mit Hintergrund": "With background", "Ohne Hintergrund": "No background", "Wenn aus": "When off",
   "Ausgegraut": "Greyed out", "Durchgestrichen": "Struck through", "Beides": "Both",
@@ -748,6 +750,9 @@ svg.fp{fill:var(--wall)}
 .pin.unavail{opacity:.4}
 .pin.alert{background:var(--alert);color:var(--alert-fg);opacity:1}
 .pin.flip-h svg.i{transform:scaleX(-1)}.pin.flip-v svg.i{transform:scaleY(-1)}.pin.flip-h.flip-v svg.i{transform:scale(-1)}
+.tints{position:absolute;inset:0;pointer-events:none}
+.tint{position:absolute;inset:0;opacity:var(--tint-op, .28);background-color:transparent;transition:background-color .5s;-webkit-mask-size:100% 100%;mask-size:100% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+:host([data-theme="dark"]) .tint{opacity:var(--tint-op-dark, .34)}
 .pin.bare,.pin.bare.on,.pin.bare.cam,.pin.bare.plain,.pin.bare.alert{background-color:transparent;box-shadow:none}
 .pin.bare{color:var(--pin-off-fg)}
 .pin.bare.plain{color:var(--pin-val-fg)}
@@ -1244,6 +1249,7 @@ class HauspanelPanel extends HTMLElement {
   _watched() {
     const ids = new Set();
     const c = this.C; if (!c) return ids;
+    (c.floors || []).forEach((f) => (f.rooms || []).forEach((r) => (r.tints || []).forEach((x) => x.entity_id && ids.add(x.entity_id))));
     (c.floors || []).forEach((f) => (f.pins || []).forEach((p) => { ids.add(p.entity_id); if (p.state_entity) ids.add(p.state_entity); (p.alerts || []).forEach((r) => r.entity_id && ids.add(r.entity_id)); (p.extras || []).forEach((x) => x && ids.add(x)); }));
     (c.waste || []).forEach((w) => w.entity_id && ids.add(w.entity_id));
     (c.header || []).forEach((x) => { if (x.entity_id) { ids.add(x.entity_id); this._chargeIds(x.entity_id).forEach((y) => ids.add(y)); } });
@@ -1444,7 +1450,7 @@ class HauspanelPanel extends HTMLElement {
       if (!edit) return;
       this._aspect = 16 / 10;
     } else this._aspect = pl.aspect;
-    let h = pl ? pl.html : "";
+    let h = (pl ? pl.html : "") + `<div class="tints" id="tints">${this._tintDivs(f)}</div>`;
     (f.rooms || []).forEach((r) => {
       h += `<div class="room-label${edit && this.sel && this.sel.type === "room" && this.sel.id === r.id ? " sel" : ""}" data-room="${r.id}" data-room-name="${esc(r.name)}" style="left:${r.x}%;top:${r.y}%${scaleVar(r)}">${esc(r.name)}</div>`;
     });
@@ -1455,6 +1461,40 @@ class HauspanelPanel extends HTMLElement {
     plan.innerHTML = h;
     plan.classList.toggle("inv", !!f.raster && f.recolor !== false);
     this._layoutPlan(); this._updatePins();
+  }
+
+  /* ---------- room tints: room areas come from the backend's plan analysis as PNG masks ---------- */
+  _tintRooms(f) { return (f.rooms || []).filter((r) => (r.tints || []).some((x) => x.entity_id)); }
+  _tintDivs(f) {
+    const m = this._maskFor(f); if (!m || !m.masks) return "";
+    return this._tintRooms(f).filter((r) => m.masks[r.id]).map((r) =>
+      `<div class="tint" data-tint="${esc(r.id)}" style="-webkit-mask-image:url(${m.masks[r.id]});mask-image:url(${m.masks[r.id]})"></div>`).join("");
+  }
+  _maskFor(f) {
+    // all labels go to the backend, so an untinted room (e.g. the hallway) still claims its share of an open area
+    const rooms = (f.rooms || []).map((r) => ({ id: r.id, x: Number(r.x), y: Number(r.y) }));
+    const plan = this.P[f.id];
+    // the backend analyses the saved plan – a freshly uploaded, unsaved plan has no masks yet
+    if (!this._tintRooms(f).length || !plan || plan !== this.plans[f.id]) return null;
+    const sig = f.id + "|" + plan.length + "|" + JSON.stringify(rooms);
+    this._masks = this._masks || {};
+    if (this._masks[sig]) return this._masks[sig];
+    this._masks[sig] = { pending: true };
+    this._hass.callWS({ type: "hauspanel/plan/rooms", floor_id: f.id, rooms }).then((res) => {
+      this._masks[sig] = { masks: (res && res.masks) || {} };
+    }).catch(() => { this._masks[sig] = { masks: {} }; }).then(() => {
+      const cur = this.C && this._floor(), box = this.$("#tints");
+      if (cur && cur.id === f.id && box) { box.innerHTML = this._tintDivs(cur); this._updateTints(); }
+    });
+    return this._masks[sig];
+  }
+  _updateTints() {
+    const f = this.C && this._floor(); if (!f) return;
+    this.shadowRoot.querySelectorAll(".tint").forEach((el) => {
+      const room = (f.rooms || []).find((r) => r.id === el.dataset.tint), rule = room && this._roomTint(room);
+      el.style.backgroundColor = rule ? rule.color || "#E5391D" : "transparent";
+      el.classList.toggle("on", !!rule);
+    });
   }
 
   _layoutPlan() {
@@ -1492,7 +1532,7 @@ class HauspanelPanel extends HTMLElement {
   /* Alerts like triggers in HA automations: state (is / is not) or numeric (above / below), optionally "for at least".
      The first matching rule colours the pin (optionally pulsing). */
   _alertCond(r, p) {
-    const id = r.entity_id || p.entity_id, s = this._hass.states[id]; if (!s) return false;
+    const id = r.entity_id || p.entity_id, s = id && this._hass.states[id]; if (!s) return false;
     const raw = r.attribute ? s.attributes[r.attribute] : s.state;
     if (raw == null) return false;
     if (r.kind === "numeric") {
@@ -1508,15 +1548,19 @@ class HauspanelPanel extends HTMLElement {
     const hit = vals.some((v) => cand.includes(v));
     return r.not ? !hit : hit;
   }
-  _pinAlert(p) {
-    const rules = p.alerts || []; if (!rules.length) return null;
+  _pinAlert(p) { return this._matchRules(p.id, p.alerts, p.entity_id); }
+  _roomTint(room) { return this._matchRules("room:" + room.id, room.tints, null); }
+  /* first rule that matches (and has matched for its "for at least" time); rules without entity use `own` */
+  _matchRules(id, rules, own) {
+    rules = rules || []; if (!rules.length) return null;
     this._alertSince = this._alertSince || {};
+    const ctx = { entity_id: own };
     let found = null;
     rules.forEach((r, i) => {
-      const key = p.id + ":" + i, ok = this._alertCond(r, p);
+      const key = id + ":" + i, ok = this._alertCond(r, ctx);
       if (!ok) { delete this._alertSince[key]; return; }
       if (!this._alertSince[key]) {
-        const s = this._hass.states[r.entity_id || p.entity_id];
+        const s = this._hass.states[r.entity_id || own];
         this._alertSince[key] = (s && Date.parse(r.attribute ? s.last_updated : s.last_changed)) || Date.now();
       }
       const mins = Number(r.for || 0) * (r.unit === "h" ? 60 : r.unit === "d" ? 1440 : 1);
@@ -1565,6 +1609,7 @@ class HauspanelPanel extends HTMLElement {
       el.classList.toggle("alert", !!al); el.classList.toggle("blink", !!(al && al.blink));
       if (al) { el.style.setProperty("--pulse", { slow: "2.6s", fast: "0.9s" }[al.speed] || "1.6s"); el.style.setProperty("--alert", al.color || "#E5391D"); el.style.setProperty("--alert-fg", contrastFg(al.color || "#E5391D", "#1E1C1B", "#FFFFFF")); }
     });
+    this._updateTints();
   }
 
   /* ---------- Wetter ---------- */
@@ -2244,13 +2289,24 @@ class HauspanelPanel extends HTMLElement {
         if (!this.draft.header.length) delete this.draft.header;
         this._markDirty(); this._renderTop(); return this._renderInspector();
       }
-      case "alert-add": { const p = this._selPin(); p.alerts = p.alerts || []; p.alerts.push({ kind: "state", state: "", color: "#E5391D", blink: false }); this._markDirty(); return this._renderInspector(); }
-      case "alert-del": { const p = this._selPin(); p.alerts.splice(Number(b.dataset.i), 1); if (!p.alerts.length) delete p.alerts; this._alertSince = {}; this._markDirty(); this._renderPlan(); return this._renderInspector(); }
-      case "al-kind": { const p = this._selPin(), r = p.alerts[Number(b.dataset.i)]; r.kind = b.dataset.v; this._alertSince = {}; this._markDirty(); this._updatePins(); return this._renderInspector(); }
-      case "alert-ent-clear": { const p = this._selPin(); delete p.alerts[Number(b.dataset.i)].entity_id; this._alertSince = {}; this._markDirty(); this._updatePins(); return this._renderInspector(); }
+      case "alert-add": {
+        const h = this._ruleHost(); h.o[h.key] = h.o[h.key] || [];
+        h.o[h.key].push(h.key === "tints" ? { kind: "state", state: "on", color: "#F5A623" } : { kind: "state", state: "", color: "#E5391D", blink: false });
+        this._markDirty(); return this._renderInspector();
+      }
+      case "alert-del": {
+        const h = this._ruleHost(); h.o[h.key].splice(Number(b.dataset.i), 1); if (!h.o[h.key].length) delete h.o[h.key];
+        this._alertSince = {}; this._markDirty(); this._renderPlan(); return this._renderInspector();
+      }
+      case "al-kind": { const h = this._ruleHost(), r = h.o[h.key][Number(b.dataset.i)]; r.kind = b.dataset.v; this._alertSince = {}; this._markDirty(); this._updatePins(); return this._renderInspector(); }
+      case "alert-ent-clear": { const h = this._ruleHost(); delete h.o[h.key][Number(b.dataset.i)].entity_id; this._alertSince = {}; this._markDirty(); this._updatePins(); return this._renderInspector(); }
       case "pick-alert": {
-        const p = this._selPin(), r = p.alerts[Number(b.dataset.i)];
-        return this._pickEntity("Warnung", null, r.entity_id, (id) => { r.entity_id = id; this._alertSince = {}; this._markDirty(); this._updatePins(); this._renderInspector(); });
+        const h = this._ruleHost(), r = h.o[h.key][Number(b.dataset.i)], room = h.key === "tints";
+        return this._pickEntity(room ? "Raum einfärben nach" : "Warnung", room ? ["binary_sensor", "sensor", "light", "climate", "input_boolean"] : null, r.entity_id, (id) => {
+          r.entity_id = id; this._alertSince = {}; this._markDirty();
+          if (room) this._renderPlan(); else this._updatePins();
+          this._renderInspector();
+        });
       }
       case "pick-clear": { const p = this._selPin(); delete p.state_entity; this._markDirty(); this._renderPlan(); return this._renderInspector(); }
       case "pick-scope": { this._picker.all = b.dataset.v === "all"; return this._renderPicker(true); }
@@ -2258,6 +2314,7 @@ class HauspanelPanel extends HTMLElement {
     }
   }
   _selPin() { const f = this._floor(); return f && this.sel && this.sel.type === "pin" ? (f.pins || []).find((p) => p.id === this.sel.id) : null; }
+  _ruleHost() { const p = this._selPin(); if (p) return { o: p, key: "alerts" }; const r = this._selRoom(); return r ? { o: r, key: "tints" } : null; }
   _selRoom() { const f = this._floor(); return f && this.sel && this.sel.type === "room" ? (f.rooms || []).find((r) => r.id === this.sel.id) : null; }
 
   _addPin(entityId, x, y) {
@@ -2298,7 +2355,7 @@ class HauspanelPanel extends HTMLElement {
       case "pin-power": p.power_off = val; break;
       case "pin-toggle": if (val) p.toggle = true; else delete p.toggle; break;
       case "al-attr": case "al-above": case "al-below": case "al-state": case "al-for": case "al-unit": case "al-not": case "al-color": case "al-blink": case "al-speed": {
-        const r = p.alerts[Number(el.dataset.i)], f2 = k.slice(3);
+        const h = this._ruleHost(), r = h.o[h.key][Number(el.dataset.i)], f2 = k.slice(3);
         if (f2 === "attr") { if (val) r.attribute = val.trim(); else delete r.attribute; }
         else if (f2 === "not") { if (val) r.not = true; else delete r.not; }
         else if (f2 === "blink") { r.blink = !!val; const sel = this.$(`[data-f="al-speed"][data-i="${el.dataset.i}"]`); if (sel) sel.disabled = !val; }
@@ -2649,6 +2706,12 @@ class HauspanelPanel extends HTMLElement {
     if (r) return `<div class="fld"><label>Raumname</label><input class="inp" data-f="room-name" value="${esc(r.name)}"></div>
       ${scaleField(r, "room-scale")}
       <div class="hint">Label auf dem Plan an die richtige Stelle ziehen. Geräte ohne festen Raum bekommen automatisch das nächstgelegene Label.</div>
+      <div class="sep"></div>
+      <div class="fld"><label>Raum einfärben</label>
+        <div class="hint">Tönt die ganze Raumfläche, solange eine Bedingung zutrifft – z. B. Anwesenheit, Fenster offen oder zu kalt. Die erste zutreffende Regel bestimmt die Farbe. Die Fläche wird aus dem Grundriss erkannt (Label oben links im Raum); bei offenen Grundrissen teilen sich die Labels die Fläche.</div>
+        ${(r.tints || []).map((x, i) => this._alertCard(x, i, r, true)).join("")}
+        <button class="sbtn" data-a="alert-add">${ic("plus", 16)}Regel hinzufügen</button></div>
+      <div class="sep"></div>
       <button class="sbtn danger full" data-a="room-del">${ic("trash-2", 16)}Label entfernen</button>`;
     if (!p) return `<div class="hint">Tippe auf dem Plan ein Gerät oder Raum-Label an, um es zu bearbeiten.</div>`;
     const s = this._hass.states[p.entity_id], d = domainOf(p.entity_id);
@@ -2700,10 +2763,11 @@ class HauspanelPanel extends HTMLElement {
       <button class="sbtn danger full" data-a="pin-del">${ic("trash-2", 16)}Vom Plan entfernen</button>`;
   }
 
-  _alertCard(r, i, p) {
+  _alertCard(r, i, p, room) {
     const num = r.kind === "numeric";
     return `<div class="alert-card">
-      <div class="row" style="gap:6px">${this._pickField(r.entity_id, "pick-alert", "Dieses Gerät", i)}${r.entity_id ? `<button class="sx" data-a="alert-ent-clear" data-i="${i}" title="Dieses Gerät">${ic("x", 13)}</button>` : ""}</div>
+      <div class="row" style="gap:6px">${room ? this._pickField(r.entity_id, "pick-alert", "Entity wählen", i)
+        : this._pickField(r.entity_id, "pick-alert", "Dieses Gerät", i) + (r.entity_id ? `<button class="sx" data-a="alert-ent-clear" data-i="${i}" title="Dieses Gerät">${ic("x", 13)}</button>` : "")}</div>
       <input class="inp" data-f="al-attr" data-i="${i}" value="${esc(r.attribute || "")}" placeholder="Attribut (optional, z. B. battery_level)" style="margin-top:6px">
       <div class="chips" style="margin:8px 0 6px"><button class="${num ? "" : "sel"}" data-a="al-kind" data-i="${i}" data-v="state">Zustand</button><button class="${num ? "sel" : ""}" data-a="al-kind" data-i="${i}" data-v="numeric">Zahlenwert</button></div>
       ${num ? `<div class="row" style="gap:6px"><span class="al-l">über</span><input class="inp" data-f="al-above" data-i="${i}" value="${esc(r.above ?? "")}" inputmode="decimal" placeholder="–">
@@ -2713,10 +2777,10 @@ class HauspanelPanel extends HTMLElement {
       <div class="row" style="gap:6px;margin-top:6px"><span class="al-l">für mind.</span><input class="inp" data-f="al-for" data-i="${i}" value="${esc(r.for || "")}" inputmode="numeric" placeholder="0" style="flex:0 0 70px">
         <select class="inp" data-f="al-unit" data-i="${i}" style="flex:1"><option value="m">Minuten</option><option value="h"${r.unit === "h" ? " selected" : ""}>Stunden</option><option value="d"${r.unit === "d" ? " selected" : ""}>Tage</option></select></div>
       <div class="row" style="gap:10px;margin-top:8px"><input type="color" data-f="al-color" data-i="${i}" value="${esc(r.color || "#E5391D")}">
-        <label class="check" style="margin:0"><input type="checkbox" data-f="al-blink" data-i="${i}" ${r.blink ? "checked" : ""}>Pulsieren</label>
-        <select class="inp" data-f="al-speed" data-i="${i}" style="flex:1;min-width:0"${r.blink ? "" : " disabled"}><option value="slow"${r.speed === "slow" ? " selected" : ""}>langsam</option><option value=""${!r.speed ? " selected" : ""}>normal</option><option value="fast"${r.speed === "fast" ? " selected" : ""}>schnell</option></select>
+        ${room ? `<span style="flex:1"></span>` : `<label class="check" style="margin:0"><input type="checkbox" data-f="al-blink" data-i="${i}" ${r.blink ? "checked" : ""}>Pulsieren</label>
+        <select class="inp" data-f="al-speed" data-i="${i}" style="flex:1;min-width:0"${r.blink ? "" : " disabled"}><option value="slow"${r.speed === "slow" ? " selected" : ""}>langsam</option><option value=""${!r.speed ? " selected" : ""}>normal</option><option value="fast"${r.speed === "fast" ? " selected" : ""}>schnell</option></select>`}
         <button class="sbtn" data-a="alert-del" data-i="${i}" aria-label="Entfernen">${ic("trash-2", 16)}</button></div>
-      ${this._pinAlert(p) === r ? `<div class="hint" style="margin:6px 0 0;color:var(--accent)">Trifft gerade zu.</div>` : ""}
+      ${(room ? this._roomTint(p) : this._pinAlert(p)) === r ? `<div class="hint" style="margin:6px 0 0;color:var(--accent)">Trifft gerade zu.</div>` : ""}
     </div>`;
   }
   /* field that looks like an input and opens the entity search */

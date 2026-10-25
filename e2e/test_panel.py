@@ -220,3 +220,33 @@ def test_camera_popup_editor_test_button(open_panel):
     p.locator('hauspanel-panel [data-a=camev-test]').first.click()
     expect(p.locator("hauspanel-panel #overlay.show")).to_be_visible(timeout=5000)
     p.assert_no_errors()
+
+
+def _tint(p, room_id):
+    return p.locator(f'hauspanel-panel .tint[data-tint="{room_id}"]')
+
+
+def test_room_tints(open_panel, server):
+    p = open_panel()
+    expect(p.locator("hauspanel-panel .tint")).to_have_count(3, timeout=10000)
+    assert "data:image/png" in _tint(p, "r2").evaluate("e => getComputedStyle(e).maskImage || getComputedStyle(e).webkitMaskImage")
+    expect(_tint(p, "r2")).to_have_css("background-color", "rgb(245, 166, 35)")  # light on
+    expect(_tint(p, "r6")).to_have_css("background-color", "rgb(47, 109, 208)")  # 15.6 °C < 18
+    expect(_tint(p, "r4")).to_have_css("background-color", "rgba(0, 0, 0, 0)")  # kitchen light off
+    service(server, "light", "turn_on", entity_id="light.kitchen_lights")
+    expect(_tint(p, "r4")).to_have_css("background-color", "rgb(245, 166, 35)", timeout=5000)
+    p.assert_no_errors()
+
+
+def test_room_tint_editor(open_panel):
+    p = open_panel("/hauspanel", 1440, 1000)
+    p.click("hauspanel-panel [data-a=edit]")
+    p.click('hauspanel-panel .room-label[data-room="r6"]')
+    insp = p.locator("hauspanel-panel #insp-body")
+    expect(insp).to_contain_text("Raum einfärben")
+    assert insp.locator(".alert-card").count() == 1
+    assert "Trifft gerade zu" in insp.inner_text()
+    assert insp.locator("[data-f=al-blink]").count() == 0  # no pulsing for rooms
+    p.click("hauspanel-panel [data-a=alert-add]")
+    assert insp.locator(".alert-card").count() == 2
+    p.assert_no_errors()

@@ -49,7 +49,7 @@ FLOOR_ID_RE = re.compile(r"^[a-z0-9_-]{1,40}$")
 ENTITY_ID_RE = re.compile(r"^[a-z0-9_]+\.[a-z0-9_]+$")
 
 PIN_KEYS = {"id", "entity_id", "x", "y", "scale", "toggle", "state_entity", "cam_view", "alerts", "bare", "off_style", "flip", "name", "room", "icon", "display", "status", "power_off", "extras"}
-ROOM_KEYS = {"id", "name", "x", "y", "scale"}
+ROOM_KEYS = {"id", "name", "x", "y", "scale", "tints"}
 FLOOR_KEYS = {"code", "name", "separated", "recolor", "css", "position"}
 SETTINGS_KEYS = {"theme", "css", "night", "calendars", "waste", "weather_entity", "default_floor", "cal_mode", "palette", "header", "cam_popups"}
 
@@ -506,7 +506,11 @@ class UpsertRoomsTool(_WriteTool):
     title = "Raum-Labels setzen"
     description = ("Legt Raum-Labels an oder ändert sie (mehrere auf einmal). Gefunden über 'id', sonst über den Namen. "
                    "x/y = obere linke Ecke des Labels in Prozent; scale = Schriftgröße dieses Labels in Prozent (50–200); das Label gehört an die obere linke Innenecke des Raums. "
-                   "Wird ein Raum umbenannt, ziehen die zugeordneten Pins mit.")
+                   "Wird ein Raum umbenannt, ziehen die zugeordneten Pins mit. "
+                   "tints = Raum einfärben, Regeln wie bei Pin-Warnungen, erste zutreffende färbt den Raum: "
+                   "[{entity_id, attribute?, kind:\"state\"|\"numeric\", state?, not?, above?, below?, for?, unit?, color:\"#hex\"}], z. B. "
+                   "Anwesenheit {entity_id: binary_sensor.praesenz_kueche, kind: state, state: on, color: #F5A623} oder zu kalt {kind: numeric, below: 18, color: #2F6DD0}. "
+                   "Die Raumfläche wird aus dem Grundriss erkannt (Label oben links im Raum).")
     parameters = vol.Schema({
         vol.Required("floor_id"): str,
         vol.Required("rooms"): [vol.Schema({
@@ -515,6 +519,7 @@ class UpsertRoomsTool(_WriteTool):
             vol.Optional("x"): vol.Coerce(float),
             vol.Optional("y"): vol.Coerce(float),
             vol.Optional("scale"): vol.Any(None, vol.Coerce(int)),
+            vol.Optional("tints"): vol.Any(None, [dict]),
         })],
     })
 
@@ -542,6 +547,13 @@ class UpsertRoomsTool(_WriteTool):
             old = room.get("name")
             if "scale" in item:
                 _set_scale(room, item["scale"])
+            if "tints" in item:
+                if item["tints"]:
+                    if any(not t.get("entity_id") or not ENTITY_ID_RE.match(t["entity_id"]) for t in item["tints"]):
+                        raise ValueError("tints: jede Regel braucht eine gültige entity_id")
+                    room["tints"] = item["tints"]
+                else:
+                    room.pop("tints", None)
             for k in ("name", "x", "y"):
                 if k in item:
                     room[k] = _pct(item[k], k) if k != "name" else item[k].strip()

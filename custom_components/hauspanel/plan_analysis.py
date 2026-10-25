@@ -309,7 +309,11 @@ def _components(px, W, H, min_n):
     return lab, sizes, keep
 
 
-def analyze(svg: str) -> dict:
+def segment(svg: str):
+    """Rasterize the plan and label its floor areas (rooms, split at door openings).
+
+    Returns (img, vb, lab, W, H) where lab[y * W + x] is the area id (0 = wall/outside).
+    """
     img, vb = rasterize(svg)
     W, H = img.size
     total = W * H
@@ -331,7 +335,6 @@ def analyze(svg: str) -> dict:
                 best, thr = between, t
         mask = img.point(lambda v: 255 if v > thr else 0)
     floor_px = list(mask.tobytes())
-    min_n = total * 0.003
     # split rooms at door openings: erode the mask until most rooms stand on their own
     best_lab, best_sizes, best_keep = None, [], -1
     for base in (1, 9, 17, 25, 33, 41, 49):
@@ -352,6 +355,13 @@ def analyze(svg: str) -> dict:
             if k >= 0 and floor_px[k] and not lab[k]:
                 lab[k] = lab[j]
                 q.append(k)
+    return img, vb, lab, W, H
+
+
+def analyze(svg: str) -> dict:
+    img, vb, lab, W, H = segment(svg)
+    total = W * H
+    min_n = total * 0.003
     stats: dict[int, list] = {}
     for i, c in enumerate(lab):
         if not c:
@@ -404,3 +414,61 @@ def analyze(svg: str) -> dict:
                           "# = Wand, Leerzeichen = Außenbereich/sonstige Fläche, Buchstabe = Raum (Bodenfläche), · = Kleinstfläche. "
                           "Räume werden an Türöffnungen getrennt; das ist eine Schätzung – nebeneinanderliegende Räume ohne Tür dazwischen sind getrennt, offene Grundrisse können zusammenhängen."),
     }
+
+
+def _nearest_area(lab, size, x, y, radius):
+    """Area id at (x, y) or the nearest non-zero one within `radius` pixels (ring search)."""
+    W, H = size
+    if 0 <= x < W and 0 <= y < H and lab[y * W + x]:
+        return lab[y * W + x]
+    for r in range(1, radius + 1):
+        for dx in range(-r, r + 1):
+            for dy in (-r, r) if abs(dx) != r else range(-r, r + 1):
+                xx, yy = x + dx, y + dy
+                if 0 <= xx < W and 0 <= yy < H and lab[yy * W + xx]:
+                    return lab[yy * W + xx]
+    return 0
+
+
+def room_masks(svg: str, rooms: list[dict]) -> dict[str, str]:
+    """PNG masks (data URLs) for room labels: {room_id: "data:image/png;base64,..."}.
+
+    Each label sits at the top-left of its room, so the area right below/right of it is the room.
+    If several labels end up in one connected area (e.g. an open-plan kitchen/living room),
+    each pixel goes to the closest label above-left of it (rows weigh more than columns).
+    """
+    _img, _vb, lab, W, H = segment(svg)
+    pts = {}
+    for r in rooms:
+        x = min(W - 1, max(0, round((float(r["x"]) + 2) * W / 100)))
+        y = min(H - 1, max(0, round((float(r["y"]) + 2) * H / 100)))
+        c = _nearest_area(lab, (W, H), x, y, round(W * 0.06))
+        if c:
+            pts[str(r["id"])] = (x, y, c)
+    by_area: dict[int, list] = {}
+    for rid, (x, y, c) in pts.items():
+        by_area.setdefault(c, []).append((rid, x, y))
+    masks: dict[str, bytearray] = {rid: bytearray(W * H) for rid in pts}
+    tol = round(W * 0.04)
+    for i, c in enumerate(lab):
+        owners = by_area.get(c) if c else None
+        if not owners:
+            continue
+        if len(owners) == 1:
+            masks[owners[0][0]][i] = 255
+        else:
+            px, py = i % W, i // W
+            # Labels sit at the top left of their room: candidates are labels above-left of the pixel
+            # (with some slack); of those the one closest in rows wins, columns count less – so a
+            # hallway label beats the living-room label above it for the hallway's pixels.
+            cand = [o for o in owners if o[1] <= px + tol and o[2] <= py + tol] or owners
+            rid = min(cand, key=lambda o: abs(px - o[1]) + 3 * abs(py - o[2]))[0]
+            masks[rid][i] = 255
+    out = {}
+    for rid, buf in masks.items():
+        alpha = Image.frombytes("L", (W, H), bytes(buf)).filter(ImageFilter.MaxFilter(3))
+        im = Image.merge("LA", (Image.new("L", (W, H), 0), alpha))  # CSS masks use the alpha channel
+        bio = io.BytesIO()
+        im.save(bio, "PNG", optimize=True)
+        out[rid] = "data:image/png;base64," + base64.b64encode(bio.getvalue()).decode()
+    return out

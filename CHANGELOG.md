@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.13.0]
+
+### Added
+- Tint rooms: select a room label in the editor and add rules (state or numeric, optionally "for at least", like pin alerts) – the first matching rule tints the whole room, e.g. presence, window open or too cold. Room areas are detected from the floor plan (split at door openings); open-plan areas are shared between their labels. Opacity adjustable via custom CSS (`--tint-op`, `--tint-op-dark`).
+- WebSocket command `hauspanel/plan/rooms` (room masks, cached) and MCP field `tints` for room labels.
+
 ## [0.12.0]
 
 ### Added

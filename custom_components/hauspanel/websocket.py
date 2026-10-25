@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 from typing import Any
@@ -64,6 +65,7 @@ def async_register_websocket(hass: HomeAssistant) -> None:
     websocket_api.async_register_command(hass, ws_subscribe)
     websocket_api.async_register_command(hass, ws_save_config)
     websocket_api.async_register_command(hass, ws_save_plan)
+    websocket_api.async_register_command(hass, ws_room_masks)
 
 
 @callback
@@ -159,3 +161,38 @@ async def ws_save_plan(
     await hass.data[DOMAIN].async_save_plan(floor_id, svg)
     async_dispatcher_send(hass, SIGNAL_UPDATED)
     connection.send_result(msg["id"])
+
+
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): "hauspanel/plan/rooms",
+        vol.Required("floor_id"): str,
+        vol.Required("rooms"): [{vol.Required("id"): str, vol.Required("x"): vol.Coerce(float), vol.Required("y"): vol.Coerce(float)}],
+    }
+)
+@websocket_api.async_response
+async def ws_room_masks(
+    hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict
+) -> None:
+    """Room areas of a floor plan as PNG masks, for tinting rooms in the panel."""
+    if _not_ready(connection, msg["id"]):
+        return
+    data = hass.data[DOMAIN]
+    svg = data.plans.get(msg["floor_id"])
+    if not svg or not msg["rooms"]:
+        connection.send_result(msg["id"], {"masks": {}})
+        return
+    key = hashlib.sha1((svg + json.dumps(msg["rooms"], sort_keys=True)).encode()).hexdigest()
+    cache = data.__dict__.setdefault("_mask_cache", {})
+    if key not in cache:
+        from .plan_analysis import room_masks  # noqa: PLC0415 – load Pillow only when needed
+
+        try:
+            masks = await hass.async_add_executor_job(room_masks, svg, msg["rooms"])
+        except Exception as err:  # noqa: BLE001 – a broken plan must not break the panel
+            connection.send_error(msg["id"], "analysis_failed", str(err))
+            return
+        if len(cache) > 8:
+            cache.clear()
+        cache[key] = masks
+    connection.send_result(msg["id"], {"masks": cache[key]})

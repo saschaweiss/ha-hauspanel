@@ -109,3 +109,21 @@ def test_sanitize_svg(svg, absent):
 def test_sanitize_svg_keeps_embedded_raster_images():
     svg = '<svg><image href="data:image/png;base64,AAAA"/></svg>'
     assert "data:image/png" in sanitize_svg(svg)
+
+
+async def test_room_masks(hass, setup_hauspanel, hass_ws_client):
+    from .test_plan_analysis import TWO_ROOMS  # noqa: PLC0415
+
+    ws = await hass_ws_client(hass)
+    await ws.send_json({"id": 1, "type": "hauspanel/plan/rooms", "floor_id": "og", "rooms": [{"id": "r", "x": 4, "y": 6}]})
+    assert (await ws.receive_json())["result"] == {"masks": {}}  # no plan yet
+    await hass.data[DOMAIN].async_save_plan("og", TWO_ROOMS)
+    await ws.send_json({"id": 2, "type": "hauspanel/plan/rooms", "floor_id": "og", "rooms": [{"id": "r", "x": 4, "y": 6}]})
+    msg = await ws.receive_json()
+    assert msg["success"] and msg["result"]["masks"]["r"].startswith("data:image/png;base64,")
+
+
+async def test_room_masks_allowed_for_non_admin(hass, setup_hauspanel, hass_ws_client, hass_read_only_access_token):
+    ws = await hass_ws_client(hass, hass_read_only_access_token)
+    await ws.send_json({"id": 1, "type": "hauspanel/plan/rooms", "floor_id": "og", "rooms": []})
+    assert (await ws.receive_json())["success"]
