@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.12.0]
+
+### Added
+- Camera on event: a doorbell event (`event.*`), binary sensor or input boolean opens the camera view automatically on every panel (*General → Camera on event*). Switches to the camera's floor if it has a pin there, works without a pin too, shows what triggered it and closes after 30 s – 5 min unless someone uses the tablet. Turns the screen on in Fully Kiosk (JavaScript interface enabled). "Test" button in the editor.
+- MCP: `cam_popups` setting.
+
 ## [0.11.0]
 
 ### Fixed

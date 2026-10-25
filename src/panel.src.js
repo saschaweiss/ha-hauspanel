@@ -106,6 +106,9 @@ const I18N_EN = {
   "„Wie Messwert“: immer in den Messwert-Farben, egal ob an oder aus.": "“As measured value”: always uses the measured-value colours, on or off.",
   "„Heizt“ nutzt hvac_action – rot nur, solange wirklich geheizt wird. „Heizmodus“ ist rot, solange das Thermostat nicht auf Aus steht.": "“Heating” uses hvac_action – highlighted only while actually heating. “Heat mode” is highlighted as long as the thermostat is not off.",
   "Messwert-Farben – dieses Gerät hat keinen An/Aus-Status.": "Measured-value colours – this device has no on/off state.",
+  "Kamera bei Ereignis": "Camera on event", "Auslöser": "Trigger", "Kamera": "Camera", "Testen": "Test", "Dauer": "Duration",
+  "z. B. Klingel": "e.g. doorbell", "Kamera wählen": "Choose camera", "Kamera-Ereignis hinzufügen": "Add camera event",
+  "Öffnet automatisch das Kamerabild, z. B. wenn jemand klingelt. Klingel-Ereignisse (event.*) lösen bei jedem Klingeln aus, Sensoren und Schalter beim Wechsel auf „an“. Schließt sich nach der eingestellten Zeit, außer jemand bedient das Tablet. In Fully Kiosk geht dabei der Bildschirm an (JavaScript-Schnittstelle muss aktiv sein).": "Opens the camera view automatically, e.g. when someone rings the doorbell. Doorbell events (event.*) fire on every ring, sensors and switches when they turn on. Closes after the chosen time unless someone uses the tablet. In Fully Kiosk the screen turns on (JavaScript interface must be enabled).",
   "Icon spiegeln": "Mirror icon", "Horizontal": "Horizontal", "Vertikal": "Vertical",
   "Mit Hintergrund": "With background", "Ohne Hintergrund": "No background", "Wenn aus": "When off",
   "Ausgegraut": "Greyed out", "Durchgestrichen": "Struck through", "Beides": "Both",
@@ -1195,6 +1198,7 @@ class HauspanelPanel extends HTMLElement {
   _onConfig(msg) {
     const cfgChanged = JSON.stringify(msg.config) !== JSON.stringify(this.cfg);
     this.cfg = msg.config; this.plans = msg.plans || {};
+    if (this._hass) this._checkCamTriggers(this._hass.states);  // remember current trigger states, so they do not fire on load
     if (this.mode === "edit") { // do not overwrite the draft, but point out external changes
       if (cfgChanged && this.draft && !this._saving && (msg.config._rev || 0) !== (this.draft._rev || 0))
         this._toast("Das Layout wurde gerade woanders geändert – zum Übernehmen Bearbeiten abbrechen");
@@ -1244,6 +1248,7 @@ class HauspanelPanel extends HTMLElement {
     (c.waste || []).forEach((w) => w.entity_id && ids.add(w.entity_id));
     (c.header || []).forEach((x) => { if (x.entity_id) { ids.add(x.entity_id); this._chargeIds(x.entity_id).forEach((y) => ids.add(y)); } });
     if (c.weather_entity) ids.add(c.weather_entity);
+    (c.cam_popups || []).forEach((r) => r.trigger && ids.add(r.trigger));
     ids.add("sun.sun");
     return ids;
   }
@@ -1251,6 +1256,7 @@ class HauspanelPanel extends HTMLElement {
     if (!this.cfg) return;
     let changed = false;
     const st = this._hass.states;
+    this._checkCamTriggers(st);
     for (const id of this._watched()) {
       if (st[id] !== this._prevStates[id]) { changed = true; this._prevStates[id] = st[id]; }
     }
@@ -1261,6 +1267,42 @@ class HauspanelPanel extends HTMLElement {
       this._renderWeather(); this._renderWaste(); this._applyTheme();
       if (this.popup && this.popup.type === "entity" && !this._sliding) this._renderEntityPop();
     }
+  }
+
+  /* ---------- camera popup on events (doorbell, motion …) ----------
+     cfg.cam_popups = [{trigger, camera, seconds, to?}]. event.* entities fire on every new event (state = timestamp),
+     everything else when the state changes to `to` (default "on"). Only in view mode; the first state seen never fires. */
+  _checkCamTriggers(st) {
+    const rules = (this.cfg && this.cfg.cam_popups) || [];
+    if (!rules.length) return;
+    this._trigPrev = this._trigPrev || {};
+    for (const r of rules) {
+      if (!r.trigger || !r.camera) continue;
+      const old = this._trigPrev[r.trigger], nw = st[r.trigger];
+      this._trigPrev[r.trigger] = nw;
+      if (!old || !nw || old === nw || old.state === nw.state || this.mode !== "view") continue;
+      let fire;
+      if (domainOf(r.trigger) === "event") fire = Date.parse(nw.state) > Date.now() - 30000;
+      else fire = nw.state === (r.to || "on") && !["unavailable", "unknown"].includes(old.state);
+      if (fire) this._camPopup(r);
+    }
+  }
+  _camPopup(r) {
+    const cam = r.camera; if (!cam || !this._hass.states[cam]) return;
+    if (this.popup) this._closePop();
+    const reason = `${friendly(this._hass, r.trigger) || "Auslöser"} · ${hhmm(new Date())}`;
+    // a pin for this camera on the plan? -> use it (keeps its live/snapshot setting) and show its floor
+    const f = this.mode === "view" && ((this.cfg.floors || []).find((x) => x.id === this.activeFloor && (x.pins || []).some((p) => p.entity_id === cam))
+      || (this.cfg.floors || []).find((x) => (x.pins || []).some((p) => p.entity_id === cam)));
+    if (f) {
+      if (f.id !== this.activeFloor) { this.activeFloor = f.id; this._renderFloors(); this._renderPlan(); }
+      this.popup = { type: "entity", pin: f.pins.find((p) => p.entity_id === cam).id, reason };
+    } else this.popup = { type: "entity", pin: "__cam", virt: { id: "__cam", entity_id: cam, cam_view: r.cam_view }, reason };
+    this._renderEntityPop();
+    try { if (window.fully && window.fully.turnScreenOn) window.fully.turnScreenOn(); } catch (e) { /* not Fully Kiosk */ }
+    clearTimeout(this._cpT);
+    const t0 = Date.now(), sec = Math.max(1, Number(r.seconds) || 60);
+    this._cpT = setTimeout(() => { if (this.popup && this.popup.reason === reason && (this._lastTouch || 0) < t0) this._closePop(); }, sec * 1000);
   }
 
   /* ---------- Rendering ---------- */
@@ -1691,7 +1733,7 @@ class HauspanelPanel extends HTMLElement {
 
   /* ---------- Popups ---------- */
   _showPop(html, wide) {
-    const dom = this.popup && this.popup.type === "entity" ? domainOf(((this._floor() || {}).pins || []).find((x) => x.id === this.popup.pin)?.entity_id || "") : (this.popup && this.popup.type) || "";
+    const dom = this.popup && this.popup.type === "entity" ? domainOf((this._popPin() || {}).entity_id || "") : (this.popup && this.popup.type) || "";
     this.$("#pop").innerHTML = `<div class="pop${wide ? " wide" : ""}" data-domain="${esc(dom)}">${html}</div>`;
     this.$("#overlay").classList.add("show");
   }
@@ -1773,11 +1815,17 @@ class HauspanelPanel extends HTMLElement {
     this.popup = { type: "entity", pin: pinId };
     this._renderEntityPop();
   }
+  /* pin behind the open entity popup – a real pin of the current floor or a virtual one (camera popup without pin) */
+  _popPin() {
+    if (!this.popup || this.popup.type !== "entity") return null;
+    if (this.popup.virt) return this.popup.virt;
+    const f = this._floor(); return (f && (f.pins || []).find((x) => x.id === this.popup.pin)) || null;
+  }
   _renderEntityPop() {
-    const f = this._floor(); const p = f && (f.pins || []).find((x) => x.id === this.popup.pin);
+    const f = this._floor(); const p = this._popPin();
     if (!p) return this._closePop();
     const id = p.entity_id, s = this._hass.states[id], d = domainOf(id);
-    const name = p.name || friendly(this._hass, id), sub = [this._roomOf(f, p), f.code].filter(Boolean).join(" · ");
+    const name = p.name || friendly(this._hass, id), sub = this.popup.virt ? "" : [this._roomOf(f, p), f.code].filter(Boolean).join(" · ");
     const icon = p.icon || defaultIcon(s, id), on = pinActive(p, s);
     if (!s) return this._showPop(this._popHead(icon, "", sub, name) + `<div class="panel">Entity <b>${esc(id)}</b> gibt es in Home Assistant nicht (mehr).</div>`);
     const a = s.attributes, unavail = s.state === "unavailable";
@@ -1827,6 +1875,7 @@ class HauspanelPanel extends HTMLElement {
     } else if (d === "camera") {
       // already running -> only pass on hass, do not rebuild (the stream would restart all the time)
       if (this._camCard && this._camFor === p.id && this.$("#cam-box")) { this._camCard.hass = this._hass; this._camStatus(p); return; }
+      if (this.popup.reason) h += `<div class="alert-note" style="--alert:var(--accent);margin:0 0 12px">${ic("bell-ring", 16)}<span>${esc(this.popup.reason)}</span></div>`;
       h += `<div class="cam-box" id="cam-box">${unavail ? "Kamera nicht erreichbar" : `<div class="cam-wait">Verbinde mit Kamera …</div>`}</div>
         <div class="cam-foot"><span id="cam-status"></span><button class="sbtn" data-a="cam-more">${ic("maximize-2", 15)}In Home Assistant öffnen</button></div>`;
       this._showPop(h, true);
@@ -1858,7 +1907,7 @@ class HauspanelPanel extends HTMLElement {
     }
   }
   _popAction(b) {
-    const f = this._floor(); const p = f && (f.pins || []).find((x) => x.id === this.popup.pin); if (!p) return;
+    const p = this._popPin(); if (!p) return;
     const id = p.entity_id, d = domainOf(id), s = this._hass.states[id], act = b.dataset.a;
     if (act === "toggle") {
       if (d === "media_player") this._hass.callService(d, s.state === "off" ? "turn_on" : "turn_off", { entity_id: id });
@@ -1959,7 +2008,7 @@ class HauspanelPanel extends HTMLElement {
     if (!b) return;
     const a = b.dataset.a;
     if (this.popup && ["light-hs", "light-k"].includes(a)) {
-      const f = this._floor(), p = f && (f.pins || []).find((x) => x.id === this.popup.pin); if (!p) return;
+      const p = this._popPin(); if (!p) return;
       const data = a === "light-hs" ? { hs_color: [Number(b.dataset.h), Number(b.dataset.s)] } : { color_temp_kelvin: Number(b.dataset.k) };
       this._hass.callService("light", "turn_on", { entity_id: p.entity_id, ...data });
       return;
@@ -1973,7 +2022,7 @@ class HauspanelPanel extends HTMLElement {
         return;
       }
       case "cam-more": {
-        const f = this._floor(), p = f && (f.pins || []).find((x) => x.id === (this.popup && this.popup.pin));
+        const p = this._popPin();
         if (!p) return;
         this._closePop();
         this.dispatchEvent(new CustomEvent("hass-more-info", { detail: { entityId: p.entity_id }, bubbles: true, composed: true }));
@@ -2177,6 +2226,19 @@ class HauspanelPanel extends HTMLElement {
           this._markDirty(); this._renderTop(); this._renderInspector();
         });
       }
+      case "camev-add": { this.draft.cam_popups = [...(this.draft.cam_popups || []), { seconds: 60 }]; this._markDirty(); return this._renderInspector(); }
+      case "camev-del": {
+        this.draft.cam_popups.splice(Number(b.dataset.i), 1); if (!this.draft.cam_popups.length) delete this.draft.cam_popups;
+        this._markDirty(); return this._renderInspector();
+      }
+      case "camev-test": { const r = (this.draft.cam_popups || [])[Number(b.dataset.i)]; if (r && r.camera) this._camPopup(r); return; }
+      case "pick-camev-trigger": case "pick-camev-camera": {
+        const r = this.draft.cam_popups[Number(b.dataset.i)], cam = a === "pick-camev-camera";
+        return this._pickEntity(cam ? "Kamera" : "Auslöser", cam ? ["camera"] : ["event", "binary_sensor", "input_boolean"], cam ? r.camera : r.trigger, (id) => {
+          if (cam) r.camera = id; else r.trigger = id;
+          this._markDirty(); this._renderInspector();
+        });
+      }
       case "header-del": {
         this.draft.header = (this.draft.header || []).filter((x) => x.entity_id); this.draft.header.splice(Number(b.dataset.i), 1);
         if (!this.draft.header.length) delete this.draft.header;
@@ -2230,6 +2292,7 @@ class HauspanelPanel extends HTMLElement {
         [...tmp.children].slice(1).forEach((c) => wrap.appendChild(c));
         return;
       }
+      case "camev-seconds": { const r = (this.draft.cam_popups || [])[Number(el.dataset.i)]; if (r) { r.seconds = Number(val); this._markDirty(); } return; }
       case "pin-name": p.name = val || null; break;
       case "pin-room": p.room = val || null; break;
       case "pin-power": p.power_off = val; break;
@@ -2467,7 +2530,7 @@ class HauspanelPanel extends HTMLElement {
         <button class="sbtn" data-a="cp-sys" title="Farbrad öffnen">${ic("pipette", 16)}</button>
         <button class="sbtn" data-a="cp-close" aria-label="Schließen">${ic("x", 16)}</button></div>
       <div class="cp-h"><span>Palette</span>${pal.length ? `<button class="lnk" data-a="cp-edit">${this._palEdit ? "Fertig" : "Bearbeiten"}</button>` : ""}</div>
-      <div class="sws">${pal.map((c) => sw(c, true)).join("")}<button class="sw add" data-a="cp-add" title="Aktuelle Farbe in die Palette">${ic("plus", 14)}</button></div>
+      <div class="sws">${pal.map((c) => sw(c, true)).join("")}<button class="sw add" data-a="camev-add" title="Aktuelle Farbe in die Palette">${ic("plus", 14)}</button></div>
       ${pal.length ? "" : `<div class="hint" style="margin:6px 0 0">Mit + legst du die aktuelle Farbe in deine Palette. Sie wird mit dem Layout gespeichert.</div>`}
       ${used.length ? `<div class="cp-h"><span>Schon benutzt</span></div><div class="sws">${used.map((c) => sw(c)).join("")}</div>` : ""}`;
     (input.closest(".row") || input.parentElement).after(div);
@@ -2497,7 +2560,7 @@ class HauspanelPanel extends HTMLElement {
     if (a === "cp-close") return this._closeColorPop();
     if (a === "cp-sys") { try { cp.input.showPicker(); } catch (e) { /* older browsers */ } return; }
     if (a === "cp-edit") { this._palEdit = !this._palEdit; return this._colorPop(cp.input); }
-    if (a === "cp-add") {
+    if (a === "camev-add") {
       const v = normHex(cp.input.value); if (!v) return;
       const pal = (this.draft.palette = this.draft.palette || []);
       if (!pal.includes(v)) { pal.push(v); if (pal.length > 30) pal.shift(); this._markDirty(); }
@@ -2866,6 +2929,17 @@ class HauspanelPanel extends HTMLElement {
         ${(c.header || []).filter((x) => x.entity_id).map((x, i) => `<div class="row" style="margin-bottom:8px">${this._pickField(x.entity_id, "pick-header", "Entity wählen", i)}
           <button class="sbtn" data-a="header-del" data-i="${i}" aria-label="Entfernen">${ic("x", 16)}</button></div>`).join("")}
         ${(c.header || []).filter((x) => x.entity_id).length < 4 ? `<button class="sbtn" data-a="pick-header" data-i="new">${ic("plus", 16)}Wert hinzufügen</button>` : ""}</div>
+      <div class="sep"></div>
+      <div class="fld"><label>Kamera bei Ereignis</label>
+        <div class="hint">Öffnet automatisch das Kamerabild, z. B. wenn jemand klingelt. Klingel-Ereignisse (event.*) lösen bei jedem Klingeln aus, Sensoren und Schalter beim Wechsel auf „an“. Schließt sich nach der eingestellten Zeit, außer jemand bedient das Tablet. In Fully Kiosk geht dabei der Bildschirm an (JavaScript-Schnittstelle muss aktiv sein).</div>
+        ${(c.cam_popups || []).map((r, i) => `<div class="alert-card">
+          <div class="row" style="gap:6px;margin-bottom:8px"><span class="al-l" style="width:56px">Auslöser</span>${this._pickField(r.trigger, "pick-camev-trigger", "z. B. Klingel", i)}</div>
+          <div class="row" style="gap:6px;margin-bottom:8px"><span class="al-l" style="width:56px">Kamera</span>${this._pickField(r.camera, "pick-camev-camera", "Kamera wählen", i)}</div>
+          <div class="row" style="gap:6px"><span class="al-l" style="width:56px">Dauer</span>
+            <select class="inp" data-f="camev-seconds" data-i="${i}" style="flex:1;min-width:0">${[[30, "30 s"], [60, "1 min"], [120, "2 min"], [300, "5 min"]].map(([v, l]) => `<option value="${v}"${(Number(r.seconds) || 60) === v ? " selected" : ""}>${l}</option>`).join("")}</select>
+            <button class="sbtn" data-a="camev-test" data-i="${i}"${r.camera ? "" : " disabled"}>${ic("play", 15)}Testen</button>
+            <button class="sbtn" data-a="camev-del" data-i="${i}" aria-label="Entfernen">${ic("trash-2", 16)}</button></div></div>`).join("")}
+        <button class="sbtn" data-a="camev-add">${ic("plus", 16)}Kamera-Ereignis hinzufügen</button></div>
       <div class="sep"></div>
       ${listBlock("waste", "Müllabfuhr", "sensor", "Sensor mit Datum (z. B. 2026-10-16 oder 16.10.2026) oder Anzahl Tage als Zustand. Attribut daysTo wird auch erkannt.")}
       ${this._datalist()}

@@ -31,6 +31,8 @@ def fresh_layout(server):
     service(server, "light", "turn_on", entity_id="light.ceiling_lights")
     service(server, "light", "turn_off", entity_id="light.kitchen_lights")
     service(server, "switch", "turn_off", entity_id="switch.ac")
+    service(server, "input_boolean", "turn_off", entity_id="input_boolean.doorbell")
+    service(server, "input_boolean", "turn_off", entity_id="input_boolean.motion")
 
 
 @pytest.fixture(scope="session")

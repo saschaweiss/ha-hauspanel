@@ -44,6 +44,11 @@ recorder:
   purge_keep_days: 1
 logger:
   default: warning
+input_boolean:
+  doorbell:
+    name: Doorbell
+  motion:
+    name: Garden motion
 template:
   - sensor:
       - name: "Waste Paper"
@@ -92,6 +97,8 @@ LAYOUT = {
     "waste": [{"entity_id": "sensor.waste_paper", "name": "Paper", "color": "#2F6DD0"},
               {"entity_id": "sensor.waste_bio", "name": "Bio", "color": "#3E8E41"}],
     "header": [{"entity_id": "sensor.outside_temperature_battery"}],
+    "cam_popups": [{"trigger": "input_boolean.doorbell", "camera": "camera.demo_camera", "seconds": 3},
+                   {"trigger": "input_boolean.motion", "camera": "camera.demo_camera_png", "seconds": 60}],
     "default_floor": "og",
     "night": {"mode": "time", "from": 23, "to": 5},
 }

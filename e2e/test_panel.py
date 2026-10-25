@@ -171,3 +171,52 @@ def test_mobile_portrait(open_panel):
     assert p.evaluate("() => document.documentElement.scrollWidth <= window.innerWidth + 1")
     assert p.pin("light.ceiling_lights").is_visible()
     p.assert_no_errors()
+
+
+def test_camera_popup_on_doorbell(open_panel, server):
+    p = open_panel()
+    p.click('hauspanel-panel .floor-btn[data-floor="eg"]')  # camera pin lives on the other floor
+    service(server, "input_boolean", "turn_on", entity_id="input_boolean.doorbell")
+    expect(p.locator("hauspanel-panel #overlay.show")).to_be_visible(timeout=5000)
+    assert p.locator("hauspanel-panel .floor-btn.active").get_attribute("data-floor") == "og"  # switched to the camera's floor
+    assert "Doorbell" in p.locator("hauspanel-panel #pop .alert-note").inner_text()
+    assert p.locator("hauspanel-panel #cam-box").count() == 1
+    expect(p.locator("hauspanel-panel #overlay.show")).to_have_count(0, timeout=6000)  # closes after 3 s
+    p.assert_no_errors()
+
+
+def test_camera_popup_stays_open_after_touch(open_panel, server):
+    p = open_panel()
+    service(server, "input_boolean", "turn_on", entity_id="input_boolean.doorbell")
+    expect(p.locator("hauspanel-panel #overlay.show")).to_be_visible(timeout=5000)
+    p.locator("hauspanel-panel #pop .alert-note").click()  # someone uses the tablet
+    p.wait_for_timeout(4000)
+    assert p.locator("hauspanel-panel #overlay.show").count() == 1
+
+
+def test_camera_popup_without_pin(open_panel, server):
+    p = open_panel()
+    service(server, "input_boolean", "turn_on", entity_id="input_boolean.motion")
+    expect(p.locator("hauspanel-panel #overlay.show")).to_be_visible(timeout=5000)
+    assert "Garden motion" in p.locator("hauspanel-panel #pop").inner_text()
+    assert p.locator("hauspanel-panel #cam-box").count() == 1
+    p.assert_no_errors()
+
+
+def test_camera_popup_not_on_initial_state_or_turn_off(open_panel, server):
+    service(server, "input_boolean", "turn_on", entity_id="input_boolean.motion")
+    p = open_panel()  # already on when the panel loads -> no popup
+    p.wait_for_timeout(1000)
+    assert p.locator("hauspanel-panel #overlay.show").count() == 0
+    service(server, "input_boolean", "turn_off", entity_id="input_boolean.motion")
+    p.wait_for_timeout(1000)
+    assert p.locator("hauspanel-panel #overlay.show").count() == 0
+
+
+def test_camera_popup_editor_test_button(open_panel):
+    p = open_panel("/hauspanel", 1440, 1000)
+    p.click("hauspanel-panel [data-a=edit]")
+    p.click('hauspanel-panel [data-a=tab][data-tab=general]')
+    p.locator('hauspanel-panel [data-a=camev-test]').first.click()
+    expect(p.locator("hauspanel-panel #overlay.show")).to_be_visible(timeout=5000)
+    p.assert_no_errors()

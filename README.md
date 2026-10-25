@@ -42,6 +42,8 @@ Floors, plans and devices are set up right inside the panel: upload a floor plan
 - Climate: target temperature and HVAC mode
 - Cameras: live view via Home Assistant's own stream handling (WebRTC/HLS/MJPEG) or a refreshing snapshot, plus a shortcut to HA's camera dialog
 
+- Camera on event: a doorbell press or motion sensor opens the camera view automatically (and wakes the screen in Fully Kiosk)
+
 **Side panels**
 - Weather with 4-day forecast
 - Waste collection (works with *Waste Collection Schedule* out of the box)

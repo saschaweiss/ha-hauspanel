@@ -79,6 +79,8 @@ async def test_update_settings_merge_patch(hass, call):
     cfg = hass.data[DOMAIN].config
     assert cfg["theme"] == {"light": {"accent": "#2F6DD0", "bg": "#ffffff"}, "size": {"pin": 40}}
     assert cfg["header"] == [{"entity_id": "sensor.akku"}]
+    await call("hauspanel_update_settings", patch={"cam_popups": [{"trigger": "event.doorbell", "camera": "camera.door", "seconds": 60}]})
+    assert hass.data[DOMAIN].config["cam_popups"][0]["camera"] == "camera.door"
     await call("hauspanel_update_settings", patch={"theme": None})
     assert "theme" not in hass.data[DOMAIN].config
     out = await call("hauspanel_update_settings", patch={"floors": []})
