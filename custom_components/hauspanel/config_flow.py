@@ -1,4 +1,4 @@
-"""Config-Flow: keine Optionen, nur eine Instanz."""
+"""Config flow: no options, single instance."""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ from .const import DOMAIN, PANEL_TITLE
 
 
 class HauspanelConfigFlow(ConfigFlow, domain=DOMAIN):
-    """Richtet Hauspanel ein."""
+    """Set up Hauspanel."""
 
     VERSION = 1
 

@@ -1,17 +1,17 @@
-"""Grundriss-Analyse ohne Browser: SVG/Bild rastern und helle Flächen (Räume) finden.
+"""Floor plan analysis without a browser: rasterize an SVG/image and find bright areas (rooms).
 
-Liefert Räume als Bounding-Boxen in Prozent plus eine grobe Textkarte, damit ein
-KI-Assistent Pins und Raum-Labels sinnvoll platzieren kann.
+Returns rooms as bounding boxes in percent plus a coarse text map, so an AI assistant
+can place pins and room labels sensibly.
 """
 
 from __future__ import annotations
 
 import base64
-from collections import deque
 import io
 import math
 import re
 import xml.etree.ElementTree as ET
+from collections import deque
 
 from PIL import Image, ImageChops, ImageDraw, ImageFilter
 
@@ -86,7 +86,7 @@ def _style(el, key):
 
 
 def path_subpaths(d: str):
-    """Zerlegt einen SVG-Pfad in Polygonzüge (Kurven werden angenähert)."""
+    """Split an SVG path into polylines (curves are approximated)."""
     toks = re.findall(rf"[MmLlHhVvCcSsQqTtAaZz]|{_NUM}", d or "")
     subs, cur = [], []
     x = y = sx = sy = 0.0
@@ -206,7 +206,7 @@ def _shape_polys(el, tag):
         return [[(x, y), (x + w, y), (x + w, y + h), (x, y + h)]]
     if tag in ("polygon", "polyline"):
         p = [float(v) for v in re.findall(_NUM, el.get("points", ""))]
-        return [list(zip(p[0::2], p[1::2]))]
+        return [list(zip(p[0::2], p[1::2], strict=False))]
     if tag in ("circle", "ellipse"):
         cx, cy = g("cx"), g("cy")
         rx = g("r") if tag == "circle" else g("rx")
@@ -286,7 +286,7 @@ def rasterize(svg: str) -> tuple[Image.Image, list[float]]:
 
 
 def _components(px, W, H, min_n):
-    """Zusammenhängende Flächen (4er-Nachbarschaft) einer Maske; liefert Label-Array und Größen."""
+    """Connected components (4-neighbourhood) of a mask; returns the label array and sizes."""
     lab = [0] * (W * H)
     sizes = [0]
     for i in range(W * H):
@@ -314,7 +314,7 @@ def analyze(svg: str) -> dict:
     W, H = img.size
     total = W * H
     hist = img.histogram()
-    # Boden = häufigster heller Grauwert (Vektorpläne); bei Fotos/Scans Otsu-Schwelle
+    # floor = most common bright grey value (vector plans); Otsu threshold for photos/scans
     floor_v = max(range(101, 256), key=lambda v: hist[v])
     if hist[floor_v] / total > 0.15:
         mask = img.point(lambda v: 255 if abs(v - floor_v) <= 14 else 0)
@@ -332,18 +332,18 @@ def analyze(svg: str) -> dict:
         mask = img.point(lambda v: 255 if v > thr else 0)
     floor_px = list(mask.tobytes())
     min_n = total * 0.003
-    # Räume an Türöffnungen trennen: Maske schrumpfen, bis die meisten Räume einzeln dastehen
-    best_k, best_lab, best_keep = 1, None, -1
-    for k in (1, 9, 17, 25, 33, 41, 49):
-        k = max(1, round(k * W / 480) | 1)
+    # split rooms at door openings: erode the mask until most rooms stand on their own
+    best_lab, best_sizes, best_keep = None, [], -1
+    for base in (1, 9, 17, 25, 33, 41, 49):
+        k = max(1, round(base * W / 480) | 1)
         er = list(mask.filter(ImageFilter.MinFilter(k)).tobytes()) if k > 1 else floor_px
         lab, sizes, keep = _components(er, W, H, total * 0.0015)
         if keep > best_keep:
-            best_k, best_lab, best_sizes, best_keep = k, lab, sizes, keep
+            best_lab, best_sizes, best_keep = lab, sizes, keep
     lab, sizes = best_lab, best_sizes
     seeds = {cid for cid, n in enumerate(sizes) if cid and n >= total * 0.0015}
     lab = [c if c in seeds else 0 for c in lab]
-    # Geschrumpfte Kerne wieder auf die ganze Bodenfläche ausdehnen
+    # grow the eroded cores back over the whole floor area
     q = deque(i for i in range(total) if lab[i])
     while q:
         j = q.popleft()

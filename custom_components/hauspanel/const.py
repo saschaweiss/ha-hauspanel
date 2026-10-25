@@ -1,7 +1,7 @@
-"""Konstanten für Hauspanel."""
+"""Constants for Hauspanel."""
 
 DOMAIN = "hauspanel"
-VERSION = "0.10.1"
+VERSION = "0.11.0"
 
 PANEL_URL = "hauspanel"
 PANEL_COMPONENT = "hauspanel-panel"
@@ -18,7 +18,7 @@ MAX_HISTORY = 30
 
 SIGNAL_UPDATED = f"{DOMAIN}_updated"
 
-MAX_PLAN_BYTES = 3_500_000  # WebSocket-Nachrichten sind auf ~4 MB begrenzt
+MAX_PLAN_BYTES = 3_500_000  # websocket messages are limited to ~4 MB
 MAX_CONFIG_BYTES = 1_000_000
 
 DEFAULT_CONFIG: dict = {

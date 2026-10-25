@@ -1,8 +1,9 @@
-"""Hauspanel-Werkzeuge für KI-Assistenten (LLM-API, z. B. über den MCP-Server von HA).
+"""Hauspanel tools for AI assistants (LLM API, e.g. through Home Assistant's MCP server).
 
-Die Werkzeuge ändern ausschließlich das Hauspanel-Layout. Vor jeder Änderung wird
-der vorherige Stand als Sicherung abgelegt und lässt sich mit hauspanel_undo
-wiederherstellen. Grundriss-Dateien werden nicht verändert.
+The tools only change the Hauspanel layout. Before every change the previous state is
+backed up and can be restored with hauspanel_undo. Floor plan files are never modified.
+Tool descriptions and results are German on purpose: they are written for the assistant
+and match the German UI terms the user sees.
 """
 
 from __future__ import annotations
@@ -12,10 +13,10 @@ import hashlib
 import math
 import re
 import secrets
-from typing import Any
 import xml.etree.ElementTree as ET
+from typing import Any
 
-try:  # HA >= 2026.x nutzt probatio, ältere Versionen voluptuous
+try:  # HA >= 2026.x uses probatio, older versions voluptuous
     import probatio as vol
 except ImportError:  # pragma: no cover
     import voluptuous as vol
@@ -24,8 +25,14 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import (
     area_registry as ar,
+)
+from homeassistant.helpers import (
     device_registry as dr,
+)
+from homeassistant.helpers import (
     entity_registry as er,
+)
+from homeassistant.helpers import (
     llm,
 )
 from homeassistant.helpers.dispatcher import async_dispatcher_send
@@ -116,7 +123,7 @@ def _pct(v: Any, what: str) -> float:
 
 
 def _set_scale(obj: dict, v) -> None:
-    """Größe einzelner Pins/Labels in Prozent (50–200); 100 bzw. null = Standard."""
+    """Per-pin/label size in percent (50–200); 100 or null = default."""
     if v is None or int(v) == 100:
         obj.pop("scale", None)
         return
@@ -130,7 +137,7 @@ def _uid(prefix: str) -> str:
 
 
 def _deep_merge(base: Any, patch: Any) -> Any:
-    """JSON-Merge-Patch (RFC 7386): Objekte werden gemischt, null löscht, Listen werden ersetzt."""
+    """JSON merge patch (RFC 7386): objects are merged, null deletes, lists are replaced."""
     if not isinstance(patch, dict):
         return copy.deepcopy(patch)
     out = copy.deepcopy(base) if isinstance(base, dict) else {}
@@ -190,7 +197,8 @@ def _parse_transform(t: str | None) -> tuple:
         elif name == "scale" and a:
             n = (a[0], 0, 0, a[1] if len(a) > 1 else a[0], 0, 0)
         elif name == "rotate" and a:
-            r = math.radians(a[0]); c, s = math.cos(r), math.sin(r)
+            r = math.radians(a[0])
+            c, s = math.cos(r), math.sin(r)
             cx, cy = (a[1], a[2]) if len(a) == 3 else (0, 0)
             n = (c, s, -s, c, cx - c * cx + s * cy, cy - s * cx - c * cy)
         else:
@@ -213,7 +221,7 @@ def _first_num(v: str | None) -> float:
 
 
 def plan_labels(svg: str) -> dict:
-    """Liest viewBox und Textbeschriftungen (mit Prozent-Koordinaten) aus einem SVG."""
+    """Read the viewBox and text labels (with percent coordinates) from an SVG."""
     root = ET.fromstring(svg)
     vb = [float(x) for x in re.findall(_NUM, root.get("viewBox", ""), re.I)]
     if len(vb) != 4:
@@ -276,7 +284,7 @@ class PlanInfoTool(_HPTool):
         cache = data.__dict__.setdefault("_plan_cache", {})
         if key not in cache:
             def work():
-                from .plan_analysis import analyze  # noqa: PLC0415 – Pillow erst bei Bedarf laden
+                from .plan_analysis import analyze  # noqa: PLC0415 – load Pillow only when needed
 
                 out = analyze(svg)
                 try:
@@ -403,6 +411,9 @@ class UpsertPinsTool(_WriteTool):
             vol.Optional("toggle"): bool,
             vol.Optional("state_entity"): vol.Any(str, None),
             vol.Optional("cam_view"): vol.Any(None, vol.In(["live", "snapshot"])),
+            vol.Optional("bare"): bool,
+            vol.Optional("off_style"): vol.Any(None, vol.In(["grey", "strike", "both"])),
+            vol.Optional("flip"): vol.Any(None, vol.In(["h", "v", "hv"])),
             vol.Optional("alerts"): vol.Any(None, [dict]),
             vol.Optional("extras"): [str],
             vol.Optional("scale"): vol.Any(None, vol.Coerce(int)),
@@ -442,7 +453,8 @@ class UpsertPinsTool(_WriteTool):
                 action = "neu"
             else:
                 action = "geändert"
-            for k, v in item.items():
+            for k, val in item.items():
+                v = val
                 if k == "id":
                     continue
                 if k == "entity_id" and not ENTITY_ID_RE.match(v):
@@ -653,7 +665,7 @@ class UndoTool(_HPTool):
             b = next((x for x in data.history if x["id"] == bid), None)
             if b is None:
                 raise ValueError(f"Sicherung '{bid}' gibt es nicht")
-        else:  # neueste Sicherung, die noch nicht zurückgespielt wurde und nicht selbst von einem Undo stammt
+        else:  # newest backup that was not restored yet and is not itself the result of an undo
             b = next((x for x in reversed(data.history) if not x.get("restored") and not x["reason"].startswith("undo")), None)
             if b is None:
                 raise ValueError("Es gibt nichts mehr rückgängig zu machen")
@@ -666,7 +678,7 @@ class UndoTool(_HPTool):
 
 
 class HauspanelAPI(llm.API):
-    """Werkzeuge zum Bearbeiten des Hauspanel-Layouts."""
+    """Tools for editing the Hauspanel layout."""
 
     async def async_get_api_instance(self, llm_context: llm.LLMContext) -> llm.APIInstance:
         tools = [GetConfigTool(), PlanInfoTool(), FindEntitiesTool(), ListBackupsTool(), UpsertPinsTool(),
@@ -677,5 +689,5 @@ class HauspanelAPI(llm.API):
 
 @callback
 def async_register_llm_api(hass: HomeAssistant):
-    """Registriert die API; liefert die Abmelde-Funktion."""
+    """Register the API; returns the unregister callback."""
     return llm.async_register_api(hass, HauspanelAPI(hass=hass, id=API_ID, name=API_NAME))

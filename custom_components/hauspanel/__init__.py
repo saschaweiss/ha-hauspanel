@@ -1,11 +1,11 @@
-"""Hauspanel – Grundriss-Dashboard für Wandtablets."""
+"""Hauspanel – floor-plan dashboard for wall tablets."""
 
 from __future__ import annotations
 
 import copy
 import logging
-from pathlib import Path
 import secrets
+from pathlib import Path
 
 from homeassistant.components import frontend, panel_custom
 from homeassistant.components.http import StaticPathConfig
@@ -41,7 +41,7 @@ FRONTEND_DIR = Path(__file__).parent / "frontend"
 
 
 class HauspanelData:
-    """Hält Layout und Grundrisse im Speicher, persistiert in .storage."""
+    """Keeps layout and floor plans in memory, persisted in .storage."""
 
     def __init__(self, hass: HomeAssistant) -> None:
         self.config_store: Store[dict] = Store(hass, STORAGE_VERSION, STORAGE_KEY_CONFIG)
@@ -59,7 +59,7 @@ class HauspanelData:
         self.history = ((await self.history_store.async_load()) or {}).get("items", [])
 
     async def async_save_config(self, config: dict, reason: str = "editor") -> int:
-        """Speichert das Layout, sichert vorher den alten Stand und erhöht die Revision."""
+        """Save the layout: back up the previous state first and bump the revision."""
         if self.config.get("floors") or self.config.get("theme") or self.config.get("css"):
             self.history.append({
                 "id": secrets.token_hex(3),
@@ -72,8 +72,8 @@ class HauspanelData:
         config = dict(config)
         config["_rev"] = int(self.config.get("_rev", 0)) + 1
         self.config = config
-        # Grundrisse von gelöschten Etagen erst beim Speichern im Editor aufräumen,
-        # damit ein Undo nach dem Löschen einer Etage den Grundriss noch findet.
+        # Only drop plans of deleted floors when the editor saves, so that an undo
+        # after deleting a floor (e.g. via the AI tools) still finds its plan.
         if reason == "editor":
             floor_ids = {f.get("id") for f in config.get("floors", [])}
             stale = [fid for fid in self.plans if fid not in floor_ids]
@@ -105,17 +105,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await data.async_load()
     hass.data[DOMAIN] = data
 
-    # Statische Dateien lassen sich nicht wieder abmelden -> nur einmal registrieren
+    # Static paths cannot be unregistered -> register only once per HA run
     if not hass.data.get(f"{DOMAIN}_static"):
         await hass.http.async_register_static_paths(
             [StaticPathConfig(STATIC_URL, str(FRONTEND_DIR), cache_headers=False)]
         )
         hass.data[f"{DOMAIN}_static"] = True
-
-    # Karte „Hauspanel als Startseite“ für Lovelace-Dashboards (einmal pro HA-Start)
-    if not hass.data.get(f"{DOMAIN}_start_js"):
-        frontend.add_extra_js_url(hass, f"{STATIC_URL}/hauspanel-start.js?v={VERSION}")
-        hass.data[f"{DOMAIN}_start_js"] = True
 
     await panel_custom.async_register_panel(
         hass,
@@ -129,12 +124,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         config={"static_url": STATIC_URL, "version": VERSION},
     )
 
-    # Werkzeuge für KI-Assistenten (Home Assistants MCP-Server bietet sie an)
+    # Tools for AI assistants (exposed by Home Assistant's MCP server)
     from .llm_api import async_register_llm_api  # noqa: PLC0415
 
     try:
         entry.async_on_unload(async_register_llm_api(hass))
-    except Exception as err:  # noqa: BLE001 – Panel soll auch ohne LLM-API laufen
+    except Exception as err:  # noqa: BLE001 – the panel must work without the LLM API
         _LOGGER.warning("Hauspanel-KI-Werkzeuge nicht verfügbar: %s", err)
     return True
 

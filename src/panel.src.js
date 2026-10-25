@@ -1,13 +1,13 @@
-/* Hauspanel – Grundriss-Dashboard für Home Assistant
- * Ein Web-Component-Modul ohne Build-Abhängigkeiten.
- * Icons: Lucide (ISC-Lizenz). Schrift: Inter (OFL).
+/* Hauspanel – floor-plan dashboard for Home Assistant
+ * A single web component module without runtime dependencies.
+ * Icons: Lucide (ISC licence). Font: Inter (OFL).
  */
 const HP_VERSION = "__VERSION__";
 const ICONS = __ICONS__;
 
-// Referenzbreite/-höhe: darauf wird skaliert, der Rest des Bildschirms geht an den Grundriss
+// reference width/height the stage is scaled to; the remaining screen space goes to the floor plan
 const STAGE_W = 1280, STAGE_MIN_H = 800, MOBILE_W = 430;
-/* Icon-Auswahl im Editor, nach Gruppen. Suchbegriffe (deutsch) stehen hinter dem Doppelpunkt. */
+/* Icon picker in the editor, by group. German search terms follow the colon. */
 const ICON_GROUPS = [
   ["Licht", ["lightbulb:birne licht lampe", "lightbulb-off:birne aus", "lamp-ceiling:deckenlampe decke", "lamp-floor:stehlampe", "lamp-desk:schreibtischlampe", "lamp:tischlampe nachttisch",
     "lamp-wall-up:wandlampe", "lamp-wall-down:wandlampe", "spotlight:strahler spot", "flashlight:taschenlampe", "sun-dim:dimmer", "sun:sonne hell"]],
@@ -47,10 +47,10 @@ const STATE_LABEL = {on:"An",off:"Aus",open:"Offen",closed:"Geschlossen",opening
   playing:"Wiedergabe",paused:"Pausiert",idle:"Bereit",standby:"Standby",unavailable:"Nicht erreichbar",
   unknown:"Unbekannt",home:"Zuhause",not_home:"Abwesend",streaming:"Live",recording:"Aufnahme",...HVAC_LABEL};
 
-/* ---------- Sprache ----------
-   Die Oberfläche ist auf Deutsch geschrieben. Bei nicht-deutscher HA-Sprache übersetzt eine Schicht
-   alle angezeigten Texte (Textknoten, placeholder/title/aria-label) über dieses Wörterbuch ins Englische.
-   Nutzerinhalte (Raum-, Etagen-, Entity-Namen, Termine) bleiben unberührt, weil sie nicht im Wörterbuch stehen. */
+/* ---------- Language ----------
+   The UI is written in German. For any other HA language a translation layer runs every displayed text
+   (text nodes, placeholder/title/aria-label) through this dictionary into English.
+   User content (room, floor and entity names, events) stays untouched because it is not in the dictionary. */
 let LANG = "de";
 const I18N_EN = {
   // Kopfzeile, Navigation, allgemein
@@ -68,7 +68,7 @@ const I18N_EN = {
   "Wetter": "Weather", "Klar": "Clear", "Bewölkt": "Cloudy", "Unwetter": "Severe weather", "Nebel": "Fog", "Hagel": "Hail", "Gewitter": "Thunderstorm",
   "Leicht bewölkt": "Partly cloudy", "Starkregen": "Heavy rain", "Regen": "Rain", "Schnee": "Snow", "Schneeregen": "Sleet", "Sonnig": "Sunny", "Windig": "Windy",
   "Keine Wetter-Entity gewählt. Im Editor unter „Allgemein“ einstellen.": "No weather entity selected. Set one in the editor under “General”.",
-  // Müll
+  // waste
   "Müllabfuhr": "Waste collection", "Heute": "Today", "Morgen": "Tomorrow", "heute": "today", "morgen": "tomorrow",
   "Noch keine Müll-Sensoren eingestellt.": "No waste sensors configured yet.",
   "Keine kommenden Termine erkannt. Im Editor unter „Allgemein“ steht bei jedem Sensor, was gelesen wurde.": "No upcoming pickups detected. The editor shows what was read for each sensor under “General”.",
@@ -76,7 +76,7 @@ const I18N_EN = {
   // Kalender
   "Termine": "Events", "Diese Woche": "This week", "7 Tage weiter": "7 days forward", "7 Tage zurück": "7 days back", "Alle Termine": "All events",
   "Ganztägig": "All day", "Fortsetzung": "Continued", "Notizen": "Notes", "Ort": "Location",
-  // Zustände
+  // states
   "An": "On", "Aus": "Off", "Offen": "Open", "Geschlossen": "Closed", "Öffnet": "Opening", "Schließt": "Closing", "Verriegelt": "Locked", "Entriegelt": "Unlocked",
   "Verriegelt…": "Locking…", "Entriegelt…": "Unlocking…", "Blockiert": "Jammed", "Wiedergabe": "Playing", "Pausiert": "Paused", "Bereit": "Idle", "Standby": "Standby",
   "Nicht erreichbar": "Unavailable", "Unbekannt": "Unknown", "Abwesend": "Away", "Live": "Live", "Aufnahme": "Recording", "Bewegung": "Motion", "Ruhig": "Clear",
@@ -91,7 +91,7 @@ const I18N_EN = {
   "Die Kamera liefert gerade kein Bild an Home Assistant.": "The camera is not delivering an image to Home Assistant right now.",
   // Editor-Tabs
   "Geräte": "Devices", "Auswahl": "Selection", "Etage": "Floor", "Allgemein": "General", "Design": "Design",
-  // Geräte-Tab
+  // devices tab
   "Suchen (Name oder entity_id)": "Search (name or entity_id)", "Licht": "Lights", "Schalter": "Switches", "Heizung": "Climate", "Sensoren": "Sensors", "Kameras": "Cameras",
   "Am Griff": "Drag by the handle", "auf den Grundriss ziehen oder mit + in die Mitte setzen.": "onto the plan, or use + to drop it in the middle.",
   "Lege zuerst links eine Etage an.": "Add a floor on the left first.", "Lege zuerst eine Etage an": "Add a floor first",
@@ -124,7 +124,7 @@ const I18N_EN = {
   "Wert hinzufügen": "Add value", "Vom Plan entfernen": "Remove from plan", "Raumname": "Room name", "Label entfernen": "Remove label",
   "Label auf dem Plan an die richtige Stelle ziehen. Geräte ohne festen Raum bekommen automatisch das nächstgelegene Label.": "Drag the label to the right spot on the plan. Devices without a fixed room get the nearest label automatically.",
   "Passende": "Matching", "Name oder entity_id …": "Name or entity_id …", "Status von": "State from", "Zusatzwert": "Extra value", "fehlt": "missing",
-  // Etage-Tab
+  // floor tab
   "Noch keine Etage. Links auf „+ Etage“ tippen.": "No floor yet. Tap “+ Floor” on the left.", "Kürzel": "Code", "Name": "Name", "Neue Etage": "New floor",
   "Grundriss": "Floor plan", "Grundriss hochladen": "Upload floor plan", "Anderen Grundriss wählen": "Choose another plan", "Grundriss entfernen": "Remove floor plan",
   "SVG (max. 2 MB) oder JPG/PNG/WebP – Bilder werden auf 2400 px verkleinert": "SVG (max. 2 MB) or JPG/PNG/WebP – images are scaled to 2400 px",
@@ -174,7 +174,7 @@ const I18N_EN = {
   "Selektoren und Variablen, die du überschreiben kannst.": "Selectors and variables you can override.",
   "Nur zum Nachschlagen/Kopieren – Änderungen gehören in „Ganze Seite“ oder die Etage.": "For reference/copying only – changes go into “Whole page” or the floor.",
   "Nachtmodus": "Night mode", "aus": "off",
-  // Farbwähler
+  // colour picker
   "Hex-Code": "Hex code", "Farbrad öffnen": "Open colour wheel", "Palette": "Palette", "Bearbeiten": "Edit", "Schon benutzt": "Already used",
   "Aktuelle Farbe in die Palette": "Add current colour to palette",
   "Mit + legst du die aktuelle Farbe in deine Palette. Sie wird mit dem Layout gespeichert.": "Use + to add the current colour to your palette. It is saved with the layout.",
@@ -263,7 +263,7 @@ const scaleField = (o, f) => `<div class="fld"><div class="row" style="justify-c
   <span class="row" style="gap:6px"><b id="sv-${f}">${o.scale || 100} %</b>${o.scale && o.scale !== 100 ? `<button class="sx" data-a="scale-reset" data-k="${f}" title="Zurück auf 100 %">${ic("x", 13)}</button>` : ""}</span></div>
   <input type="range" min="50" max="200" step="5" value="${o.scale || 100}" data-f="${f}" style="--p:${((o.scale || 100) - 50) / 1.5}%">
   <div class="hint scale-hint" style="margin-top:4px">Nur dieses ${f === "room-scale" ? "Label" : "Gerät"}; die allgemeine Größe stellst du im Design-Tab ein.</div></div>`;
-/* "#abc", "abc", "#AABBCC" -> "#aabbcc"; ungültig -> null */
+/* "#abc", "abc", "#AABBCC" -> "#aabbcc"; invalid -> null */
 const normHex = (v) => {
   let s = String(v || "").trim().replace(/^#/, "").toLowerCase();
   if (/^[0-9a-f]{3}$/.test(s)) s = s.split("").map((c) => c + c).join("");
@@ -314,10 +314,10 @@ function isActive(stateObj) {
   }
   return ACTIVE_STATES.has(st);
 }
-/* Hat das Gerät überhaupt einen An/Aus-Status? */
+/* Does the device have an on/off state at all? */
 const TOGGLE_DOMAINS = new Set(["light","switch","fan","input_boolean","media_player","cover"]);
 const STATUS_DOMAINS = new Set(["light","switch","fan","input_boolean","media_player","cover","lock","climate","binary_sensor"]);
-/* Farbe/Status eines Pins: p.status = "auto" | "action" | "mode" | "none" (wie Messwert) */
+/* colour/state of a pin: p.status = "auto" | "action" | "mode" | "none" (like a measured value) */
 function pinStatusful(p) { return STATUS_DOMAINS.has(domainOf(p.entity_id)) && p.status !== "none"; }
 function pinActive(p, s) {
   if (!s || !pinStatusful(p)) return false;
@@ -371,7 +371,7 @@ const COLOR_MODES = ["hs", "xy", "rgb", "rgbw", "rgbww"];
 function supportsColor(stateObj) { return (stateObj.attributes.supported_color_modes || []).some((m) => COLOR_MODES.includes(m)); }
 function supportsColorTemp(stateObj) { return (stateObj.attributes.supported_color_modes || []).includes("color_temp"); }
 const LIGHT_PRESETS = [[0, 100], [25, 100], [50, 100], [120, 90], [180, 80], [215, 90], [270, 80], [310, 80]];
-/* Findet ein Datum irgendwo in einem Text: 2026-10-16 · 16.10.2026 · Fr, 16.10.26 · 16.10. */
+/* Find a date anywhere in a text: 2026-10-16 · 16.10.2026 · Fr, 16.10.26 · 16.10. */
 function findDate(str) {
   const s = String(str ?? "");
   let m = s.match(/(\d{4})-(\d{2})-(\d{2})/);
@@ -389,8 +389,8 @@ function findDate(str) {
 }
 const daysUntil = (d) => Math.round((startOfDay(d) - startOfDay(new Date())) / 864e5);
 const SKIP_ATTR = new Set(["friendly_name","icon","entity_picture","unit_of_measurement","device_class","attribution","state_class"]);
-/* Tage bis zur Abholung. Versteht Waste Collection Schedule (Zustand „in 3 Tagen“/„morgen“,
-   Attribut daysTo, Termine als Attribute) sowie eigene Template-Sensoren (Datum oder Zahl). */
+/* Days until pickup. Understands Waste Collection Schedule (state "in 3 Tagen"/"morgen",
+   attribute daysTo, dates as attributes) and custom template sensors (date or number). */
 function wasteDays(stateObj) {
   if (!stateObj) return null;
   const a = stateObj.attributes;
@@ -406,7 +406,7 @@ function wasteDays(stateObj) {
     const n = low.match(/(\d+)\s*(tag|tagen|day|days)\b/) || low.match(/\bin\s+(\d+)/);
     if (n) return Number(n[1]);
   }
-  // Termine stehen in den Attributen (Schlüssel oder Werte) -> frühesten zukünftigen nehmen
+  // dates are in the attributes (keys or values) -> take the earliest future one
   let best = null;
   for (const [k, v] of Object.entries(a)) {
     if (SKIP_ATTR.has(k)) continue;
@@ -489,7 +489,7 @@ function themeCss(theme) {
     `--soft:${mixHex(o.muted, o.card, 0.5)};--dark:${o.dark};--dark-2:${mixHex("#ffffff", o.dark, 0.07)};` +
     `--wall:${o.wall};--floor:${o.floor};--outside:${o.outside};--door:${mixHex(o.wall, o.floor, 0.4)}` +
     DETAIL_VARS.filter(([k]) => o[k]).map(([k, v]) => `;${v}:${o[k]}`).join("") +
-    // Hintergrund gesetzt, Schrift nicht: automatisch dunkle oder helle Schrift für guten Kontrast
+    // background set but no text colour: pick dark or light text by background brightness
     [["soonBg", "soonFg", "--soon-fg"], ["todayBg", "todayFg", "--today-fg"]].filter(([b, f]) => o[b] && !o[f])
       .map(([b, , v]) => `;${v}:${contrastFg(o[b], o.text, o.card)}`).join("") +
     THEME_SHADOWS.filter(([k]) => o.sh && o.sh[k]).map(([k, v]) => {
@@ -588,7 +588,7 @@ const CSS_HELP = `/* Eigenes CSS überschreibt das eingebaute – es bleibt bei 
 .pin[data-domain="climate"].on { background: #F59E0B; }
 `;
 
-/* ---------- SVG: säubern, Farben ans Theme binden ---------- */
+/* ---------- SVG: sanitize, bind colours to the theme ---------- */
 const SVG_BAD = new Set(["script","foreignobject","iframe","object","embed","audio","video","animate","set","animatemotion","animatetransform"]);
 function lum(c) {
   const m = c.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?/);
@@ -628,7 +628,7 @@ function processSvg(raw, recolor, scratch) {
     const w = parseFloat(svg.getAttribute("width")) || 1000, h = parseFloat(svg.getAttribute("height")) || 1000;
     vb = [0, 0, w, h]; svg.setAttribute("viewBox", vb.join(" "));
   }
-  // Berechnete Farben auslesen (fängt auch <style>-Klassen aus Illustrator & Co. ab)
+  // read computed colours (also catches <style> classes from Illustrator & co.)
   const live = document.importNode(svg, true);
   scratch.appendChild(live);
   const src = [live, ...live.querySelectorAll("*")], dst = [svg, ...svg.querySelectorAll("*")];
@@ -1098,7 +1098,7 @@ class HauspanelPanel extends HTMLElement {
       </div>
       <div id="ghost"></div><div id="scratch"></div>`;
     this.$ = (s) => this.shadowRoot.querySelector(s);
-    // Übersetzungsschicht: jeder neu gerenderte Text läuft einmal durchs Wörterbuch (nur bei nicht-deutscher Sprache)
+    // translation layer: every newly rendered text goes through the dictionary once (non-German languages only)
     this._trObs = new MutationObserver((muts) => {
       if (LANG === "de") return;
       for (const m of muts) {
@@ -1127,8 +1127,8 @@ class HauspanelPanel extends HTMLElement {
     this._initing = false;
     this._migrateStartDash();
   }
-  /* 0.6.1 legte ein Weiterleitungs-Dashboard „hauspanel-start“ an. Seit 0.6.2 wird das Panel direkt als Startseite
-     eingetragen – das alte Dashboard (bei manchen Geräten mit „Konfigurationsfehler“) hier einmalig aufräumen. */
+  /* 0.6.1 created a redirect dashboard "hauspanel-start". Since 0.6.2 the panel is set as the default page directly –
+     remove the old dashboard (which showed a configuration error on some devices) once. */
   async _migrateStartDash() {
     if (!this._hass || !this._hass.user || !this._hass.user.is_admin) return;
     try {
@@ -1146,7 +1146,7 @@ class HauspanelPanel extends HTMLElement {
     } catch (e) { console.warn("Hauspanel: Aufräumen", e); }
   }
 
-  /* Uhr genau zum Minutenwechsel aktualisieren (nicht nur alle 15 s) */
+  /* update the clock exactly on the minute (not just every 15 s) */
   _scheduleClock() {
     clearTimeout(this._clockT);
     this._clockT = setTimeout(() => { if (!this.isConnected) return; this._tick(); this._scheduleClock(); }, 60000 - (Date.now() % 60000) + 30);
@@ -1164,7 +1164,7 @@ class HauspanelPanel extends HTMLElement {
     const st = this.$ && this.$("#stage");
     if (!st) return;
     const w = this.clientWidth || innerWidth, h = this.clientHeight || innerHeight;
-    // Handy (und Tablet) im Hochformat: eigenes, scrollbares Layout statt skalierter Bühne
+    // phone (and tablet) in portrait: own scrollable layout instead of the scaled stage
     const mobile = !this.editing && w < 820 && h > w * 1.15;
     if (mobile !== !!this._mobile) {
       this._mobile = mobile;
@@ -1180,8 +1180,8 @@ class HauspanelPanel extends HTMLElement {
       return;
     }
     st.style.zoom = ""; st.style.removeProperty("--z");
-    // Skalierung nach Breite (bzw. Mindesthöhe), die Bühne füllt immer die ganze Fläche:
-    // oben ausgerichtet, Grundriss-Bereich wächst in Höhe und Breite mit.
+    // scale by width (or minimum height); the stage always fills the whole screen:
+    // top-aligned, the floor plan area grows in height and width.
     const s = Math.min(w / STAGE_W, h / STAGE_MIN_H);
     this._scale = s;
     st.style.width = w / s + "px";
@@ -1195,7 +1195,7 @@ class HauspanelPanel extends HTMLElement {
   _onConfig(msg) {
     const cfgChanged = JSON.stringify(msg.config) !== JSON.stringify(this.cfg);
     this.cfg = msg.config; this.plans = msg.plans || {};
-    if (this.mode === "edit") { // Entwurf nicht überschreiben, aber auf externe Änderungen hinweisen
+    if (this.mode === "edit") { // do not overwrite the draft, but point out external changes
       if (cfgChanged && this.draft && !this._saving && (msg.config._rev || 0) !== (this.draft._rev || 0))
         this._toast("Das Layout wurde gerade woanders geändert – zum Übernehmen Bearbeiten abbrechen");
       return;
@@ -1212,7 +1212,7 @@ class HauspanelPanel extends HTMLElement {
     const d = this.cfg && this.cfg.default_floor;
     return floors.some((f) => f.id === d) ? d : floors[0] ? floors[0].id : null;
   }
-  /* Nach 2 Minuten ohne Bedienung: Popup zu (stoppt auch Kamera-Streams), zurück zur Startetage und aktuellen Woche */
+  /* after 2 minutes without interaction: close popups (also stops camera streams), back to the start floor and current week */
   _idleReset() {
     if (this.mode !== "view") return;
     if (Date.now() - (this._lastTouch || 0) < 120000) return;
@@ -1222,11 +1222,11 @@ class HauspanelPanel extends HTMLElement {
     if (this.weekOffset) { this.weekOffset = 0; this._fetchEvents(); }
   }
   get C() { return this.mode === "edit" ? this.draft : this.cfg; }
-  /* Vorschau = Ansicht mit dem Entwurf, ohne den Editor zu verlassen */
+  /* preview = view mode with the draft, without leaving the editor */
   get editing() { return this.mode === "edit" && !this.preview; }
   get viewing() { return this.mode === "view" || !!this.preview; }
   _applyThemeVars() { const el = this.$("#theme-vars"); if (el && this.C) el.textContent = themeCss(this.C.theme); this._applyCustomCss(); }
-  /* Eigenes CSS: global + das der gerade offenen Etage. ?nocss in der URL schaltet es ab (Notfall). */
+  /* custom CSS: global + that of the current floor. ?nocss in the URL disables it (emergency). */
   _applyCustomCss() {
     const el = this.$ && this.$("#custom-css"); if (!el || !this.C) return;
     if (/[?&]nocss\b/.test(location.search)) { el.textContent = ""; return; }
@@ -1236,7 +1236,7 @@ class HauspanelPanel extends HTMLElement {
   get P() { return this.mode === "edit" ? this.draftPlans : this.plans; }
   _floor() { return (this.C.floors || []).find((f) => f.id === this.activeFloor); }
 
-  /* ---------- Live-Updates aus HA ---------- */
+  /* ---------- live updates from HA ---------- */
   _watched() {
     const ids = new Set();
     const c = this.C; if (!c) return ids;
@@ -1329,7 +1329,7 @@ class HauspanelPanel extends HTMLElement {
     this._tick();
   }
 
-  /* Werte in der Kopfzeile (z. B. Akkustand des Tablets) */
+  /* values in the header (e.g. the tablet's battery level) */
   _headerHtml() {
     return ((this.C && this.C.header) || []).filter((x) => x.entity_id).map((x, i) => {
       const s = this._hass.states[x.entity_id];
@@ -1340,7 +1340,7 @@ class HauspanelPanel extends HTMLElement {
       return `<button class="pill hdr-item${low ? " low" : ""}" data-a="hdr-item" data-i="${i}" title="${esc(x.name || friendly(this._hass, x.entity_id))}">${ic(icon, 18)}<span>${esc(this._pinValue({ entity_id: x.entity_id }, s))}</span></button>`;
     }).join("");
   }
-  /* Lädt das Gerät gerade? Akku-Sensor xyz_batterie -> binary_sensor.xyz_plugged_in / _charging (z. B. Fully Kiosk) */
+  /* Is the device charging? battery sensor xyz_batterie -> binary_sensor.xyz_plugged_in / _charging (e.g. Fully Kiosk) */
   _chargeIds(id) {
     const base = id.split(".")[1].replace(/_(batterie|battery|battery_level|batteriestand|akku)$/, "");
     return [`binary_sensor.${base}_plugged_in`, `binary_sensor.${base}_charging`, `binary_sensor.${base}_angeschlossen`, `binary_sensor.${base}_ladt`];
@@ -1423,12 +1423,12 @@ class HauspanelPanel extends HTMLElement {
     const W = wrap.clientWidth, H = wrap.clientHeight, a = this._aspect;
     let w = W, h = W / a;
     if (h > H) { h = H; w = H * a; }
-    // --k: Pins/Labels skalieren mit dem Grundriss -> überall gleiche Proportionen (Editor, Laptop, Tablet)
+    // --k: pins/labels scale with the plan -> same proportions everywhere (editor, laptop, tablet)
     const k = clamp(Math.min(w, h) / 450, 0.45, 3);
     plan.style.cssText = `width:${w}px;height:${h}px;left:${(W - w) / 2}px;top:${(H - h) / 2}px;--k:${k.toFixed(3)}`;
   }
 
-  /* Inhalt eines Pins: Icon, Wert oder beides (Einstellung pro Gerät) */
+  /* pin content: icon, value or both (per device) */
   _pinValue(p, s) {
     if (!s || s.state === "unavailable" || s.state === "unknown") return "–";
     const a = s.attributes, d = domainOf(p.entity_id);
@@ -1442,13 +1442,13 @@ class HauspanelPanel extends HTMLElement {
     }
     return fmtState(s);
   }
-  /* An/aus eines Pins – optional von einer anderen Entity übernommen (z. B. Kamera + „Camera enabled“) */
+  /* on/off of a pin – optionally taken from another entity (e.g. camera + "camera enabled") */
   _pinOn(p, s) {
     if (p.state_entity) return isActive(this._hass.states[p.state_entity]);
     return pinActive(p, s);
   }
-  /* Warnungen wie Auslöser in HA-Automationen: Zustand (ist / ist nicht) oder Zahlenwert (über / unter), optional „für mindestens“.
-     Die erste zutreffende Regel färbt den Pin (optional blinkend). */
+  /* Alerts like triggers in HA automations: state (is / is not) or numeric (above / below), optionally "for at least".
+     The first matching rule colours the pin (optionally pulsing). */
   _alertCond(r, p) {
     const id = r.entity_id || p.entity_id, s = this._hass.states[id]; if (!s) return false;
     const raw = r.attribute ? s.attributes[r.attribute] : s.state;
@@ -1556,7 +1556,7 @@ class HauspanelPanel extends HTMLElement {
     el.innerHTML = h + `</div>`;
   }
 
-  /* ---------- Müll ---------- */
+  /* ---------- waste ---------- */
   _wasteList() {
     return (this.C.waste || []).filter((w) => w.entity_id).map((w) => {
       const n = wasteDays(this._hass.states[w.entity_id]);
@@ -1577,7 +1577,7 @@ class HauspanelPanel extends HTMLElement {
     el.innerHTML = h;
     this._fitWaste();
   }
-  /* Einträge, die nicht mehr ganz in die Karte passen, ausblenden statt anschneiden */
+  /* hide entries that no longer fit into the card instead of cutting them off */
   _fitWaste() {
     requestAnimationFrame(() => {
       const el = this.$("#waste"); if (!el) return;
@@ -1613,7 +1613,7 @@ class HauspanelPanel extends HTMLElement {
     } catch (e) { console.warn("Hauspanel: Kalender", e); this.events = []; }
     this._renderCal();
   }
-  /* Zeigt im Tab „Allgemein“, wofür Hauspanel gerade Startseite ist */
+  /* shows in the "General" tab for whom Hauspanel is the default page */
   async _loadStartState() {
     try {
       const [u, s] = await Promise.all([this._hass.callWS({ type: "frontend/get_user_data", key: "core" }), this._hass.callWS({ type: "frontend/get_system_data", key: "core" })]);
@@ -1631,7 +1631,7 @@ class HauspanelPanel extends HTMLElement {
       const get = sys ? "frontend/get_system_data" : "frontend/get_user_data", set = sys ? "frontend/set_system_data" : "frontend/set_user_data";
       const cur = ((await this._hass.callWS({ type: get, key: "core" })) || {}).value || {};
       await this._hass.callWS({ type: set, key: "core", value: { ...cur, default_panel: "hauspanel" } });
-      // früheres Weiterleitungs-Dashboard aufräumen
+      // remove the former redirect dashboard
       let cleaned = false;
       try {
         const list = await this._hass.callWS({ type: "lovelace/dashboards/list" });
@@ -1663,13 +1663,13 @@ class HauspanelPanel extends HTMLElement {
         else items.push(`<button class="ev" data-ev="${idx}" style="--c:${esc(e.cal.color)}"><div class="t">${e.start >= day ? hhmm(e.start) : "Fortsetzung"}</div><div class="n">${esc(e.summary)}</div></button>`);
       });
       const body = items.join("") + `<button class="more" data-day="${i}" hidden></button>`;
-      const wkStart = i > 0 && day.getDay() === 1; // neue Woche beginnt mitten in der Leiste -> markieren
+      const wkStart = i > 0 && day.getDay() === 1; // a new week starts within the strip -> mark it
       h += `<div class="day${sameDay(day, today) ? " today" : ""}${wkStart ? " wk-start" : ""}${items.length ? "" : " none"}"><div class="day-h">${DAYS[day.getDay()]}<b>${day.getDate()}.</b>${wkStart ? `<span class="wk-tag">KW ${kw(day)}</span>` : ""}</div><div class="day-b">${body}</div></div>`;
     }
     el.innerHTML = h;
     this._fitCal();
   }
-  /* Pro Tag so viele Einträge zeigen, wie hineinpassen – erst dann „+N weitere“ */
+  /* show as many entries per day as fit – only then "+N more" */
   _fitCal() {
     requestAnimationFrame(() => {
       const el = this.$("#cal"); if (!el) return;
@@ -1707,10 +1707,10 @@ class HauspanelPanel extends HTMLElement {
     const on = isActive(this._hass.states[p.state_entity]);
     el.innerHTML = `<i class="dot" style="background:${on ? "#3E9B5C" : "var(--muted)"}"></i>${on ? "Kamera an" : "Kamera aus"}`;
   }
-  /* HA-eigene Bildkarte im Live-Modus: wählt selbst WebRTC, HLS oder MJPEG – funktioniert auch mit Cloud-/Akkukameras.
-     Gibt es die Kartenhelfer nicht, wird ein regelmäßig aktualisiertes Standbild gezeigt. */
-  /* Kartenhelfer gibt es erst, wenn HA das Lovelace-Modul geladen hat. Ist Hauspanel die Startseite, ist das noch nicht passiert –
-     dann das Modul über HAs eigenen Panel-Lader nachladen (gleicher Weg, den HA beim Öffnen eines Dashboards nimmt). */
+  /* HA's own picture card in live mode: picks WebRTC, HLS or MJPEG itself – also works with cloud/battery cameras.
+     Without card helpers a periodically refreshed snapshot is shown. */
+  /* Card helpers only exist once HA has loaded the Lovelace module. If Hauspanel is the default page that has not happened yet –
+     then load the module through HA's own panel loader (the same path HA takes when opening a dashboard). */
   async _ensureCardHelpers() {
     if (window.loadCardHelpers) return;
     try {
@@ -1720,7 +1720,7 @@ class HauspanelPanel extends HTMLElement {
       ppr._updateRoutes();
       await ppr.routerOptions.routes.tmp.load();
       for (let i = 0; i < 20 && !window.loadCardHelpers; i++) await new Promise((r) => setTimeout(r, 100));
-    } catch (e) { /* bleibt beim Standbild */ }
+    } catch (e) { /* stays on the snapshot */ }
   }
   async _mountCamera(id, a, name) {
     const box = this.$("#cam-box"); if (!box) return;
@@ -1756,7 +1756,7 @@ class HauspanelPanel extends HTMLElement {
   }
   _roomOf(f, p) {
     if (p.room) return p.room;
-    // Raum-Labels sitzen oben links im Raum -> bevorzugt das nächste Label links oberhalb des Geräts
+    // room labels sit at the top left of a room -> prefer the nearest label above-left of the device
     const near = (list) => { let best = null, bd = Infinity;
       list.forEach((r) => { const d = (r.x - p.x) ** 2 + (r.y - p.y) ** 2; if (d < bd) { bd = d; best = r; } }); return best; };
     const rooms = f.rooms || [];
@@ -1825,7 +1825,7 @@ class HauspanelPanel extends HTMLElement {
     } else if (d === "scene" || d === "script") {
       h += `<div class="modes" style="margin-top:20px"><button data-a="svc" data-svc="turn_on" class="sel">Ausführen</button></div>`;
     } else if (d === "camera") {
-      // läuft schon -> nur hass weiterreichen, nicht neu aufbauen (sonst startet der Stream ständig neu)
+      // already running -> only pass on hass, do not rebuild (the stream would restart all the time)
       if (this._camCard && this._camFor === p.id && this.$("#cam-box")) { this._camCard.hass = this._hass; this._camStatus(p); return; }
       h += `<div class="cam-box" id="cam-box">${unavail ? "Kamera nicht erreichbar" : `<div class="cam-wait">Verbinde mit Kamera …</div>`}</div>
         <div class="cam-foot"><span id="cam-status"></span><button class="sbtn" data-a="cam-more">${ic("maximize-2", 15)}In Home Assistant öffnen</button></div>`;
@@ -2214,8 +2214,8 @@ class HauspanelPanel extends HTMLElement {
     if (this.mode !== "edit") return;
     const el = ev.target, k = el.dataset.f;
     if (!k) return;
-    // Text wird schon beim Tippen übernommen; das change-Event beim Verlassen des Felds
-    // darf nichts neu zeichnen, sonst geht der Klick auf den nächsten Button verloren.
+    // text is applied while typing; the change event when leaving the field must not
+    // re-render, otherwise the click on the next button gets lost.
     if (isChange && el.tagName === "INPUT" && el.type === "text" && !["pin-extra", "pin-entity", "list"].includes(k)) return;
     if (isChange && k === "list" && el.dataset.k === "name") return;
     const f = this._floor(), val = el.type === "checkbox" ? el.checked : el.value;
@@ -2323,7 +2323,7 @@ class HauspanelPanel extends HTMLElement {
     this._markDirty();
   }
 
-  /* JPG/PNG/WebP: auf max. 2400 px verkleinern und als <image> in ein SVG packen */
+  /* JPG/PNG/WebP: shrink to max. 2400 px and wrap as <image> in an SVG */
   async _rasterToSvg(file) {
     const url = URL.createObjectURL(file);
     try {
@@ -2359,7 +2359,7 @@ class HauspanelPanel extends HTMLElement {
     this._toast("Grundriss geladen – jetzt Geräte draufziehen");
   }
 
-  /* ---------- Drag & Drop (Pointer-Events, funktioniert mit Maus und Touch) ---------- */
+  /* ---------- drag & drop (pointer events, works with mouse and touch) ---------- */
   _pinById(id) {
     for (const f of (this.C && this.C.floors) || []) { const p = (f.pins || []).find((x) => x.id === id); if (p) return p; }
     return null;
@@ -2445,7 +2445,7 @@ class HauspanelPanel extends HTMLElement {
   }
 
   /* ---------- Inspector ---------- */
-  /* ---------- Farbwähler mit Hex-Eingabe und Palette ---------- */
+  /* ---------- colour picker with hex input and palette ---------- */
   _usedColors() {
     const out = new Set(), add = (c) => { const h = normHex(c); if (h) out.add(h); };
     const th = (this.draft && this.draft.theme) || {};
@@ -2495,7 +2495,7 @@ class HauspanelPanel extends HTMLElement {
     const cp = this._cp; if (!cp) return;
     const a = b.dataset.a;
     if (a === "cp-close") return this._closeColorPop();
-    if (a === "cp-sys") { try { cp.input.showPicker(); } catch (e) { /* ältere Browser */ } return; }
+    if (a === "cp-sys") { try { cp.input.showPicker(); } catch (e) { /* older browsers */ } return; }
     if (a === "cp-edit") { this._palEdit = !this._palEdit; return this._colorPop(cp.input); }
     if (a === "cp-add") {
       const v = normHex(cp.input.value); if (!v) return;
@@ -2517,7 +2517,7 @@ class HauspanelPanel extends HTMLElement {
   _renderInspector() {
     const el = this.$("#insp"); if (!el) return;
     this._cp = null;
-    // Scrollposition pro Tab merken, damit Neuzeichnen nicht nach oben springt
+    // remember the scroll position per tab so a re-render does not jump to the top
     this._inspScroll = this._inspScroll || {};
     const old = this.$("#insp-body");
     if (old && this._inspTab) this._inspScroll[this._inspTab] = old.scrollTop;
@@ -2656,14 +2656,14 @@ class HauspanelPanel extends HTMLElement {
       ${this._pinAlert(p) === r ? `<div class="hint" style="margin:6px 0 0;color:var(--accent)">Trifft gerade zu.</div>` : ""}
     </div>`;
   }
-  /* Feld, das wie ein Eingabefeld aussieht und die Entity-Suche öffnet */
+  /* field that looks like an input and opens the entity search */
   _pickField(id, action, placeholder, idx) {
     const s = id && this._hass.states[id];
     const inner = id ? `<span class="pf-name">${esc(s ? friendly(this._hass, id) : id)}</span><span class="pf-id">${esc(id)}${s ? "" : " · fehlt"}</span>` : `<span class="pf-ph">${esc(placeholder)}</span>`;
     return `<div class="pick-field"><button class="inp pf" data-a="${action}"${idx != null ? ` data-i="${idx}"` : ""}>${ic("search", 15)}<span class="pf-txt">${inner}</span></button>
       ${id && action === "pick-state" ? `<button class="sx" data-a="pick-clear" aria-label="Entfernen">${ic("x", 13)}</button>` : ""}</div>`;
   }
-  /* Entity-Suche als Popup. prefer: Domains, die zuerst gezeigt werden (Rest über „Alle“) */
+  /* entity search popup. prefer: domains shown first (the rest via "All") */
   _pickEntity(title, prefer, current, cb) {
     this._picker = { title, prefer, current, cb, all: false, q: "" };
     this.popup = { type: "picker" };
@@ -2780,7 +2780,7 @@ class HauspanelPanel extends HTMLElement {
         ${THEME_SIZES.filter(([k]) => !LAYOUT_SIZES.includes(k)).map(sizeRow).join("")}</div>
       <div class="hint">Pins und Raum-Labels wachsen zusätzlich mit dem Grundriss mit, damit sie auf jedem Bildschirm an derselben Stelle sitzen.</div>`;
   }
-  /* aktuellen Farbwert einer Variable als #hex (für „auto“-Felder) */
+  /* current colour of a CSS variable as #hex (for "auto" fields) */
   _shadowGroup(t, m) {
     const open = this._openGroups && this._openGroups.has("Schatten");
     return `<details class="cgroup"${open ? " open" : ""} data-group="Schatten"><summary>Schatten</summary>

@@ -1,6 +1,7 @@
 name: Release
 
-# Creates a GitHub release automatically whenever the version in manifest.json changes.
+# Creates a GitHub release automatically whenever the version in manifest.json changes –
+# but only after the full CI (lint, hassfest/HACS, backend and end-to-end tests) passed.
 # Release notes come from CHANGELOG.md (fallback: commit messages).
 on:
   push:
@@ -12,7 +13,11 @@ permissions:
   contents: write
 
 jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+
   release:
+    needs: ci
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

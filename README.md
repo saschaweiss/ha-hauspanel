@@ -1,7 +1,23 @@
 # Hauspanel
 
+[![CI](https://github.com/saschaweiss/ha-hauspanel/actions/workflows/ci.yml/badge.svg)](https://github.com/saschaweiss/ha-hauspanel/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/saschaweiss/ha-hauspanel)](https://github.com/saschaweiss/ha-hauspanel/releases)
+[![HACS Custom](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://hacs.xyz/docs/faq/custom_repositories)
+
 A floor-plan dashboard for Home Assistant, built for wall-mounted tablets (e.g. Fire HD 10 with Fully Kiosk Browser).
 Floors, plans and devices are set up right inside the panel: upload a floor plan, drag your entities onto it, done.
+
+![Hauspanel on a wall tablet](docs/screenshot.png)
+
+<details><summary>More screenshots: editor and phone layout</summary>
+
+![Editor](docs/screenshot-editor.png)
+
+<img src="docs/screenshot-mobile.png" alt="Phone layout" width="320">
+
+</details>
+
+*Screenshots use the demo layout from the end-to-end tests (Home Assistant demo integration).*
 
 > The user interface is available in German and English and follows your Home Assistant language (German for `de`, English for everything else).
 
@@ -106,13 +122,32 @@ Tools: `hauspanel_get_config`, `hauspanel_plan_info`, `hauspanel_find_entities`,
 
 ## Development
 
-The frontend source is `src/panel.src.js`. Build with:
+The frontend source is `src/panel.src.js`; the shipped file `custom_components/hauspanel/frontend/hauspanel-panel.js` is generated from it with the used [Lucide](https://lucide.dev) icons embedded (ISC licence). The font is Inter (SIL OFL), served locally.
 
 ```
-npm i lucide-static
-python3 tools/build.py node_modules/lucide-static/icons
+npm ci
+npm run build        # writes frontend/hauspanel-panel.js – commit it together with the source
 ```
 
-This writes `custom_components/hauspanel/frontend/hauspanel-panel.js` with the used Lucide icons embedded (ISC licence). The font is Inter (SIL OFL), served locally.
+### Tests
 
-Releases are created automatically by a GitHub Action whenever the version in `manifest.json` changes.
+| Suite | What it covers | Run |
+|---|---|---|
+| Backend (`tests/`) | setup/unload, config flow, websocket API incl. conflict detection and SVG sanitizing, AI tools incl. undo, floor plan analysis | `pip install -r requirements_test.txt && pytest tests` |
+| End-to-end (`e2e/`) | the real panel in Chromium against a throwaway Home Assistant with the demo integration: rendering, toggles, popups, alerts, editor save and conflicts, colour picker, English UI, phone layout | see below |
+| Lint | `ruff check .`, built file up to date, versions and changelog consistent, hassfest, HACS validation | CI |
+
+End-to-end tests need Home Assistant in its own venv (Python 3.14):
+
+```
+python3.14 -m venv ~/ha && ~/ha/bin/pip install homeassistant
+~/ha/bin/pip install $(~/ha/bin/python e2e/ha_requirements.py)
+pip install -r e2e/requirements.txt && python -m playwright install chromium
+cd e2e && HASS_BIN=~/ha/bin/hass pytest
+```
+
+`python e2e/ha_server.py --hass ~/ha/bin/hass` starts the same demo instance on port 8124 for manual testing (user `admin`, password `e2e-pass-123`).
+
+### Releases
+
+CI runs on every push. Bumping the version in `manifest.json` and `const.py` (plus a `CHANGELOG.md` entry) creates a GitHub release automatically – but only after all checks and tests passed.

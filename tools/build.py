@@ -1,7 +1,9 @@
-"""Baut frontend/hauspanel-panel.js aus src/panel.src.js.
-Aufruf: python3 tools/build.py <pfad/zu/lucide-static/icons>
+"""Build frontend/hauspanel-panel.js from src/panel.src.js (embeds the used Lucide icons).
+Usage: python3 tools/build.py <path/to/lucide-static/icons>   (or: npm run build)
 """
-import json, re, sys
+import json
+import re
+import sys
 from pathlib import Path
 
 root = Path(__file__).resolve().parent.parent

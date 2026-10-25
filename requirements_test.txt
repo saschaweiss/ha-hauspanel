@@ -1,0 +1,4 @@
+# Backend tests (pins the Home Assistant version they run against)
+pytest-homeassistant-custom-component==0.13.375
+home-assistant-frontend==20260930.5
+ruff==0.17.2

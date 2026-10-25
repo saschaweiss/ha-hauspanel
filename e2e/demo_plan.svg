@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 640">
+<rect width="1000" height="640" fill="#fff"/>
+<line x1="40" y1="40" x2="960" y2="40" stroke="#000" stroke-width="10" stroke-linecap="square"/>
+<line x1="960" y1="40" x2="960" y2="600" stroke="#000" stroke-width="10" stroke-linecap="square"/>
+<line x1="960" y1="600" x2="40" y2="600" stroke="#000" stroke-width="10" stroke-linecap="square"/>
+<line x1="40" y1="600" x2="40" y2="40" stroke="#000" stroke-width="10" stroke-linecap="square"/>
+<line x1="120" y1="40" x2="260" y2="40" stroke="#9a9a9a" stroke-width="10"/>
+<line x1="520" y1="40" x2="720" y2="40" stroke="#9a9a9a" stroke-width="10"/>
+<line x1="960" y1="140" x2="960" y2="280" stroke="#9a9a9a" stroke-width="10"/>
+<line x1="120" y1="600" x2="260" y2="600" stroke="#9a9a9a" stroke-width="10"/>
+<line x1="640" y1="600" x2="820" y2="600" stroke="#9a9a9a" stroke-width="10"/>
+<line x1="40" y1="380" x2="40" y2="500" stroke="#9a9a9a" stroke-width="10"/>
+<line x1="40" y1="260" x2="180" y2="260" stroke="#000" stroke-width="10" stroke-linecap="square"/>
+<line x1="250" y1="260" x2="420" y2="260" stroke="#000" stroke-width="10" stroke-linecap="square"/>
+<line x1="490" y1="260" x2="960" y2="260" stroke="#000" stroke-width="10" stroke-linecap="square"/>
+<line x1="40" y1="340" x2="300" y2="340" stroke="#000" stroke-width="10" stroke-linecap="square"/>
+<line x1="370" y1="340" x2="600" y2="340" stroke="#000" stroke-width="10" stroke-linecap="square"/>
+<line x1="670" y1="340" x2="960" y2="340" stroke="#000" stroke-width="10" stroke-linecap="square"/>
+<line x1="420" y1="40" x2="420" y2="260" stroke="#000" stroke-width="10" stroke-linecap="square"/>
+<line x1="600" y1="340" x2="600" y2="600" stroke="#000" stroke-width="10" stroke-linecap="square"/>
+<line x1="300" y1="340" x2="300" y2="600" stroke="#000" stroke-width="10" stroke-linecap="square"/>
+<path d="M180 260 L180 190 A70 70 0 0 1 250 260" fill="none" stroke="#bdbdbd" stroke-width="3"/>
+<path d="M420 260 L350 260 A70 70 0 0 1 420 190" fill="none" stroke="#bdbdbd" stroke-width="3"/>
+<path d="M300 340 L370 340 A70 70 0 0 1 300 410" fill="none" stroke="#bdbdbd" stroke-width="3"/>
+<path d="M600 340 L670 340 A70 70 0 0 1 600 410" fill="none" stroke="#bdbdbd" stroke-width="3"/>
+<line x1="760" y1="270" x2="760" y2="330" stroke="#000" stroke-width="3"/>
+<line x1="782" y1="270" x2="782" y2="330" stroke="#000" stroke-width="3"/>
+<line x1="804" y1="270" x2="804" y2="330" stroke="#000" stroke-width="3"/>
+<line x1="826" y1="270" x2="826" y2="330" stroke="#000" stroke-width="3"/>
+<line x1="848" y1="270" x2="848" y2="330" stroke="#000" stroke-width="3"/>
+<line x1="870" y1="270" x2="870" y2="330" stroke="#000" stroke-width="3"/>
+<line x1="892" y1="270" x2="892" y2="330" stroke="#000" stroke-width="3"/>
+<rect x="758" y="270" width="134" height="60" fill="none" stroke="#000" stroke-width="3"/>
+</svg>

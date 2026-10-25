@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.11.0]
+
+### Fixed
+- MCP: `hauspanel_set_pins` rejected the `bare`, `off_style` and `flip` fields introduced in 0.10.x (found by the new tests).
+
+### Removed
+- The legacy start-page redirect card (`hauspanel-start.js`) is no longer loaded on every page. It has done nothing since 0.6.4; old redirect dashboards are still cleaned up automatically.
+
+### Development
+- Backend test suite (pytest-homeassistant-custom-component): setup, config flow, websocket API, conflict detection, SVG sanitizing, AI tools incl. undo, floor plan analysis.
+- End-to-end test suite: the real panel in Chromium against a throwaway Home Assistant with the demo integration.
+- CI on every push: ruff, built file up to date, version/changelog consistency, hassfest, HACS validation, both test suites. Releases are only created when CI passes.
+- `npm run build` with pinned icon set; code comments translated to English; README screenshots from the demo layout.
+
 ## [0.10.1]
 
 ### Added

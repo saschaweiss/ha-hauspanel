@@ -1,0 +1,95 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: read
+
+env:
+  PYTHON_VERSION: "3.14"
+  HA_VERSION: "2026.10.4"
+
+jobs:
+  lint:
+    name: Lint & build check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: pip install -r requirements_test.txt
+      - name: Ruff
+        run: ruff check .
+      - name: Frontend is built from the current source
+        run: |
+          npm ci
+          npm run build
+          npm run check
+          git diff --exit-code -- custom_components/hauspanel/frontend/ || (echo "::error::hauspanel-panel.js is out of date – run 'npm run build' and commit it"; exit 1)
+      - name: Versions match
+        run: |
+          M=$(jq -r .version custom_components/hauspanel/manifest.json)
+          C=$(sed -n 's/^VERSION = "\(.*\)"/\1/p' custom_components/hauspanel/const.py)
+          [ "$M" = "$C" ] || { echo "::error::manifest.json ($M) and const.py ($C) disagree"; exit 1; }
+          grep -q "^## \[$M\]" CHANGELOG.md || { echo "::error::CHANGELOG.md has no entry for $M"; exit 1; }
+
+  validate:
+    name: Hassfest & HACS
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: home-assistant/actions/hassfest@master
+      - uses: hacs/action@main
+        with:
+          category: integration
+          # description/topics are repo settings; brands needs a PR to home-assistant/brands
+          ignore: brands description topics
+
+  tests:
+    name: Backend tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+      - run: pip install -r requirements_test.txt
+      - run: pytest tests -q
+
+  e2e:
+    name: End-to-end tests (Chromium + real Home Assistant)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+      - name: Home Assistant venv
+        run: |
+          python -m venv ~/ha
+          ~/ha/bin/pip install "homeassistant==$HA_VERSION"
+          C=$(~/ha/bin/python -c "import homeassistant, pathlib; print(pathlib.Path(homeassistant.__file__).parent / 'package_constraints.txt')")
+          ~/ha/bin/pip install $(~/ha/bin/python e2e/ha_requirements.py) -c "$C"
+      - name: Test runner
+        run: |
+          pip install -r e2e/requirements.txt
+          python -m playwright install --with-deps chromium
+      - name: Run
+        run: |
+          export HASS_BIN=$HOME/ha/bin/hass
+          cd e2e && python -m pytest -q
+      - name: Home Assistant log
+        if: failure()
+        run: cat /tmp/hauspanel-e2e-*/e2e.log | tail -200

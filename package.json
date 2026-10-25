@@ -1,0 +1,12 @@
+{
+  "name": "ha-hauspanel",
+  "private": true,
+  "description": "Build tooling for the Hauspanel frontend",
+  "scripts": {
+    "build": "python3 tools/build.py node_modules/lucide-static/icons",
+    "check": "node --check custom_components/hauspanel/frontend/hauspanel-panel.js"
+  },
+  "devDependencies": {
+    "lucide-static": "1.57.0"
+  }
+}

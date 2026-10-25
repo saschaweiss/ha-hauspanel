@@ -1,4 +1,4 @@
-"""WebSocket-API für Panel und Editor."""
+"""WebSocket API for the panel and the editor."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ import json
 import re
 from typing import Any
 
-try:  # HA >= 2026.x nutzt probatio, ältere Versionen voluptuous
+try:  # HA >= 2026.x uses probatio, older versions voluptuous
     import probatio as vol
 except ImportError:  # pragma: no cover
     import voluptuous as vol
@@ -37,7 +37,7 @@ _SVG_STRIP = [
 
 
 def sanitize_svg(svg: str) -> str:
-    """Entfernt alles Ausführbare. Das Frontend säubert zusätzlich per DOM."""
+    """Strip everything executable. The frontend additionally sanitizes via the DOM."""
     for pattern in _SVG_STRIP:
         svg = pattern.sub("", svg)
     svg = svg.strip()
@@ -79,7 +79,7 @@ def ws_get(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg:
 def ws_subscribe(
     hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict
 ) -> None:
-    """Liefert das Layout sofort und bei jeder Änderung erneut (Tablet aktualisiert live)."""
+    """Send the layout now and again on every change (tablets update live)."""
     if _not_ready(connection, msg["id"]):
         return
 
