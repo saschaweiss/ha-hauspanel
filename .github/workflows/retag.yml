@@ -1,0 +1,55 @@
+name: Retag after history rewrite (one-off)
+
+# Points every release tag at its rewritten commit. Removed again right after it ran.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  retag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Move tags
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          while read -r TAG SHA; do
+            [ -z "$TAG" ] && continue
+            git cat-file -e "$SHA^{commit}" || { echo "::error::$SHA missing for $TAG"; exit 1; }
+            git tag -f "$TAG" "$SHA"
+            git push -f origin "refs/tags/$TAG"
+          done <<'MAP'
+            v0.10.0 7be402987baeb60fe5f44859763ef2270a45f3f6
+            v0.10.1 133cb0a647fd737bc23c128466136517d66341a5
+            v0.11.0 4e24252c38275a0c8f701bdd9e7fbaa4e9253bc7
+            v0.5.1 1af640659f502f00d276457f5fe0cec642d3a5f4
+            v0.5.2 e0bc4521acef28cffd2cbd71e181bb0066ebd61a
+            v0.5.3 ee3d933061ee83e2d73875506457d61c56be8d86
+            v0.5.4 8deac23d36830429c4f794d6868c7a2fa2640643
+            v0.5.5 b97bb592400049fd4c781cb02cdbab3a1f548938
+            v0.5.6 4444a551054d234297dc6b283b4d94c296d59b84
+            v0.6.0 cf199dfc467eed5578d6f598c03798c5d0a466a9
+            v0.6.1 21afa7a2f5e8250e67d179d40890810e8994923d
+            v0.6.2 0e480c9ec24078807d2ce8dba133010b1fb644d0
+            v0.6.3 094d7981e92618e9a9b74c8665ffcff6eca8b259
+            v0.6.4 e90c6043764d67a372ff0a16e429edd4af207c36
+            v0.6.5 0829547405f048ae5db630a1a84aebf8fd25482b
+            v0.7.0 d2286a5fe792c36c204d97ef2c49ce9eaa47fbdb
+            v0.7.1 08dbe2fddc67bc88d4a0ee4c3288a0e7d9f6ef48
+            v0.7.2 e834270a4b014425bda3ca707721cfb7fcee9aca
+            v0.7.3 176a1a0077a6cb6e5822482870766840c3510e07
+            v0.7.4 3ec9a14addbe36bd528b7d6e43812b5385bba347
+            v0.7.5 a673babe9d4673304a3d221bc5e474886e26c9ff
+            v0.7.6 ad4d9f0502da2392457bbc4efa344a80cb097172
+            v0.7.7 bf436d35622dcfe9932861d9339e287a70c41531
+            v0.8.0 dbc0ee3a199dd9ac087b9848af2a1292d8a2059d
+            v0.8.1 ea4a22e1ba7d58a62f08428ac8ac411516501428
+            v0.9.0 8d3027ef0bf18817ca250ae8880b3fd426a892de
+            v0.9.1 d37d7566c15fa701798b234b261c15ccca8e2e8b
+            v0.9.2 bd180f664da5b840aea96c1c4b1c93e6b5388dd1
+          MAP
