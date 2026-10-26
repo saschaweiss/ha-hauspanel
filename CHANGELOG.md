@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.16.0]
+
+### Added
+- Zoom in the editor (up to 600 %): buttons next to the plan title, Ctrl/⌘ + mouse wheel or trackpad pinch around the pointer, two-finger pinch on touch screens. Handy for drawing room areas and placing pins precisely. While zoomed the plan scrolls; new area points are set when the finger/mouse is released, so scrolling or pinching does not drop points.
+
+### Fixed
+- Entering the editor no longer switches to the light theme: it keeps what was on screen (night mode or the clock toggle), and the design tab opens on that mode.
+
 ## [0.15.0]
 
 ### Added

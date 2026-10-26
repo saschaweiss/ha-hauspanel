@@ -111,6 +111,7 @@ const I18N_EN = {
   "Öffnet automatisch das Kamerabild, z. B. wenn jemand klingelt. Klingel-Ereignisse (event.*) lösen bei jedem Klingeln aus, Sensoren und Schalter beim Wechsel auf „an“. Schließt sich nach der eingestellten Zeit, außer jemand bedient das Tablet. In Fully Kiosk geht dabei der Bildschirm an (JavaScript-Schnittstelle muss aktiv sein).": "Opens the camera view automatically, e.g. when someone rings the doorbell. Doorbell events (event.*) fire on every ring, sensors and switches when they turn on. Closes after the chosen time unless someone uses the tablet. In Fully Kiosk the screen turns on (JavaScript interface must be enabled).",
   "Aktive Warnungen": "Active alerts", "1 Warnung": "1 alert", "Aktive Warnungen anzeigen": "Show active alerts",
   "Zeigt neben der Uhr, wie viele Pin-Warnungen gerade aktiv sind (antippen listet sie), und markiert die Etagen mit einem Punkt.": "Shows next to the clock how many pin alerts are active (tap to list them) and marks the floors with a dot.",
+  "Verkleinern": "Zoom out", "Vergrößern": "Zoom in", "Ganzer Plan": "Whole plan",
   "Raumfläche": "Room area", "Fläche zeichnen": "Draw area", "Fläche bearbeiten": "Edit area", "Automatisch erkennen": "Detect automatically",
   "Letzter Punkt": "Undo point", "Auf den Plan tippen, um Eckpunkte zu setzen. Zum Schließen auf den ersten Punkt tippen.": "Tap the plan to set corner points. Tap the first point to close the shape.",
   "Selbst gezeichnet – wird zum Einfärben verwendet.": "Drawn by hand – used for tinting.",
@@ -751,6 +752,9 @@ svg.i{display:block;fill:none;stroke:currentColor;stroke-linecap:round;stroke-li
 #all-off{width:40px;height:40px;border-radius:50%;background:var(--power-bg);color:var(--power-fg);display:grid;place-items:center}
 #all-off:active{transform:scale(.94)}
 #plan-wrap{flex:1;position:relative;margin-top:6px}
+#plan-wrap.zoomed{overflow:auto;overscroll-behavior:contain}
+.zoom-ctl{display:flex;gap:4px;margin-left:auto;margin-right:8px}
+.zoom-ctl .sbtn{padding:0 10px;min-width:0}.zoom-ctl .zv{font-variant-numeric:tabular-nums;min-width:62px;justify-content:center}
 #plan{position:absolute}
 #plan > svg.fp{position:absolute;inset:0;width:100%;height:100%}
 :host([data-theme="dark"]) #plan.inv > svg.fp image{filter:invert(.92) hue-rotate(180deg)}
@@ -1516,7 +1520,8 @@ class HauspanelPanel extends HTMLElement {
     }
     this.setAttribute("data-floor", f.code || ""); this._applyCustomCss();
     head.innerHTML = `<h2 id="plan-title">${esc(f.name || f.code)}</h2>` + (edit
-      ? `<button class="sbtn" data-a="room-add">${ic("tag", 16)}Raum-Label</button>`
+      ? `<div class="zoom-ctl"><button class="sbtn" data-a="zoom-out" aria-label="Verkleinern"${(this._zoom || 1) <= 1 ? " disabled" : ""}>${ic("zoom-out", 16)}</button><button class="sbtn zv" data-a="zoom-reset" title="Ganzer Plan">${Math.round((this._zoom || 1) * 100)} %</button><button class="sbtn" data-a="zoom-in" aria-label="Vergrößern"${(this._zoom || 1) >= 6 ? " disabled" : ""}>${ic("zoom-in", 16)}</button></div>
+        <button class="sbtn" data-a="room-add">${ic("tag", 16)}Raum-Label</button>`
       : (f.pins || []).some((p) => p.power_off) ? `<button id="all-off" data-a="all-off" aria-label="Alles aus">${ic("power", 19)}</button>` : "");
     const pl = this._planFor(f);
     if (!pl) {
@@ -1535,7 +1540,7 @@ class HauspanelPanel extends HTMLElement {
     });
     plan.innerHTML = h;
     plan.classList.toggle("inv", !!f.raster && f.recolor !== false);
-    this._layoutPlan(); this._updatePins(); this._renderAreas();
+    this._layoutPlan(); this._updatePins(); this._renderAreas(); this._bindZoom();
   }
 
   /* ---------- room tints: room areas come from the backend's plan analysis as PNG masks ---------- */
@@ -1566,6 +1571,44 @@ class HauspanelPanel extends HTMLElement {
     });
     return this._masks[sig];
   }
+  /* zoom the plan in the editor; (cx, cy) = point in the wrap that stays put, default: centre */
+  _setZoom(z, cx, cy) {
+    const wrap = this.$("#plan-wrap"), plan = this.$("#plan"); if (!wrap || !plan) return;
+    z = clamp(Math.round(z * 100) / 100, 1, 6);
+    const old = this._zoom || 1; if (z === old) return;
+    if (cx == null) { cx = wrap.clientWidth / 2; cy = wrap.clientHeight / 2; }
+    const pr = plan.getBoundingClientRect(), wr = wrap.getBoundingClientRect();
+    const fx = (wr.left + cx - pr.left) / pr.width, fy = (wr.top + cy - pr.top) / pr.height;   // plan fraction under the anchor
+    this._zoom = z; this._layoutPlan();
+    const npr = plan.getBoundingClientRect();
+    wrap.scrollLeft += npr.left + fx * npr.width - (wr.left + cx);
+    wrap.scrollTop += npr.top + fy * npr.height - (wr.top + cy);
+    const zv = this.$(".zoom-ctl .zv"); if (zv) zv.textContent = Math.round(z * 100) + " %";
+    this.shadowRoot.querySelectorAll('[data-a="zoom-out"]').forEach((b) => { b.disabled = z <= 1; });
+    this.shadowRoot.querySelectorAll('[data-a="zoom-in"]').forEach((b) => { b.disabled = z >= 6; });
+  }
+  _bindZoom() {
+    const wrap = this.$("#plan-wrap"); if (!wrap || wrap._zoomBound) return; wrap._zoomBound = true;
+    // ctrl/cmd + wheel and trackpad pinch (which browsers report as ctrl + wheel)
+    wrap.addEventListener("wheel", (e) => {
+      if (!this.editing || !(e.ctrlKey || e.metaKey)) return;
+      e.preventDefault();
+      const r = wrap.getBoundingClientRect();
+      this._setZoom((this._zoom || 1) * Math.exp(-e.deltaY * 0.01), e.clientX - r.left, e.clientY - r.top);
+    }, { passive: false });
+    // two-finger pinch on touch screens
+    let pinch = null;
+    const dist = (ts) => Math.hypot(ts[0].clientX - ts[1].clientX, ts[0].clientY - ts[1].clientY);
+    wrap.addEventListener("touchstart", (e) => { if (this.editing && e.touches.length === 2) { pinch = { d: dist(e.touches), z: this._zoom || 1 }; this._pinching = true; } }, { passive: true });
+    wrap.addEventListener("touchmove", (e) => {
+      if (!pinch || e.touches.length !== 2) return;
+      e.preventDefault();
+      const r = wrap.getBoundingClientRect(), mx = (e.touches[0].clientX + e.touches[1].clientX) / 2 - r.left, my = (e.touches[0].clientY + e.touches[1].clientY) / 2 - r.top;
+      this._setZoom(pinch.z * dist(e.touches) / pinch.d, mx, my);
+    }, { passive: false });
+    wrap.addEventListener("touchend", (e) => { if (e.touches.length < 2) { pinch = null; setTimeout(() => { this._pinching = false; }, 300); } }, { passive: true });
+  }
+
   /* ---------- drawing room areas in the editor ----------
      this._area = { room, pts: [[x, y], …], closed } while drawing/editing one room's polygon. */
   _renderAreas() {
@@ -1608,13 +1651,25 @@ class HauspanelPanel extends HTMLElement {
   _areaPointer(ev) {
     const A = this._area, plan = this.$("#plan");
     if (!plan || ev.button > 0 || !ev.target.closest("#plan")) return;
-    ev.preventDefault();
+    if (!ev.target.closest(".av,.am") && ev.pointerType === "touch") { /* let the browser scroll/pinch; point is added on release */ }
+    else ev.preventDefault();
     const pos = (e) => { const p = this._planPct(e); return { ...p, x: p.x, y: p.y }; };
     let idx = null;
     const av = ev.target.closest(".av"), am = ev.target.closest(".am");
     if (av) idx = Number(av.dataset.av);
     else if (am) { idx = Number(am.dataset.am) + 1; const p = pos(ev); A.pts.splice(idx, 0, this._areaSnap(p.x, p.y, null)); this._renderAreas(); }
-    else if (!A.closed) { const p = pos(ev); if (!p.inside) return; A.pts.push(this._areaSnap(p.x, p.y, null)); this._renderAreas(); this._renderInspector(); return; }
+    else if (!A.closed) {
+      // add the point when the finger/mouse is released without moving – a pinch or scroll must not drop points
+      const sx0 = ev.clientX, sy0 = ev.clientY;
+      const upAdd = (e) => {
+        window.removeEventListener("pointerup", upAdd);
+        if (this._pinching || Math.hypot(e.clientX - sx0, e.clientY - sy0) > 8) return;
+        const p = pos(e); if (!p.inside) return;
+        A.pts.push(this._areaSnap(p.x, p.y, null)); this._renderAreas(); this._renderInspector();
+      };
+      window.addEventListener("pointerup", upAdd);
+      return;
+    }
     else return;
     const sx = ev.clientX, sy = ev.clientY; let moved = false;
     const move = (e) => {
@@ -1652,7 +1707,10 @@ class HauspanelPanel extends HTMLElement {
     if (h > H) { h = H; w = H * a; }
     // --k: pins/labels scale with the plan -> same proportions everywhere (editor, laptop, tablet)
     const k = clamp(Math.min(w, h) / 450, 0.45, 3);
-    plan.style.cssText = `width:${w}px;height:${h}px;left:${(W - w) / 2}px;top:${(H - h) / 2}px;--k:${k.toFixed(3)}`;
+    const z = this.editing ? this._zoom || 1 : 1;
+    wrap.classList.toggle("zoomed", z > 1);
+    w *= z; h *= z;
+    plan.style.cssText = `width:${w}px;height:${h}px;left:${Math.max(0, (W - w) / 2)}px;top:${Math.max(0, (H - h) / 2)}px;--k:${k.toFixed(3)}`;
   }
 
   /* pin content: icon, value or both (per device) */
@@ -2257,14 +2315,17 @@ class HauspanelPanel extends HTMLElement {
     this.mode = "edit";
     this.draft = clone(this.cfg);
     this.draftPlans = { ...this.plans };
-    this.dirty = false; this.sel = null; this._confirmCancel = false; this._themeOverride = null; this.preview = false; this._designMode = "light";
+    // keep whatever is on screen (night mode / clock toggle) instead of jumping to light
+    const cur = this.getAttribute("data-theme") === "dark" ? "dark" : "light";
+    clearTimeout(this._themeT);
+    this.dirty = false; this.sel = null; this._confirmCancel = false; this._themeOverride = cur; this.preview = false; this._designMode = cur; this._zoom = 1;
     this.tab = (this.draft.floors || []).length ? "devices" : "floor";
     this._renderAll();
   }
   _exitEdit() {
     this.mode = "view"; this.draft = null; this.draftPlans = {}; this.sel = null; this.dirty = false; this.preview = false; this.cssOpen = false;
     this._renderCssWin();
-    this._themeOverride = null; this.planCache = {};
+    this._themeOverride = null; this.planCache = {}; this._zoom = 1; this._area = null;
     const floors = this.cfg.floors || [];
     if (!floors.some((f) => f.id === this.activeFloor)) this.activeFloor = this._homeFloor();
     this._weatherSub = undefined; this._subscribeWeather();
@@ -2437,6 +2498,9 @@ class HauspanelPanel extends HTMLElement {
           this._markDirty(); this._renderInspector();
         });
       }
+      case "zoom-in": return this._setZoom((this._zoom || 1) * 1.5);
+      case "zoom-out": return this._setZoom((this._zoom || 1) / 1.5);
+      case "zoom-reset": return this._setZoom(1);
       case "area-edit": { const r = this._selRoom(); if (!r) return; this._area = { room: r.id, pts: hasArea(r) ? r.area.map((p) => [...p]) : [], closed: hasArea(r) }; this._renderAreas(); return this._renderInspector(); }
       case "area-undo": { const A = this._area; if (!A) return; if (A.closed) A.closed = false; else A.pts.pop(); this._renderAreas(); return this._renderInspector(); }
       case "area-cancel": { this._area = null; this._renderAreas(); return this._renderInspector(); }

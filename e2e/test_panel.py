@@ -308,3 +308,43 @@ def test_alert_badge_and_list(open_panel, server):
 def test_alert_badge_english(open_panel):
     p = open_panel(lang="en")
     assert p.locator("hauspanel-panel .hdr-alert").get_attribute("title") == "1 alert"
+
+
+def test_editor_keeps_dark_mode(open_panel):
+    p = open_panel("/hauspanel", 1440, 1000)
+    host = p.locator("hauspanel-panel")
+    assert host.get_attribute("data-theme") == "light"
+    p.click("hauspanel-panel #clock")  # tap the clock: dark for 5 minutes
+    assert host.get_attribute("data-theme") == "dark"
+    p.click("hauspanel-panel [data-a=edit]")
+    assert host.get_attribute("data-theme") == "dark"
+    p.click("hauspanel-panel [data-a=tab][data-tab=design]")
+    expect(p.locator('hauspanel-panel [data-a=design-mode][data-v=dark]')).to_have_class(re.compile(r"\bsel\b"))
+
+
+def test_editor_zoom_and_precise_area(open_panel, server):
+    p = open_panel("/hauspanel", 1440, 1000)
+    p.click("hauspanel-panel [data-a=edit]")
+    plan = p.locator("hauspanel-panel #plan")
+    w0 = plan.bounding_box()["width"]
+    p.click('hauspanel-panel .room-label[data-room="r3"]')
+    p.click("hauspanel-panel [data-a=area-edit]")
+    p.click("hauspanel-panel [data-a=zoom-in]")
+    p.click("hauspanel-panel [data-a=zoom-in]")
+    assert abs(plan.bounding_box()["width"] / w0 - 2.25) < 0.02
+    assert p.locator("hauspanel-panel #plan-wrap.zoomed").count() == 1
+    expect(p.locator("hauspanel-panel .zoom-ctl .zv")).to_have_text("225 %")
+    pts = [(44, 45), (56, 45), (56, 55), (44, 55)]  # around the centre, visible while zoomed
+    for x, y in pts:
+        _plan_click(p, x, y)
+    p.locator("hauspanel-panel .av.first").click()
+    p.click("hauspanel-panel [data-a=area-done]")
+    p.click("hauspanel-panel [data-a=zoom-reset]")
+    assert abs(plan.bounding_box()["width"] - w0) < 1
+    p.click("hauspanel-panel [data-a=edit-save]")
+    p.wait_for_timeout(1000)
+    cfg = ha_server.ws_call(server, {"type": "hauspanel/get"})[0]["config"]
+    area = next(r for r in cfg["floors"][0]["rooms"] if r["id"] == "r3")["area"]
+    for (x, y), (ax, ay) in zip(pts, area, strict=True):
+        assert abs(ax - x) < 0.4 and abs(ay - y) < 0.4, area
+    p.assert_no_errors()
