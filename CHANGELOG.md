@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.16.1]
+
+### Changed
+- Snapping while drawing room areas is now optional and off by default: a *Snap* checkbox in the drawing panel switches it on (remembered per browser). Without it, points stay exactly where you put them.
+
+### Development
+- Theme test no longer depends on the time of day.
+
 ## [0.16.0]
 
 ### Added

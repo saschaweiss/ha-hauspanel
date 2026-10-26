@@ -117,7 +117,7 @@ const I18N_EN = {
   "Selbst gezeichnet – wird zum Einfärben verwendet.": "Drawn by hand – used for tinting.",
   "Wird automatisch aus dem Grundriss erkannt. Passt das nicht, die Fläche selbst zeichnen.": "Detected automatically from the floor plan. If that does not fit, draw the area yourself.",
   "Punkte verschieben, über die kleinen Punkte auf den Kanten neue einfügen, Doppeltipp auf einen Eckpunkt entfernt ihn.": "Drag points, use the small dots on the edges to insert new ones, double-tap a corner to remove it.",
-  "Punkte rasten an Ecken anderer Räume und an Nachbarpunkten ein.": "Points snap to corners of other rooms and line up with their neighbours.",
+  "Einrasten": "Snap", "Punkte springen an Ecken anderer Räume und richten sich auf gleicher Linie wie ihre Nachbarpunkte aus.": "Points jump to corners of other rooms and line up with their neighbouring points.",
   "Raum einfärben": "Tint room", "Raum einfärben nach": "Tint room by", "Regel hinzufügen": "Add rule",
   "Tönt die Raumfläche, solange eine Bedingung zutrifft – z. B. Anwesenheit, Fenster offen oder zu kalt. Die erste zutreffende Regel bestimmt die Farbe.": "Tints the room area while a condition is true – e.g. presence, window open or too cold. The first matching rule sets the colour.",
   "Icon spiegeln": "Mirror icon", "Horizontal": "Horizontal", "Vertikal": "Vertical",
@@ -1639,6 +1639,8 @@ class HauspanelPanel extends HTMLElement {
     plan.appendChild(layer);
   }
   _areaSnap(x, y, skip) {
+    const round = (v) => Math.round(clamp(v, 0, 100) * 10) / 10;
+    if (!this._snapOn()) return [round(x), round(y)];
     // snap to corners of other rooms (shared walls) and line up with the neighbouring points
     const f = this._floor(), A = this._area, tol = 1.2;
     let best = null, bd = tol;
@@ -1646,7 +1648,12 @@ class HauspanelPanel extends HTMLElement {
     if (best) return best;
     const n = A.pts.length, nb = skip == null ? [A.pts[n - 1], A.closed || n < 2 ? null : A.pts[0]] : [A.pts[(skip - 1 + n) % n], A.pts[(skip + 1) % n]];
     nb.forEach((q) => { if (!q) return; if (Math.abs(q[0] - x) < 0.8) x = q[0]; if (Math.abs(q[1] - y) < 0.8) y = q[1]; });
-    return [Math.round(clamp(x, 0, 100) * 10) / 10, Math.round(clamp(y, 0, 100) * 10) / 10];
+    return [round(x), round(y)];
+  }
+  /* snapping is a per-browser preference, off by default */
+  _snapOn() {
+    if (this._snap == null) { try { this._snap = localStorage.getItem("hauspanel-area-snap") === "1"; } catch (e) { this._snap = false; } }
+    return this._snap;
   }
   _areaPointer(ev) {
     const A = this._area, plan = this.$("#plan");
@@ -2574,6 +2581,7 @@ class HauspanelPanel extends HTMLElement {
         [...tmp.children].slice(1).forEach((c) => wrap.appendChild(c));
         return;
       }
+      case "area-snap": { this._snap = !!val; try { localStorage.setItem("hauspanel-area-snap", val ? "1" : "0"); } catch (e) { /* private mode */ } return; }
       case "camev-seconds": { const r = (this.draft.cam_popups || [])[Number(el.dataset.i)]; if (r) { r.seconds = Number(val); this._markDirty(); } return; }
       case "pin-name": p.name = val || null; break;
       case "pin-room": p.room = val || null; break;
@@ -2936,7 +2944,9 @@ class HauspanelPanel extends HTMLElement {
       <div class="hint">Label auf dem Plan an die richtige Stelle ziehen. Geräte ohne festen Raum bekommen automatisch das nächstgelegene Label.</div>
       <div class="sep"></div>
       ${this._area && this._area.room === r.id ? `<div class="fld"><label>Fläche zeichnen</label>
-        <div class="hint">${!this._area.closed ? "Auf den Plan tippen, um Eckpunkte zu setzen. Zum Schließen auf den ersten Punkt tippen." : "Punkte verschieben, über die kleinen Punkte auf den Kanten neue einfügen, Doppeltipp auf einen Eckpunkt entfernt ihn."} Punkte rasten an Ecken anderer Räume und an Nachbarpunkten ein.</div>
+        <div class="hint">${!this._area.closed ? "Auf den Plan tippen, um Eckpunkte zu setzen. Zum Schließen auf den ersten Punkt tippen." : "Punkte verschieben, über die kleinen Punkte auf den Kanten neue einfügen, Doppeltipp auf einen Eckpunkt entfernt ihn."}</div>
+        <label class="check" style="margin:4px 0 10px"><input type="checkbox" data-f="area-snap" ${this._snapOn() ? "checked" : ""}>Einrasten</label>
+        <div class="hint" style="margin:-8px 0 10px 30px">Punkte springen an Ecken anderer Räume und richten sich auf gleicher Linie wie ihre Nachbarpunkte aus.</div>
         <div class="row" style="gap:8px;flex-wrap:wrap"><button class="sbtn${this._area.closed ? " primary" : ""}" data-a="area-done"${this._area.closed ? "" : " disabled"}>${ic("check", 16)}Fertig</button>
           <button class="sbtn" data-a="area-undo"${this._area.pts.length ? "" : " disabled"}>${ic("undo-2", 16)}Letzter Punkt</button>
           <button class="sbtn" data-a="area-cancel">Abbrechen</button></div></div>`

@@ -313,13 +313,14 @@ def test_alert_badge_english(open_panel):
 def test_editor_keeps_dark_mode(open_panel):
     p = open_panel("/hauspanel", 1440, 1000)
     host = p.locator("hauspanel-panel")
-    assert host.get_attribute("data-theme") == "light"
-    p.click("hauspanel-panel #clock")  # tap the clock: dark for 5 minutes
-    assert host.get_attribute("data-theme") == "dark"
+    start = host.get_attribute("data-theme")  # depends on the time of day (night mode)
+    p.click("hauspanel-panel #clock")  # tap the clock: the other mode for 5 minutes
+    other = "light" if start == "dark" else "dark"
+    assert host.get_attribute("data-theme") == other
     p.click("hauspanel-panel [data-a=edit]")
-    assert host.get_attribute("data-theme") == "dark"
+    assert host.get_attribute("data-theme") == other
     p.click("hauspanel-panel [data-a=tab][data-tab=design]")
-    expect(p.locator('hauspanel-panel [data-a=design-mode][data-v=dark]')).to_have_class(re.compile(r"\bsel\b"))
+    expect(p.locator(f"hauspanel-panel [data-a=design-mode][data-v={other}]")).to_have_class(re.compile(r"\bsel\b"))
 
 
 def test_editor_zoom_and_precise_area(open_panel, server):
@@ -348,3 +349,26 @@ def test_editor_zoom_and_precise_area(open_panel, server):
     for (x, y), (ax, ay) in zip(pts, area, strict=True):
         assert abs(ax - x) < 0.4 and abs(ay - y) < 0.4, area
     p.assert_no_errors()
+
+
+def test_area_snapping_is_optional(open_panel):
+    p = open_panel("/hauspanel", 1440, 1000)
+    p.click("hauspanel-panel [data-a=edit]")
+    p.click('hauspanel-panel .room-label[data-room="r5"]')
+    p.click("hauspanel-panel [data-a=area-edit]")
+    snap = p.locator("hauspanel-panel [data-f=area-snap]")
+    assert not snap.is_checked()  # off by default
+    _plan_click(p, 40, 60)
+    _plan_click(p, 40.5, 80)  # nearly the same x – must stay where it was put
+    xs = p.locator("hauspanel-panel .av").evaluate_all("l => l.map(e => parseFloat(e.style.left))")
+    assert abs(xs[1] - 40.5) < 0.2
+    snap.check()
+    _plan_click(p, 50, 80.4)  # now lines up with the previous point's y
+    ys = p.locator("hauspanel-panel .av").evaluate_all("l => l.map(e => parseFloat(e.style.top))")
+    assert ys[2] == ys[1]
+    p.reload()  # the choice is remembered in this browser
+    p.wait_for_selector("hauspanel-panel #top")
+    p.click("hauspanel-panel [data-a=edit]")
+    p.click('hauspanel-panel .room-label[data-room="r5"]')
+    p.click("hauspanel-panel [data-a=area-edit]")
+    assert p.locator("hauspanel-panel [data-f=area-snap]").is_checked()
